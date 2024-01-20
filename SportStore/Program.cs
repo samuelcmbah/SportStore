@@ -11,6 +11,7 @@ namespace SportStore
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddRazorPages();
             builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();//The AddScoped method creates a service where each HTTP request gets its own repository object, which is the way that Entity Framework Core is typically used.
             builder.Services.AddDbContext<StoreDbContext>(opts => {
                 opts.UseSqlServer(builder.Configuration["ConnectionStrings:SportsStoreConnection"]);
