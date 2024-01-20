@@ -1,0 +1,35 @@
+﻿@model ProductsListViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div >
+    @foreach (var p in Model.Products ?? Enumerable.Empty<Product>())
+    {
+        <partial name="ProductSummary" model="p" />
+    }
+    @* lndl *@
+    <div class="text-center">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" class="btn btn-primary" asp-controller="home" asp-action="index" asp-route-productPage="@Model.PagingInfo.PrevPage">&larr; previous</a>
+
+            </li>
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                if (i >= Model.PagingInfo.CurrentPage - 2 && i <= Model.PagingInfo.CurrentPage + 2)
+                {
+                    <li class="page-item @(i == Model.PagingInfo.CurrentPage ? "active" : "")">
+                        <a class="page-link btn btn-default" asp-action="index" asp-route-productPage="@i">@i</a>
+                    </li>
+                }
+            }
+            <li class="page-item">
+                <a class="page-link" class="btn btn-primary" asp-controller="home" asp-action="index" asp-route-productPage="@Model.PagingInfo.NextPage">next &rarr; </a>
+            </li>
+
+        </ul>
+
+    </div>
+</div>
