@@ -1,0 +1,42 @@
+﻿@model CartViewModel;
+
+@{
+    ViewData["Title"] = "Shopping Details";
+}
+
+@if (Model.CartItems.Any())
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Quantity</th>
+                <th>Item</th>
+                <th>Price</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CartItems)
+            {
+                <tr>
+                    <td>@item?.Quantity</td>
+                    <td>@item?.Product?.Name</td>
+                    <td>@item?.Product?.Price</td>
+                </tr>
+            }
+
+
+
+        </tbody>
+    </table>
+    <div>
+        <a class="btn " asp-controller="home" asp-action="index">Continue Shopping</a>
+    </div>
+}
+else
+{
+    <h3>You have not added any items to your cart yet!</h3>
+    <div>
+        <a class="btn " asp-controller="home" asp-action="index">start Shopping</a>
+    </div>
+}

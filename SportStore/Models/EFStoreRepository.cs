@@ -11,5 +11,10 @@ namespace SportStore.Models
         }
 
         public IQueryable<Product> AllProducts => context.Products; // returning the DbSet of products
+
+        public Product? GetProductById(long id)
+        {
+            return context.Products.Find(id);
+        }
     }
 }

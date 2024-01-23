@@ -11,11 +11,19 @@ namespace SportStore
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddRazorPages();
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
             builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();//The AddScoped method creates a service where each HTTP request gets its own repository object, which is the way that Entity Framework Core is typically used.
             builder.Services.AddDbContext<StoreDbContext>(opts => {
                 opts.UseSqlServer(builder.Configuration["ConnectionStrings:SportsStoreConnection"]);
             });
+
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
@@ -34,6 +42,9 @@ namespace SportStore
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();
+
 
             app.MapControllerRoute(name: "catpage",
              pattern: "{category}/Page{productPage:int}",
