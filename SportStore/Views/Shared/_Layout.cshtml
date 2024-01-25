@@ -10,6 +10,13 @@
 </head>
 <body>
     <header>
+        @{
+            // Inject the IHttpContextAccessor
+            var httpContextAccessor = ViewContext.HttpContext.RequestServices.GetRequiredService<IHttpContextAccessor>();
+
+            // Access session data
+            var totalCartItems = httpContextAccessor?.HttpContext?.Session.Get<CartViewModel>("Cart")?.TotalCartItems;
+        }
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white  border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SportStore</a>
@@ -28,7 +35,14 @@
                     </ul>
                     <ul class="navbar-nav  ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark btn btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart">Cart</a>
+                            <a class="nav-link text-dark btn btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart">
+                                Cart
+                                <span>
+                                    @totalCartItems
+                                    @*                                     HttpContext.Session.Get<CartViewModel>("Cart")?.TotalCartItems
+                                    *@
+                                </span>
+                            </a>
                         </li>
                     </ul>
                 </div>

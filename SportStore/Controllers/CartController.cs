@@ -18,7 +18,7 @@ namespace SportStore.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddToCart(int productId, int quantity = 1)
+        public IActionResult AddToCart(int productId, string returnUrl, int quantity = 1 )
         {
             Product? product = storeRepository.GetProductById(productId);
             if (product == null)
@@ -49,12 +49,13 @@ namespace SportStore.Controllers
             }
 
             cart.TotalCartItems = cart.CartItems.Sum(item => item?.Quantity);
+            ViewData["TotalCartItems"] = cart.TotalCartItems.ToString();
             cart.Total = cart.CartItems.Sum(item => item.Subtotal);
 
             //uses the SessionExtension.Set method to store the updated shopping cart in the session
             HttpContext.Session.Set("Cart", cart);
 
-            return RedirectToAction("index", "home");
+            return LocalRedirect(returnUrl);
         }
 
         public IActionResult ViewCart()
