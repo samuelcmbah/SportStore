@@ -28,10 +28,11 @@ namespace SportStore.Controllers
             
             //uses the SessionExtension.Get method to retrieve the current cart session, if it returns null, a new empty cart is created
             var cart = HttpContext.Session.Get<CartViewModel>("Cart") ?? new CartViewModel();
-            //check if cartItem is already in cartitems
-            //if true assess the already existing cartitem quantity and increase it by 1
+
+            //checks if a product is already existing in the cart
+            //increases the quantity by 1 if it already exists, adds it to the cart if it doesnt
             //assign the sum total of the quantity of each cart item to totalcartitems
-            //else just add the cartitem to the list
+            //and then calculates the total number of items in the cart
             var existingCartItem = cart.CartItems.FirstOrDefault(item => item?.Product?.ProductID == productId);
             if (existingCartItem != null)
             {
@@ -46,7 +47,9 @@ namespace SportStore.Controllers
                 };
                 cart.CartItems.Add(cartItem);
             }
+
             cart.TotalCartItems = cart.CartItems.Sum(item => item?.Quantity);
+            cart.Total = cart.CartItems.Sum(item => item.Subtotal);
 
             //uses the SessionExtension.Set method to store the updated shopping cart in the session
             HttpContext.Session.Set("Cart", cart);
