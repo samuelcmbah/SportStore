@@ -18,7 +18,6 @@ namespace SportStore.Controllers
         }
 
         
-        
         public IActionResult Index(string? category = null, int productPage = 1)
         {
             var model = new ProductsListViewModel

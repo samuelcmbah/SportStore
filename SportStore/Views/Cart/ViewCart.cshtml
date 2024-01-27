@@ -6,7 +6,7 @@
 
 @if (Model.CartItems.Any())
 {
-    <table>
+    <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Quantity</th>
@@ -21,15 +21,24 @@
                 <tr>
                     <td>@item?.Quantity</td>
                     <td>@item?.Product?.Name</td>
-                    <td>@item?.Product?.Price</td>
-                    <td>@item?.Subtotal</td>
+                    <td>@item?.Product?.Price.ToString("c")</td>
+                    <td>@item?.Subtotal.ToString("c")</td>
+                    <td>
+                        <form method="post" asp-action="RemoveFromCart" asp-controller="Cart">
+                            <input hidden name="productId" value="@item?.Product?.ProductID"/>
+                            <input hidden name="returnUrl" value="@ViewContext.HttpContext.Request.Path"/>
+                            <button type="submit" class="btn btn-danger">
+                                Remove Item
+                            </button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 
     <div>
-        <a class="btn btn-outline-success" asp-action="index" asp-controller="home">&larr; Continue Shopping</a>
+        <a class="btn btn-outline-success m-1" href="@ViewBag.returnUrl" asp-pa>&larr; Continue Shopping</a>
         <a class="btn btn-success" href="#">CHECKOUT (@Model?.Total.ToString("c"))</a>
     </div>
 }

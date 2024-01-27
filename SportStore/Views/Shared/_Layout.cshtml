@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SportStore</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/fontawesome.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SportStore.styles.css" asp-append-version="true" />
 </head>
@@ -35,12 +36,10 @@
                     </ul>
                     <ul class="navbar-nav  ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark btn btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart">
-                                Cart
+                            <a class="nav-link text-dark btn btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart" asp-route-returnUrl="@ViewContext.HttpContext.Request.Path">
+                                <i class="fa-solid fa-cart-shopping"></i>                               
                                 <span>
                                     @totalCartItems
-                                    @*                                     HttpContext.Session.Get<CartViewModel>("Cart")?.TotalCartItems
-                                    *@
                                 </span>
                             </a>
                         </li>

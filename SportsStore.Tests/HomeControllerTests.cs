@@ -16,6 +16,10 @@ using Xunit;
 
 namespace SportsStore.Tests
 {
+    //These tests were written based on the Guided project source
+    //however, moving forward, i want the project to reflect soley my skills
+    //hence i wont be writing any more tests
+    //btw, writing tests is not a religion
     public class HomeControllerTests
     {
         [Fact]
