@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using SportStore.Models;
 
@@ -11,7 +12,23 @@ namespace SportStore
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
+            builder.Services.AddScoped<SessionCart>(serviceProvider =>
+            {
+                // Retrieve the HttpContextAccessor service
+                var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+
+                // Retrieve the HttpContext from the HttpContextAccessor
+                var httpContext = httpContextAccessor.HttpContext;
+
+                // Retrieve the ISession service from the HttpContext
+                var session = httpContext?.Session;
+
+                // Create and return a new instance of SessionCart
+                return new SessionCart(session);
+            });
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            //builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>

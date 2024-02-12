@@ -1,4 +1,4 @@
-﻿@model CartViewModel;
+﻿@model Cart;
 
 @{
     ViewData["Title"] = "Shopping Details";
@@ -38,8 +38,8 @@
     </table>
 
     <div>
-        <a class="btn btn-outline-success m-1" href="@ViewBag.returnUrl" asp-pa>&larr; Continue Shopping</a>
-        <a class="btn btn-success" href="#">CHECKOUT (@Model?.Total.ToString("c"))</a>
+        <a class="btn btn-outline-success m-1" >&larr; Continue Shopping</a>
+        <a class="btn btn-success" asp-action="Checkout" asp-controller="Order">CHECKOUT (@Model?.Total.ToString("c"))</a>
     </div>
 }
 else

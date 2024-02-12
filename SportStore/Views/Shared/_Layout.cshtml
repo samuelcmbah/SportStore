@@ -1,23 +1,20 @@
-﻿<!DOCTYPE html>
+﻿@inject SessionCart sessionCart
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SportStore</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/lib/font-awesome/css/fontawesome.min.css" />
+    <link href="~/lib/font-awesome/css/fontawesome.min.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/solid.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SportStore.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        @{
-            // Inject the IHttpContextAccessor
-            var httpContextAccessor = ViewContext.HttpContext.RequestServices.GetRequiredService<IHttpContextAccessor>();
-
-            // Access session data
-            var totalCartItems = httpContextAccessor?.HttpContext?.Session.Get<CartViewModel>("Cart")?.TotalCartItems;
-        }
+        
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white  border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SportStore</a>
@@ -36,10 +33,10 @@
                     </ul>
                     <ul class="navbar-nav  ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark btn btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart" asp-route-returnUrl="@ViewContext.HttpContext.Request.Path">
-                                <i class="fa-solid fa-cart-shopping"></i>                               
+                            <a class="nav-link text-dark btn btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart" >
+                                <i class="fa-solid fa-cart-shopping"></i>                                
                                 <span>
-                                    @totalCartItems
+                                    @sessionCart.GetCart().TotalCartItems
                                 </span>
                             </a>
                         </li>

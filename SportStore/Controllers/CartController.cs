@@ -12,10 +12,12 @@ namespace SportStore.Controllers
     public class CartController : Controller
     {
         private readonly IStoreRepository storeRepository;
+        private readonly SessionCart sessionCart;
 
-        public CartController(IStoreRepository storeRepository)
+        public CartController(IStoreRepository storeRepository, SessionCart sessionCart)
         {
             this.storeRepository = storeRepository;
+            this.sessionCart = sessionCart;
         }
 
         [HttpPost]
@@ -27,18 +29,17 @@ namespace SportStore.Controllers
                 //Display an error message that the selected item is no longer available
             }
 
-            var cart = HttpContext.Session.Get<CartViewModel>("Cart") ?? new CartViewModel();
+            var cart = sessionCart.GetCart();
 
             cart.CartItems.RemoveAll(id => id?.Product?.ProductID == product?.ProductID);
-
             CalculateTotalAmount_Items(cart);
 
-            HttpContext.Session.Set("Cart", cart);
+            sessionCart.SetCart(cart); 
 
             return LocalRedirect(returnUrl);
         }
 
-        private void CalculateTotalAmount_Items(CartViewModel cart)
+        private void CalculateTotalAmount_Items(Cart cart)
         {
             cart.TotalCartItems = cart.CartItems.Sum(item => item?.Quantity);
             ViewData["TotalCartItems"] = cart.TotalCartItems.ToString();
@@ -53,14 +54,13 @@ namespace SportStore.Controllers
             {
                 //Display an error message that the selected item is no longer available
             }
-            
-            //uses the SessionExtension.Get method to retrieve the current cart session, if it returns null, a new empty cart is created
-            var cart = HttpContext.Session.Get<CartViewModel>("Cart") ?? new CartViewModel();
+
+            var cart = sessionCart.GetCart();
 
             {//checks if a product is already existing in the cart
-            //increases the quantity by 1 if it already exists, adds it to the cart if it doesnt
-            //assign the sum total of the quantity of each cart item to totalcartitems
-            //and then calculates the total number of items in the cart
+             //increases the quantity by 1 if it already exists, adds it to the cart if it doesnt
+             //assign the sum total of the quantity of each cart item to totalcartitems
+             //and then calculates the total number of items in the cart
             }
             
             var existingCartItem = cart.CartItems.FirstOrDefault(item => item?.Product?.ProductID == productId);
@@ -80,16 +80,15 @@ namespace SportStore.Controllers
 
             CalculateTotalAmount_Items(cart);
 
-            //uses the SessionExtension.Set method to store the updated shopping cart in the session
-            HttpContext.Session.Set("Cart", cart);
+            sessionCart.SetCart(cart);
 
             return LocalRedirect(returnUrl);
         }
 
-        public IActionResult ViewCart(string returnUrl)
+        public IActionResult ViewCart()
         {
-            var cart = HttpContext.Session.Get<CartViewModel>("Cart") ?? new CartViewModel();
-            ViewBag.returnUrl = returnUrl;
+            var cart = HttpContext.Session.Get<Cart>("Cart") ?? new Cart();
+            
             return View(cart);
         }
     }
