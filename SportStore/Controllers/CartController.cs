@@ -42,6 +42,10 @@ namespace SportStore.Controllers
         private void CalculateTotalAmount_Items(Cart cart)
         {
             cart.TotalCartItems = cart.CartItems.Sum(item => item?.Quantity);
+            if(cart.TotalCartItems == 0)
+            {
+                cart.TotalCartItems = null;
+            }
             ViewData["TotalCartItems"] = cart.TotalCartItems.ToString();
             cart.Total = cart.CartItems.Sum(item => item.Subtotal);
         }
@@ -57,7 +61,8 @@ namespace SportStore.Controllers
 
             var cart = sessionCart.GetCart();
 
-            {//checks if a product is already existing in the cart
+            {
+             //checks if a product is already existing in the cart
              //increases the quantity by 1 if it already exists, adds it to the cart if it doesnt
              //assign the sum total of the quantity of each cart item to totalcartitems
              //and then calculates the total number of items in the cart
@@ -87,8 +92,8 @@ namespace SportStore.Controllers
 
         public IActionResult ViewCart()
         {
-            var cart = HttpContext.Session.Get<Cart>("Cart") ?? new Cart();
-            
+            var cart = sessionCart.GetCart();
+
             return View(cart);
         }
     }

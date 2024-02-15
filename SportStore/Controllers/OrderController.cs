@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
+using SportStore.Models.ViewModels;
 
 namespace SportStore.Controllers
 {
@@ -31,9 +32,17 @@ namespace SportStore.Controllers
             }
             if (ModelState.IsValid)
             {
-                order.CartItems = cart.CartItems.ToArray();
+
+                order.OrderDate = DateTime.Now;
+                order.OrderItems = cart.CartItems.Select(cartItem => new OrderItem
+                {
+                    Product = cartItem.Product,
+                    Quantity = cartItem.Quantity
+                    // You can set other properties of the order items here
+                }).ToList();
                 orderRepository.SaveOrder(order);
                 cart.CartItems.Clear();
+                cart.TotalCartItems = null;
 
                 sessionCart.RemoveCart();
                 sessionCart.SetCart(cart);

@@ -10,7 +10,9 @@ namespace SportStore.Models
         public int OrderID { get; set; }
 
         [BindNever]
-        public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+
+        public DateTime OrderDate { get; set; }
 
         [Required(ErrorMessage = "Please enter a name")]
         public string? Name { get; set; }
