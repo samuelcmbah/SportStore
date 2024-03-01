@@ -1,5 +1,4 @@
-﻿@inject SessionCart sessionCart
-
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,14 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SportStore</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link href="~/lib/font-awesome/css/fontawesome.min.css" rel="stylesheet" />
-    <link href="~/lib/font-awesome/css/solid.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SportStore.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        
+
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white  border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SportStore</a>
@@ -28,34 +25,18 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>                        
-                    </ul>
-                    <ul class="navbar-nav  ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark  btn-outline-primary" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark  btn-outline-primary"  asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark  btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart" >
-                                <i class="fa-solid fa-cart-shopping"></i>                                
-                                <span>
-                                    @sessionCart.GetCart().TotalCartItems
-                                </span>
-                                 Cart
-                            </a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Manage</a>
                         </li>
                     </ul>
+                    
                 </div>
             </div>
         </nav>
     </header>
 
     <div class="row m-1 p-1">
-        <div class="col-3" id="categories">
-           @await Component.InvokeAsync("NavigationMenu")
+        <div class="col-3" >
+
         </div>
 
         <div class="container col-9">

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using SportStore.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace SportStore
 {
@@ -12,6 +13,12 @@ namespace SportStore
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
+            builder.Services.AddDbContext<AppIdentityDbContext>(opts => {
+                opts.UseSqlServer(builder.Configuration["ConnectionStrings:IdentityConnection"]);
+            });
+
             builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
             builder.Services.AddScoped<SessionCart>(serviceProvider =>
             {
@@ -60,10 +67,11 @@ namespace SportStore
 
             app.UseRouting();
 
-            app.UseAuthorization();
-
+            
             app.UseSession();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapControllerRoute(name: "catpage",
              pattern: "{category}/Page{productPage:int}",
@@ -88,6 +96,7 @@ namespace SportStore
             app.MapDefaultControllerRoute();
 
             SeedData.EnsurePopulated(app);
+            IdentitySeedData.EnsurePopulated(app);
 
             app.Run();
         }

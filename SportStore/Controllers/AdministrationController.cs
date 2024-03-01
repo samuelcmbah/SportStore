@@ -15,6 +15,100 @@ namespace SportStore.Controllers
             this.orderRepository = orderRepository;
         }
 
+        public IActionResult DeleteProduct(long id)
+        {
+            Product? product = storeRepository.GetProductById(id);
+            if(product == null)
+            {
+                //tell the admin that the product does not exist and return them to the avilable lisst of products
+            }
+            storeRepository.DeleteProduct(product);
+
+            ProductsListViewModel model = new ProductsListViewModel()
+            {
+                Products = storeRepository.AllProducts
+            };
+           
+
+            return View("ManageProducts", model);
+        }
+
+        [HttpGet]
+        public IActionResult CreateProduct()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult CreateProduct(ProductCreateViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                Product product = new()
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    Category = model.Cartegory,
+                    Price = model.Price
+                };
+
+                storeRepository.CreateProduct(product);
+                return RedirectToAction("Details", new { id = product.ProductID });
+            }
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Edit(long id)
+        {
+            Product? product = storeRepository.GetProductById(id);
+            if (product == null)
+            {
+                //direct to ProductNotFound page and then to the admin llst of all products
+            }
+            ProductEditViewModel productEditViewModel = new()
+            {
+                ProductID = product.ProductID,
+                Name = product.Name,
+                Description = product.Description,
+                Cartegory = product.Category,
+                Price = product.Price
+            };
+
+            return View(productEditViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(ProductEditViewModel model)
+        {
+
+            if (ModelState.IsValid)
+            {
+                Product? editedProduct = storeRepository.GetProductById(model.ProductID); 
+                if (editedProduct != null)
+                {
+                    editedProduct.Name = model.Name;
+                    editedProduct.Description = model.Description;
+                    editedProduct.Category = model.Cartegory;
+                    editedProduct.Price = model.Price;
+                }
+                storeRepository.UpdateProduct(editedProduct);
+                return RedirectToAction("Details", new {id = model.ProductID});
+            }
+            return View();
+        }
+
+        public IActionResult Details(long id)
+        {
+           Product? product = storeRepository.GetProductById(id);
+            if (product == null)
+            {
+                //direct to ProductNotFound page and then to the admin llst of all products
+            }
+
+            return View(product);
+        }
+
         public IActionResult ManageProducts()
         {
             var model = new ProductsListViewModel
@@ -36,8 +130,14 @@ namespace SportStore.Controllers
                 order.Shipped = true;
                 orderRepository.SaveOrder(order);
             }
-            
-            var model = orderRepository.Orders.Where(o => !o.Shipped);
+
+            var model = orderRepository.Orders.Where(o => !o.Shipped).ToList() ;
+            return View(model);
+        }
+
+        public IActionResult ManageShippedOrders()
+        {
+            var model = orderRepository.Orders.Where(o => o.Shipped).ToList();
             return View(model);
         }
     }
