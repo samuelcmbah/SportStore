@@ -1,4 +1,5 @@
-﻿@inject SessionCart sessionCart
+﻿@inject SignInManager<IdentityUser> signInManager
+@inject SessionCart sessionCart
 
 <!DOCTYPE html>
 <html lang="en">
@@ -31,20 +32,35 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>                        
                     </ul>
+
                     <ul class="navbar-nav  ms-auto">
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <form method="post" asp-controller="account" asp-action="logout">
+                                    <button type="submit" class="nav-link btn btn-link " style="width:auto">
+                                        Logout @User.Identity.Name.ToLower()
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark  btn-outline-primary" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark  btn-outline-primary" asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
+                            </li>
+
+                        }
                         <li class="nav-item">
-                            <a class="nav-link text-dark  btn-outline-primary" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark  btn-outline-primary"  asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark  btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart" >
-                                <i class="fa-solid fa-cart-shopping"></i>                                
+                            <a class="nav-link text-dark  btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart">
+                                <i class="fa-solid fa-cart-shopping"></i>
                                 <span>
                                     @sessionCart.GetCart().TotalCartItems
                                 </span>
-                                 Cart
+                                Cart
                             </a>
                         </li>
                     </ul>
