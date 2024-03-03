@@ -1,5 +1,5 @@
 ﻿@inject SignInManager<IdentityUser> signInManager
-@inject SessionCart sessionCart
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,14 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SportStore</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link href="~/lib/font-awesome/css/fontawesome.min.css" rel="stylesheet" />
-    <link href="~/lib/font-awesome/css/solid.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SportStore.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        
+
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white  border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SportStore</a>
@@ -28,11 +26,22 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Manage</a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Administration" asp-action="ManageProducts">Manage Products</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Administration" asp-action="ManageOrders">Manage Orders</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Administration" asp-action="ManageShippedOrders">Manage Shipped Orders</a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
-
+                    
                     <ul class="navbar-nav  ms-auto">
                         @if (signInManager.IsSignedIn(User))
                         {
@@ -44,26 +53,8 @@
                                 </form>
                             </li>
                         }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark  btn-outline-primary" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark  btn-outline-primary" asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
-                            </li>
-
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark d-flex align-items-center" asp-area="" asp-controller="Cart" asp-action="ViewCart">
-                                <i class="fa-solid fa-cart-shopping"></i>
-                                <span class="cart-badge text-white bg-success rounded-pill ms-2">
-                                    @sessionCart.GetCart().TotalCartItems
-                                </span>
-                                Cart
-                            </a>
-                        </li>
-
+                        
+                        
                     </ul>
                 </div>
             </div>
@@ -71,8 +62,8 @@
     </header>
 
     <div class="row m-1 p-1">
-        <div class="col-3" id="categories">
-           @await Component.InvokeAsync("NavigationMenu")
+        <div class="col-3" >
+
         </div>
 
         <div class="container col-9">

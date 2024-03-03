@@ -7,6 +7,9 @@ namespace SportStore.Models
         //a property that returns an IQueryable<Product>,
         //allowing for flexible querying of product data.
         IQueryable<Product> AllProducts { get; }
-        Product? GetProductById(long id);
+        Product? GetProductById(long? id);
+        Product? CreateProduct(Product product);
+        Product? UpdateProduct(Product? editedProduct);
+        Product? DeleteProduct(Product? product);
     }
 }

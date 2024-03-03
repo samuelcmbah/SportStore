@@ -4,6 +4,8 @@
     {
         IQueryable<Order> Orders { get; }
 
+        Order GetOrder(int id);
+
         void SaveOrder (Order order);   
     }
 }

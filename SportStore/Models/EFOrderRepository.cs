@@ -16,6 +16,11 @@ namespace SportStore.Models
 
         public IQueryable<Order> Orders => context.Orders.Include(opt => opt.OrderItems).ThenInclude(opt => opt.Product);
 
+        public Order GetOrder(int id)
+        {
+            return context.Orders.Find(id);
+        }
+
         public void SaveOrder(Order order)
         {
             context.AttachRange(order.OrderItems.Select(opt => opt.Product));

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
 using SportStore.Models.ViewModels;
@@ -17,7 +18,7 @@ namespace SportStore.Controllers
             this.storeRepository = storeRepository;
         }
 
-        
+        [AllowAnonymous]
         public IActionResult Index(string? category = null, int productPage = 1)
         {
             var model = new ProductsListViewModel

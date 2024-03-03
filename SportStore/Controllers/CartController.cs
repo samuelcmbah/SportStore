@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
 using SportStore.Models.ViewModels;
@@ -9,6 +10,7 @@ using SportStore.Models.ViewModels;
 
 namespace SportStore.Controllers
 {
+    [AllowAnonymous]
     public class CartController : Controller
     {
         private readonly IStoreRepository storeRepository;
@@ -90,11 +92,14 @@ namespace SportStore.Controllers
             return LocalRedirect(returnUrl);
         }
 
+
         public IActionResult ViewCart()
         {
             var cart = sessionCart.GetCart();
 
             return View(cart);
         }
+
+        //svdasffggf
     }
 }

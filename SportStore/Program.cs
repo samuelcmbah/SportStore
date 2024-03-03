@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using SportStore.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace SportStore
 {
@@ -12,6 +15,12 @@ namespace SportStore
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
+            builder.Services.AddDbContext<AppIdentityDbContext>(opts => {
+                opts.UseSqlServer(builder.Configuration["ConnectionStrings:IdentityConnection"]);
+            });
+
             builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
             builder.Services.AddScoped<SessionCart>(serviceProvider =>
             {
@@ -44,6 +53,20 @@ namespace SportStore
             });
 
             builder.Services.AddControllersWithViews();
+            //builder.Services.AddControllersWithViews(options =>
+            //{
+            //    var policy = new AuthorizationPolicyBuilder()
+            //                     .RequireAuthenticatedUser()
+            //                     .Build();
+            //    options.Filters.Add(new AuthorizeFilter(policy));
+            //});
+            builder.Services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+            });
+
 
             var app = builder.Build();
 
@@ -60,10 +83,11 @@ namespace SportStore
 
             app.UseRouting();
 
-            app.UseAuthorization();
-
+            
             app.UseSession();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapControllerRoute(name: "catpage",
              pattern: "{category}/Page{productPage:int}",
@@ -88,6 +112,7 @@ namespace SportStore
             app.MapDefaultControllerRoute();
 
             SeedData.EnsurePopulated(app);
+            IdentitySeedData.EnsurePopulated(app);
 
             app.Run();
         }
