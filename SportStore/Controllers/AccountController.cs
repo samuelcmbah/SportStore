@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using SportStore.Models.ViewModels;
 
 namespace SportStore.Controllers
@@ -23,12 +25,14 @@ namespace SportStore.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
@@ -56,13 +60,17 @@ namespace SportStore.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        [AllowAnonymous]
+
+        public IActionResult Login(string  returnUrl = "/" )
         {
-            return View();
+            var model = new LoginViewModel { ReturnUrl = returnUrl };
+            return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(LoginViewModel model )
         {
             if (ModelState.IsValid)
             {
@@ -72,10 +80,14 @@ namespace SportStore.Controllers
                     var result = await signInManager.PasswordSignInAsync(user, model.Password, false, false);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction("index", "home");
+                        if(!model.ReturnUrl.IsNullOrEmpty())
+                        {
+                            return LocalRedirect(model.ReturnUrl);
+                        }
+                        
                     }
                 }
-
+                //sth must have failed
                 ModelState.AddModelError("", "user not found");
             }
             return View();

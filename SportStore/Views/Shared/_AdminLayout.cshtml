@@ -1,4 +1,6 @@
-﻿
+﻿@inject SignInManager<IdentityUser> signInManager
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,11 +26,36 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Manage</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Manage</a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Administration" asp-action="ManageProducts">Manage Products</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Administration" asp-action="ManageOrders">Manage Orders</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Administration" asp-action="ManageShippedOrders">Manage Shipped Orders</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                     
+                    <ul class="navbar-nav  ms-auto">
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <form method="post" asp-controller="account" asp-action="logout">
+                                    <button type="submit" class="nav-link btn btn-link " style="width:auto">
+                                        Logout @User.Identity.Name.ToLower()
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        
+                        
+                    </ul>
                 </div>
             </div>
         </nav>

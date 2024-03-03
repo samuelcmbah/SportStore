@@ -55,14 +55,15 @@
 
                         }
                         <li class="nav-item">
-                            <a class="nav-link text-dark  btn-outline-success" asp-area="" asp-controller="Cart" asp-action="ViewCart">
+                            <a class="nav-link text-dark d-flex align-items-center" asp-area="" asp-controller="Cart" asp-action="ViewCart">
                                 <i class="fa-solid fa-cart-shopping"></i>
-                                <span>
+                                <span class="cart-badge text-white bg-success rounded-pill ms-2">
                                     @sessionCart.GetCart().TotalCartItems
                                 </span>
                                 Cart
                             </a>
                         </li>
+
                     </ul>
                 </div>
             </div>
