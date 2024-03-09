@@ -4,6 +4,6 @@
     {
         public long? ProductID { get; set; }
 
-        
+        public string? ExistingPhotoPath { get; set; }
     }
 }

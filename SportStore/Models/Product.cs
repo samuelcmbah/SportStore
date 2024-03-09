@@ -14,5 +14,7 @@ namespace SportStore.Models
         public decimal Price { get; set; }
 
         public string Category { get; set; } = String.Empty;
+
+        public string? PhotoPath { get; set; }
     }
 }

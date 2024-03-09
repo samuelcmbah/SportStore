@@ -2,22 +2,30 @@
 
 @{
     ViewData["Title"] = "Shopping Details";
+
 }
 
 @if (Model.CartItems.Any())
 {
     <div class="container mt-5">
-        <h2 class="mb-4">Shopping Cart</h2>
+        <h2>Shopping Cart</h2>
         <div class="row row-cols-1 row-cols-md-2 g-4">
             @foreach (var item in Model.CartItems)
             {
+                var photoPath = "~/images/" + @item.Product.PhotoPath;
+
                 <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
+                    <div class="card h-100 d-flex flex-row">
+                        <img src="@photoPath" alt="@item.Product.Name" class="img-fluid rounded mr-3" style="width: 100px; height: 100px;" asp-append-version="true">
+
+                        <div class="card-body d-flex flex-column">
                             <h5 class="card-title">@item?.Product?.Name</h5>
-                            <p class="card-text">Price: @item?.Product?.Price.ToString("c")</p>
-                            <p class="card-text">Quantity: @item?.Quantity</p>
-                            <p class="card-text">Subtotal: @item?.Subtotal.ToString("c")</p>
+                            <p class="card-text">
+                                <span>Price: @item?.Product?.Price.ToString("c")</span>
+                                <span>Quantity: @item?.Quantity</span>
+                                <span>Subtotal: @item?.Subtotal.ToString("c")</span>
+                            </p>
+
                             <form method="post" asp-action="RemoveFromCart" asp-controller="Cart">
                                 <input hidden name="productId" value="@item?.Product?.ProductID" />
                                 <input hidden name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
@@ -28,11 +36,13 @@
                 </div>
             }
         </div>
+
         <div class="text-end mt-3">
             <a class="btn btn-outline-secondary" href="@Url.Action("Index", "Home")">&larr; Continue Shopping</a>
             <a class="btn btn-success" asp-action="Checkout" asp-controller="Order">Checkout (@Model?.Total.ToString("c"))</a>
         </div>
     </div>
+
 }
 else
 {

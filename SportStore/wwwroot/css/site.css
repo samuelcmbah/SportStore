@@ -44,3 +44,13 @@ body {
     font-size: 12px;
     padding: 5px 8px; /* Adjust padding as needed */
 }
+
+#sidebar {
+    overflow-y: auto; /* Enable scrolling for long sidebars */
+}
+
+.imageThumbnail{
+    height:200px;
+        width:200px;
+}
+
