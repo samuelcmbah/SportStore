@@ -27,8 +27,6 @@
         <label asp-for="Cartegory" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
             <input asp-for="Cartegory" class="form-control" placeholder="Cartegory">
-            <span asp-validation-for="Cartegory" class="text-danger"></span>
-
         </div>
     </div>
 
@@ -37,6 +35,15 @@
         <div class="col-sm-10">
             <input asp-for="Price" class="form-control" placeholder="Price">
             <span asp-validation-for="Price" class="text-danger"></span>
+
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Photo" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Photo" class="form-control custom-file-input" >
+            <span asp-validation-for="Photo" class="text-danger"></span>
 
         </div>
     </div>

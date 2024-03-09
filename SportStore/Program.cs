@@ -16,6 +16,7 @@ namespace SportStore
 
             // Add services to the container.
 
+
             builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
             builder.Services.AddDbContext<AppIdentityDbContext>(opts => {
                 opts.UseSqlServer(builder.Configuration["ConnectionStrings:IdentityConnection"]);

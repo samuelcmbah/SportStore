@@ -11,13 +11,12 @@
 
             <div class="card shadow p-4">
                 <h2 class="text-center mb-4">Account Registration</h2>
-                <div class="text-danger" asp-validation-summary="All"></div>
 
                 <form asp-controller="Account" asp-action="Register" method="post">
                     <div class="form-group mb-3">
                         <label for="email">Email</label>
                         <input asp-for="Email" id="email" class="form-control" placeholder="Enter your email" />
-                        <div asp-validation-for="Email" class="text-danger"></div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <div class="form-group mb-3">
@@ -31,6 +30,9 @@
                         <input asp-for="ConfirmPassword" id="confirmPassword" type="password" class="form-control" placeholder="Confirm your password" />
                         <div asp-validation-for="ConfirmPassword" class="text-danger"></div>
                     </div>
+
+                    <div class="text-danger" asp-validation-summary="All"></div>
+
 
                     <div class="text-center">
                         <button class="btn btn-primary" type="submit" style="width: 100%;">Register</button>

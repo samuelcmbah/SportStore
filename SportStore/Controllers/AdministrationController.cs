@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
 using SportStore.Models.ViewModels;
+using System.Runtime.CompilerServices;
 
 namespace SportStore.Controllers
 {
@@ -13,13 +14,16 @@ namespace SportStore.Controllers
         private readonly IOrderRepository orderRepository;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<IdentityUser> userManager;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
-        public AdministrationController(IStoreRepository storeRepository, IOrderRepository orderRepository, RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+        public AdministrationController(IStoreRepository storeRepository, IOrderRepository orderRepository, RoleManager<IdentityRole> roleManager, 
+                                        UserManager<IdentityUser> userManager,IWebHostEnvironment webHostEnvironment)
         {
             this.storeRepository = storeRepository;
             this.orderRepository = orderRepository;
             this.roleManager = roleManager;
             this.userManager = userManager;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
@@ -234,18 +238,42 @@ namespace SportStore.Controllers
         {
             if (ModelState.IsValid)
             {
+                string? uniqueFileName = UploadFile(model);
                 Product product = new()
                 {
                     Name = model.Name,
                     Description = model.Description,
                     Category = model.Cartegory,
-                    Price = model.Price
+                    Price = model.Price,
+                    PhotoPath = uniqueFileName
                 };
 
                 storeRepository.CreateProduct(product);
                 return RedirectToAction("Details", new { id = product.ProductID });
             }
             return View();
+        }
+
+        private string? UploadFile(ProductCreateViewModel model)
+        {
+            string? uniqueFileName = null;
+
+            if (model.Photo != null)
+            {
+                //create the upload path
+                var uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "images");
+                //create unique file name
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Photo.FileName;
+                //create file path
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                //copy to images folder
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    model.Photo.CopyTo(fileStream);
+                }
+            }
+
+            return uniqueFileName;
         }
 
         [HttpGet]
@@ -262,7 +290,8 @@ namespace SportStore.Controllers
                 Name = product.Name,
                 Description = product.Description,
                 Cartegory = product.Category,
-                Price = product.Price
+                Price = product.Price,
+                ExistingPhotoPath = product.PhotoPath,
             };
 
             return View(productEditViewModel);
@@ -281,6 +310,14 @@ namespace SportStore.Controllers
                     editedProduct.Description = model.Description;
                     editedProduct.Category = model.Cartegory;
                     editedProduct.Price = model.Price;
+                    if(model.Photo != null)
+                    {
+                        if(model.ExistingPhotoPath !=null) {
+                            string filePath = Path.Combine(webHostEnvironment.WebRootPath, "images", model.ExistingPhotoPath);
+                            System.IO.File.Delete(filePath);
+                        }
+                        editedProduct.PhotoPath = UploadFile(model);
+                    }
                 }
                 storeRepository.UpdateProduct(editedProduct);
                 return RedirectToAction("Details", new {id = model.ProductID});
