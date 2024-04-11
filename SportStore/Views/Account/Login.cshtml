@@ -37,6 +37,10 @@
                         </div>
                     </div>
 
+                    <div>
+                        <p>Don't have an account? <a asp-action="Register">Register</a></p>
+                    </div>
+
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Log In</button>
                     </div>
@@ -46,3 +50,6 @@
     </div>
 </div>
 
+@section Scripts{
+    <partial name="_ValidationScriptsPartial"></partial>
+}

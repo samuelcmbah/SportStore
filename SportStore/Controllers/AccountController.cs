@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SportStore.Models.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace SportStore.Controllers
 {
@@ -15,6 +16,18 @@ namespace SportStore.Controllers
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+        }
+
+        [AcceptVerbs("Get", "Post")]
+        [AllowAnonymous]
+        public async Task<IActionResult> IsEmailInUse(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if(user == null)
+            {
+                return Json(true);
+            }
+            return Json($"Email '{email}' is already in use");
         }
 
         [HttpPost]

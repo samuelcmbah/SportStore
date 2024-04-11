@@ -1,10 +1,11 @@
 ﻿
 
 @{
-    ViewBag.Title = "Not Found";
+    ViewData["Title"] = "Not Found";
 
 }
 
-<h3>ViewBag.ErrorMassage</h3>
+<h3>@ViewData["ErrorMessage"]</h3>
 
-<a>click to return</a>
+
+<a asp-controller="Home" asp-action="index">click to return to home page</a>
