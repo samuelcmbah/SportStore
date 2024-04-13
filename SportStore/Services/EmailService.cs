@@ -18,7 +18,7 @@ public class EmailService
 
     public async Task SendConfirmationEmailAsync(string email, string? confirmationLink, string scheme)
     {
-        string domain = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" ? "localhost:7000" : "myapp.com";
+        string domain = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" ? "localhost:7000" : "SportStore.com";
         var absoluteConfimationLink = $"{scheme}://{domain}{confirmationLink}";
         _logger.LogWarning(absoluteConfimationLink);
 
@@ -29,7 +29,7 @@ public class EmailService
 
         var bodyBuilder = new BodyBuilder
         {
-            HtmlBody = $"<p>Please confirm your email by clicking the link below:</p><p><a href='{confirmationLink}'>Confirm Email</a></p>"
+            HtmlBody = $"<p>Please confirm your email by clicking the link below:</p><p><a href='{absoluteConfimationLink}'>Confirm Email</a></p>"
         };
         message.Body = bodyBuilder.ToMessageBody();
 

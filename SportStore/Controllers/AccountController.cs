@@ -117,10 +117,17 @@ namespace SportStore.Controllers
             if (ModelState.IsValid)
             {
                 var user = await userManager.FindByEmailAsync(model.Email);
-                if (user != null && !user.EmailConfirmed && !(await userManager.CheckPasswordAsync(user, model.Password))) 
+                
+                if (user != null )
                 {
-                    ModelState.AddModelError("", "Email not confirmed");
-                    return View(model);
+                    var verifiedCredentials = await userManager.CheckPasswordAsync(user, model.Password);
+
+                    if (!user.EmailConfirmed && verifiedCredentials)
+                    {
+                        ModelState.AddModelError("", "Email not confirmed");
+                        return View(model);
+                    }
+                    
                 }
                 if (user != null)
                 {

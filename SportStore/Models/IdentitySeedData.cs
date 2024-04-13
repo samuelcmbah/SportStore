@@ -25,6 +25,7 @@ namespace SportStore.Models
                 user = new IdentityUser("Admin");
                 user.Email = "admin@example.com";
                 user.PhoneNumber = "555-1234";
+                user.EmailConfirmed = true;
                 await userManager.CreateAsync(user, adminPassword);
             }
         }
