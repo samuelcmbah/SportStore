@@ -11,11 +11,14 @@ namespace SportStore.Controllers
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
+        private readonly EmailService emailService;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager,
+                    EmailService emailService)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.emailService = emailService;
         }
 
         [AcceptVerbs("Get", "Post")]
@@ -23,7 +26,7 @@ namespace SportStore.Controllers
         public async Task<IActionResult> IsEmailInUse(string email)
         {
             var user = await userManager.FindByEmailAsync(email);
-            if(user == null)
+            if (user == null)
             {
                 return Json(true);
             }
@@ -35,6 +38,25 @@ namespace SportStore.Controllers
         {
              await signInManager.SignOutAsync();
             return RedirectToAction("index", "home");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if(user is null)
+            {
+                return RedirectToAction("index", "home");
+            }
+            var result = await userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+            {
+                return View("ConfirmEmail");
+            }
+            ViewData["Title"] = "Email not confirmed";
+
+            return View("Error");
         }
 
         [HttpGet]
@@ -58,9 +80,16 @@ namespace SportStore.Controllers
                 };
 
                 var result = await userManager.CreateAsync(user, model.Password);
+                //// Schedule a cleanup task for unconfirmed users (optional)
+                //var confirmationExpiration = TimeSpan.FromSeconds(30); // Set your desired timeframe
+                //await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.Add(confirmationExpiration));
 
                 if (result.Succeeded)
                 {
+                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token, Request.Scheme });
+
+                    await emailService.SendConfirmationEmailAsync(user.Email, confirmationLink, Request.Scheme);
                     return View("RegistrationSuccessful");
                 }
 
@@ -88,6 +117,11 @@ namespace SportStore.Controllers
             if (ModelState.IsValid)
             {
                 var user = await userManager.FindByEmailAsync(model.Email);
+                if (user != null && !user.EmailConfirmed && !(await userManager.CheckPasswordAsync(user, model.Password))) 
+                {
+                    ModelState.AddModelError("", "Email not confirmed");
+                    return View(model);
+                }
                 if (user != null)
                 {
                     var result = await signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
