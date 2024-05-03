@@ -15,7 +15,7 @@
 </head>
 <body>
     <header>
-        
+
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white  border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SportStore</a>
@@ -30,7 +30,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>                        
+                        </li>
                     </ul>
 
                     <ul class="navbar-nav  ms-auto">
@@ -71,7 +71,7 @@
 
     <div class="row m-1 p-1">
         <div class="col-3" id="categories">
-           @await Component.InvokeAsync("NavigationMenu")
+            @await Component.InvokeAsync("NavigationMenu")
         </div>
 
         <div class="container col-9">
@@ -87,9 +87,9 @@
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    
+
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

@@ -327,10 +327,13 @@ namespace SportStore.Controllers
 
         public IActionResult Details(long id)
         {
+            throw new Exception("Error in details view");
            Product? product = storeRepository.GetProductById(id);
             if (product == null)
             {
-                //direct to ProductNotFound page and then to the admin llst of all products
+                //direct to ProductNotFound page and then to the admin list of all products
+                Response.StatusCode = 404;
+                return View("ProductNotFound");
             }
 
             return View(product);
@@ -358,13 +361,13 @@ namespace SportStore.Controllers
                 orderRepository.SaveOrder(order);
             }
 
-            var model = orderRepository.Orders.Where(o => !o.Shipped).ToList() ;
+            var model = orderRepository.Orders.Where(o => !o.Shipped) ;
             return View(model);
         }
 
         public IActionResult ManageShippedOrders()
         {
-            var model = orderRepository.Orders.Where(o => o.Shipped).ToList();
+            var model = orderRepository.Orders.Where(o => o.Shipped);
             return View(model);
         }
     }

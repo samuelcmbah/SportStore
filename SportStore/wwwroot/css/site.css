@@ -53,4 +53,9 @@ body {
     height:200px;
         width:200px;
 }
-
+footer {
+    /* Existing footer styles... */
+    position: sticky; /* Make footer stick to the bottom */
+    bottom: 0; /* Position it at the absolute bottom */
+    width: 100%; /* Set width to 100% */
+}

@@ -5,6 +5,10 @@ using SportStore.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+using SendGrid.Helpers.Mail;
+using SportStore.Services;
 
 namespace SportStore
 {
@@ -16,8 +20,18 @@ namespace SportStore
 
             // Add services to the container.
 
-
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
+            //configuring third party logging
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Information().WriteTo.File("Logs/SportStoreLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
+            builder.Host.UseSerilog();
+            //adding email service
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+            builder.Services.AddTransient<EmailService>();
+            //adding identity
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+                options.User.RequireUniqueEmail = true;
+            }).AddEntityFrameworkStores<AppIdentityDbContext>().AddDefaultTokenProviders();
             builder.Services.AddDbContext<AppIdentityDbContext>(opts => {
                 opts.UseSqlServer(builder.Configuration["ConnectionStrings:IdentityConnection"]);
             });
@@ -74,10 +88,12 @@ namespace SportStore
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
