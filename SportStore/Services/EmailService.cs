@@ -29,7 +29,10 @@ public class EmailService
 
         var bodyBuilder = new BodyBuilder
         {
-            HtmlBody = $"<p>Please confirm your email by clicking the link below:</p><p><a href='{absoluteConfimationLink}'>Confirm Email</a></p>"
+            HtmlBody = $"<p>Please confirm your email by clicking the link below:</p><p><a href='{absoluteConfimationLink}'>Confirm Email</a></p>" +
+            $"<p>safely ignore if you did not sign up for a SportStore account</p>" +
+            $"<p>Best,</p>" +
+            $"<p>SportStore</>"
         };
         message.Body = bodyBuilder.ToMessageBody();
 
