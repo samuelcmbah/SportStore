@@ -1,1 +1,1 @@
-# SportStoreSln
+# SportStore
