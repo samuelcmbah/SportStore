@@ -4,16 +4,16 @@ WORKDIR /source
 
 # copy csproj and restore as distinct layers
 COPY *.sln .
-COPY sportstore/*.csproj ./sportstore/
+COPY sportstoresln/*.csproj ./sportstoresln/
 RUN dotnet restore
 
 # copy everything else and build app
-COPY sportstore/. ./sportstore/
-WORKDIR /source/sportstore
+COPY sportstoresln/. ./sportstoresln/
+WORKDIR /source/sportstoresln
 RUN dotnet publish -c release -o /app --no-restore
 
 # final stage/image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app ./
-ENTRYPOINT ["dotnet", "sportstore.dll"]
+ENTRYPOINT ["dotnet", "sportstoresln.dll"]
