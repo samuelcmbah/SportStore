@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using SportStore.Models.ViewModels;
 using System.ComponentModel.DataAnnotations;
 
@@ -134,7 +133,7 @@ namespace SportStore.Controllers
                     var result = await signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
                     if (result.Succeeded)
                     {
-                        if(!model.ReturnUrl.IsNullOrEmpty())
+                        if(!String.IsNullOrEmpty(model.ReturnUrl))
                         {
                             return LocalRedirect(model.ReturnUrl);
                         }

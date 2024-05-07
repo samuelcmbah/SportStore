@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using SendGrid.Helpers.Mail;
 using SportStore.Services;
 
 namespace SportStore
@@ -32,8 +31,10 @@ namespace SportStore
                 options.SignIn.RequireConfirmedEmail = true;
                 options.User.RequireUniqueEmail = true;
             }).AddEntityFrameworkStores<AppIdentityDbContext>().AddDefaultTokenProviders();
-            builder.Services.AddDbContext<AppIdentityDbContext>(opts => {
-                opts.UseSqlServer(builder.Configuration["ConnectionStrings:IdentityConnection"]);
+
+            builder.Services.AddDbContext<AppIdentityDbContext>(opts =>
+            {
+                opts.UseSqlite(builder.Configuration["ConnectionStrings:IdentityConnection"]);
             });
 
             builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
@@ -63,9 +64,14 @@ namespace SportStore
             });
 
             builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();//The AddScoped method creates a service where each HTTP request gets its own repository object, which is the way that Entity Framework Core is typically used.
+
             builder.Services.AddDbContext<StoreDbContext>(opts => {
-                opts.UseSqlServer(builder.Configuration["ConnectionStrings:SportsStoreConnection"]);
+                opts.UseSqlite(builder.Configuration["ConnectionStrings:SportsStoreConnection"]);
             });
+
+            //builder.Services.AddDbContext<StoreDbContext>(opts => {
+            //    opts.UseSqlServer(builder.Configuration["ConnectionStrings:SportsStoreConnection"]);
+            //});
 
             builder.Services.AddControllersWithViews();
             //builder.Services.AddControllersWithViews(options =>
