@@ -18,10 +18,12 @@ public class EmailService
 
     public async Task SendConfirmationEmailAsync(string email, string? confirmationLink, string scheme)
     {
+        //building the link structure
         string domain = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" ? "localhost:7000" : "SportStore.com";
         var absoluteConfimationLink = $"{scheme}://{domain}{confirmationLink}";
         _logger.LogWarning(absoluteConfimationLink);
 
+        //creating email message details
         MimeMessage message = new MimeMessage();
         message.From.Add(new MailboxAddress("SportStore", _emailSettings.SmtpUsername));
         message.To.Add(MailboxAddress.Parse(email));

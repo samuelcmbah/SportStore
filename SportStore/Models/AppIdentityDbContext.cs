@@ -15,7 +15,6 @@ namespace SportStore.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            //creates a database folder if it doesnt already exists
             var appDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             //if "bin" is present, remove all the path starting from "bin" word
