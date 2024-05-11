@@ -6,7 +6,10 @@ namespace SportStore.Models
     {
         public static void EnsurePopulated(IApplicationBuilder app) 
         {
+            //Gets the required DbContext services
             StoreDbContext context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<StoreDbContext>();
+
+            
             if (context.Database.GetPendingMigrations().Any())
             {
                 context.Database.Migrate();

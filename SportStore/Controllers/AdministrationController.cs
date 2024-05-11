@@ -327,7 +327,6 @@ namespace SportStore.Controllers
 
         public IActionResult Details(long id)
         {
-            throw new Exception("Error in details view");
            Product? product = storeRepository.GetProductById(id);
             if (product == null)
             {

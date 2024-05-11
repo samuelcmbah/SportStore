@@ -20,7 +20,7 @@ namespace SportStore
             // Add services to the container.
 
             //configuring third party logging
-            Log.Logger = new LoggerConfiguration().MinimumLevel.Information().WriteTo.File("Logs/SportStoreLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Error().WriteTo.File("Logs/SportStoreLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
             builder.Host.UseSerilog();
             //adding email service
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));

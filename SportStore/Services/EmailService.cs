@@ -25,14 +25,15 @@ public class EmailService
         MimeMessage message = new MimeMessage();
         message.From.Add(new MailboxAddress("SportStore", _emailSettings.SmtpUsername));
         message.To.Add(MailboxAddress.Parse(email));
-        message.Subject = "Email Confirmation";
+        message.Subject = "Email Confirmation on SportStore";
 
         var bodyBuilder = new BodyBuilder
         {
-            HtmlBody = $"<p>Please confirm your email by clicking the link below:</p><p><a href='{absoluteConfimationLink}'>Confirm Email</a></p>" +
-            $"<p>safely ignore if you did not sign up for a SportStore account</p>" +
-            $"<p>Best,</p>" +
-            $"<p>SportStore</>"
+            HtmlBody = $"<p>Hello there, thank you for signing up on SportStore. Please confirm your email by clicking the link below:</p>" +
+                       $"<p><a href='{absoluteConfimationLink}'>Confirm Email</a></p>" +
+                       $"<p>Safely ignore if you did not sign up for a SportStore account.</p>" +
+                       $"<p>Best,</p>" +
+                       $"<p>SportStore</>"
         };
         message.Body = bodyBuilder.ToMessageBody();
 

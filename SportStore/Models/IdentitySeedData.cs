@@ -11,7 +11,10 @@ namespace SportStore.Models
 
         public static async void EnsurePopulated(IApplicationBuilder app)
         {
+            //Gets the required DbContext services
             AppIdentityDbContext context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<AppIdentityDbContext>();
+
+           
 
             if (context.Database.GetPendingMigrations().Any())
             {
@@ -22,7 +25,7 @@ namespace SportStore.Models
             UserManager<IdentityUser> userManager = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
             RoleManager<IdentityRole> roleManager = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            //Creats and admin user and stores it
+            //seeds an admin user
             IdentityUser? user = await userManager.FindByNameAsync(adminUser);
             if (user == null)
             {
