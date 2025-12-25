@@ -22,8 +22,14 @@ namespace SportStore.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> IsEmailInUse(string email)
         {
-            return Json(!await accountService.IsEmailInUseAsync(email));
-
+            if (!await accountService.IsEmailInUseAsync(email))
+            {
+                return Json(true);
+            }
+            else
+            {
+                return Json($"Email '{email}' is already in use");
+            }
         }
 
         [HttpGet]
