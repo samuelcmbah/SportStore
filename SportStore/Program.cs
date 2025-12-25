@@ -1,13 +1,14 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
-using SportStore.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Serilog;
+using SportStore.Models;
 using SportStore.Services;
+using System;
 
 namespace SportStore
 {
@@ -32,10 +33,14 @@ namespace SportStore
                 options.User.RequireUniqueEmail = true;
             }).AddEntityFrameworkStores<AppIdentityDbContext>().AddDefaultTokenProviders();
 
-            builder.Services.AddDbContext<AppIdentityDbContext>(opts =>
-            {
-                opts.UseSqlite(builder.Configuration["ConnectionStrings:IdentityConnection"]);
-            });
+            builder.Services.AddDbContext<AppIdentityDbContext>(options =>
+                options.UseNpgsql(
+                    builder.Configuration.GetConnectionString("SportsStoreConnection")));
+
+            builder.Services.AddDbContext<StoreDbContext>(options =>
+                options.UseNpgsql(
+                    builder.Configuration.GetConnectionString("SportsStoreConnection")));
+
 
             builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
             builder.Services.AddScoped<SessionCart>(serviceProvider =>
@@ -65,13 +70,6 @@ namespace SportStore
 
             builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();//The AddScoped method creates a service where each HTTP request gets its own repository object, which is the way that Entity Framework Core is typically used.
 
-            builder.Services.AddDbContext<StoreDbContext>(opts => {
-                opts.UseSqlite(builder.Configuration["ConnectionStrings:SportsStoreConnection"]);
-            });
-
-            //builder.Services.AddDbContext<StoreDbContext>(opts => {
-            //    opts.UseSqlServer(builder.Configuration["ConnectionStrings:SportsStoreConnection"]);
-            //});
 
             builder.Services.AddControllersWithViews();
             //builder.Services.AddControllersWithViews(options =>
