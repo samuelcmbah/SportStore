@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SportStore.Models.ViewModels;
 using SportStore.Services.IServices;
+using System.Net;
 
 namespace SportStore.Services
 {
@@ -8,13 +9,13 @@ namespace SportStore.Services
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
-        private readonly EmailService emailService;
+        private readonly IEmailService emailService;
         private readonly IHttpContextAccessor httpContextAccessor;
 
         public AccountService(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            EmailService emailService,
+            IEmailService emailService,
             IHttpContextAccessor httpContextAccessor)
         {
             this.userManager = userManager;
@@ -45,7 +46,7 @@ namespace SportStore.Services
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
             var confirmationLink = GenerateConfirmationLink(user.Id, token, scheme);
 
-            await emailService.SendConfirmationEmailAsync(user.Email, confirmationLink, scheme);
+            await emailService.SendConfirmationEmailAsync(user.Email, confirmationLink);
 
             return result;
         }
@@ -96,7 +97,8 @@ namespace SportStore.Services
         private string GenerateConfirmationLink(string userId, string token, string scheme)
         {
             var request = httpContextAccessor.HttpContext!.Request;
-            return $"{scheme}://{request.Host}/Account/ConfirmEmail?userId={userId}&token={token}";
+            var encodedToken = WebUtility.UrlEncode(token);
+            return $"{scheme}://{request.Host}/Account/ConfirmEmail?userId={userId}&token={encodedToken}";
         }
     }
 

@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using Resend;
 using Serilog;
+using SportStore.Configurations;
 using SportStore.Models;
 using SportStore.Services;
 using SportStore.Services.IServices;
@@ -25,8 +27,21 @@ namespace SportStore
             Log.Logger = new LoggerConfiguration().MinimumLevel.Error().WriteTo.File("Logs/SportStoreLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
             builder.Host.UseSerilog();
             //adding email service
-            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-            builder.Services.AddTransient<EmailService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.Configure<ResendEmailSettings>(
+                builder.Configuration.GetSection("ResendEmailSettings"));
+            // This is required to use the IOptions<T> pattern
+            builder.Services.AddOptions();
+
+            builder.Services.Configure<ResendClientOptions>(o =>
+            {
+                o.ApiToken = builder.Configuration["ResendEmailSettings:ApiKey"]!;
+            });
+
+            // 5. Add the HttpClient and the main Resend client to the services
+            builder.Services.AddHttpClient<ResendClient>();
+            builder.Services.AddTransient<IResend, ResendClient>();
             //adding identity
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {

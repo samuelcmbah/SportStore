@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models.ViewModels;
 using SportStore.Services;
+using SportStore.Services.IServices;
 using System.ComponentModel.DataAnnotations;
 
 namespace SportStore.Controllers
@@ -10,9 +11,9 @@ namespace SportStore.Controllers
     public class AccountController : Controller
     {
         
-        private readonly AccountService accountService;
+        private readonly IAccountService accountService;
 
-        public AccountController(AccountService accountService)
+        public AccountController(IAccountService accountService)
         {
             this.accountService = accountService;
         }
@@ -51,11 +52,6 @@ namespace SportStore.Controllers
         }
 
        
-
-        
-
-        
-
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login(string  returnUrl = "/" )
