@@ -8,6 +8,7 @@ using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Serilog;
 using SportStore.Models;
 using SportStore.Services;
+using SportStore.Services.IServices;
 using System;
 
 namespace SportStore
@@ -41,7 +42,7 @@ namespace SportStore
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("SportsStoreConnection")));
 
-
+            builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
             builder.Services.AddScoped<SessionCart>(serviceProvider =>
             {

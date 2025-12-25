@@ -2,60 +2,27 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models.ViewModels;
+using SportStore.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace SportStore.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly SignInManager<IdentityUser> signInManager;
-        private readonly EmailService emailService;
+        
+        private readonly AccountService accountService;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager,
-                    EmailService emailService)
+        public AccountController(AccountService accountService)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
-            this.emailService = emailService;
+            this.accountService = accountService;
         }
 
         [AcceptVerbs("Get", "Post")]
         [AllowAnonymous]
         public async Task<IActionResult> IsEmailInUse(string email)
         {
-            var user = await userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                return Json(true);
-            }
-            return Json($"Email '{email}' is already in use");
-        }
+            return Json(!await accountService.IsEmailInUseAsync(email));
 
-        [HttpPost]
-        public async Task<IActionResult> Logout(RegisterViewModel model)
-        {
-             await signInManager.SignOutAsync();
-            return RedirectToAction("index", "home");
-        }
-
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token)
-        {
-            var user = await userManager.FindByIdAsync(userId);
-            if(user is null)
-            {
-                return RedirectToAction("index", "home");
-            }
-            var result = await userManager.ConfirmEmailAsync(user, token);
-            if (result.Succeeded)
-            {
-                return View("ConfirmEmail");
-            }
-            ViewData["Title"] = "Email not confirmed";
-
-            return View("Error");
         }
 
         [HttpGet]
@@ -69,40 +36,28 @@ namespace SportStore.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                //create the user using the provided email and password//and then signs the user in
-                var user = new IdentityUser()
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                };
-
-                var result = await userManager.CreateAsync(user, model.Password);
-                //// Schedule a cleanup task for unconfirmed users (optional)
-                //var confirmationExpiration = TimeSpan.FromSeconds(30); // Set your desired timeframe
-                //await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.Add(confirmationExpiration));
-
-                if (result.Succeeded)
-                {
-                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token, Request.Scheme });
-
-                    await emailService.SendConfirmationEmailAsync(user.Email, confirmationLink, Request.Scheme);
-                    return View("RegistrationSuccessful");
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+                return View(model);
             }
-            return View();
+
+            var result = await accountService.RegisterAsync(model, Request.Scheme);
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
         }
+
+       
+
+        
+
+        
 
         [HttpGet]
         [AllowAnonymous]
-
         public IActionResult Login(string  returnUrl = "/" )
         {
             var model = new LoginViewModel { ReturnUrl = returnUrl };
@@ -111,39 +66,61 @@ namespace SportStore.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginViewModel model )
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                var user = await userManager.FindByEmailAsync(model.Email);
-                
-                if (user != null )
-                {
-                    var verifiedCredentials = await userManager.CheckPasswordAsync(user, model.Password);
+            ViewData["ReturnUrl"] = model.ReturnUrl;
+            if (!ModelState.IsValid) return View(model);
 
-                    if (!user.EmailConfirmed && verifiedCredentials)
-                    {
-                        ModelState.AddModelError("", "Email not confirmed");
-                        return View(model);
-                    }
-                    
-                }
-                if (user != null)
+            var result = await accountService.LoginAsync(model);
+
+            if (result.Succeeded)
+            {
+                // If returnUrl is valid and local, redirect there. Otherwise, redirect to home.
+                if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                 {
-                    var result = await signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
-                    if (result.Succeeded)
-                    {
-                        if(!String.IsNullOrEmpty(model.ReturnUrl))
-                        {
-                            return LocalRedirect(model.ReturnUrl);
-                        }
-                        
-                    }
+                    return Redirect(model.ReturnUrl);
                 }
-                //sth must have failed
-                ModelState.AddModelError("", "invalid login attempt");
+                return RedirectToAction("Index", "Home");
             }
-            return View();
+
+            // Handle specific login failures
+            if (result.IsNotAllowed)
+            {
+                ModelState.AddModelError(string.Empty, "Your email has not been confirmed. Please check your inbox.");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await accountService.LogoutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var result = await accountService.ConfirmEmailAsync(userId, token);
+            if (result.Succeeded)
+            {
+                return View("ConfirmEmail"); // Show a "Thank you for confirming" page
+            }
+
+            ViewBag.ErrorTitle = "Email Confirmation Failed";
+            ViewBag.ErrorMessage = "The confirmation link is invalid or has expired.";
+            return View("Error");
         }
     }
 }
