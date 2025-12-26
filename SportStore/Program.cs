@@ -28,7 +28,6 @@ namespace SportStore
             builder.Host.UseSerilog();
             //adding email service
             builder.Services.AddScoped<IEmailService, EmailService>();
-            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.Configure<ResendEmailSettings>(
                 builder.Configuration.GetSection("ResendEmailSettings"));
             // This is required to use the IOptions<T> pattern
