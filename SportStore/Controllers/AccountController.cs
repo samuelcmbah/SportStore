@@ -93,7 +93,9 @@ namespace SportStore.Controllers
             // Handle specific login failures
             if (result.IsNotAllowed)
             {
-                ModelState.AddModelError(string.Empty, "Your email has not been confirmed. Please check your inbox.");
+                ModelState.AddModelError(string.Empty, "Your email has not been confirmed. Please check your inbox");
+                // Pass a signal to the view to show the resend link
+                ViewData["ShowResendLink"] = true;
             }
             else
             {
@@ -128,6 +130,13 @@ namespace SportStore.Controllers
             ViewBag.ErrorTitle = "Email Confirmation Failed";
             ViewBag.ErrorMessage = "The confirmation link is invalid or has expired.";
             return View("Error");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResendConfirmationLink()
+        {
+            return View();
         }
 
         [HttpPost]
