@@ -1,7 +1,10 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using SportStore.Data;
+using SportStore.Models;
+using SportStore.Services.IServices;
 
-namespace SportStore.Models
+namespace SportStore.Services
 {
     public class EFStoreRepository : IStoreRepository
     {
@@ -36,9 +39,9 @@ namespace SportStore.Models
         public Product? UpdateProduct(Product? editedProduct)
         {
             var product = context.Products.Attach(editedProduct);
-            product.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            product.State = EntityState.Modified;
             context.SaveChanges();
-            return (editedProduct);
+            return editedProduct;
 
         }
     }

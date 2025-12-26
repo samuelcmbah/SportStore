@@ -1,6 +1,7 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using SportStore.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace SportStore.Models
+namespace SportStore.Services.IServices
 {
     public interface IStoreRepository
     {

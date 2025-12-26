@@ -1,4 +1,6 @@
-﻿namespace SportStore.Models.ViewModels;
+﻿
+
+using SportStore.Models;
 
 public class CartItem
 {

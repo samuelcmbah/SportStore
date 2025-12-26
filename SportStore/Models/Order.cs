@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using SportStore.Models.ViewModels;
 using System.ComponentModel.DataAnnotations;
 
 namespace SportStore.Models

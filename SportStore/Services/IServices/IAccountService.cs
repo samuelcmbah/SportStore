@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using SportStore.Models.ViewModels;
+using SportStore.ViewModels.Auth;
 
 namespace SportStore.Services.IServices
 {

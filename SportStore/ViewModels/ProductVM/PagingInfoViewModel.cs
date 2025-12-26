@@ -1,4 +1,4 @@
-﻿namespace SportStore.Models.ViewModels
+﻿namespace SportStore.ViewModels.ProductVM
 {
     public class PagingInfoViewModel
     {
@@ -10,8 +10,8 @@
 
         public int TotalPages => (int)Math.Ceiling((decimal)TotalItems / ItemsPerPage);
 
-        public int NextPage => (CurrentPage < TotalPages) ? CurrentPage + 1 : 1;
+        public int NextPage => CurrentPage < TotalPages ? CurrentPage + 1 : 1;
 
-        public int PrevPage => (CurrentPage > 1) ? CurrentPage - 1 : TotalPages; 
+        public int PrevPage => CurrentPage > 1 ? CurrentPage - 1 : TotalPages; 
     }
 }

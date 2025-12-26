@@ -1,4 +1,6 @@
-﻿namespace SportStore.Models
+﻿using SportStore.Models;
+
+namespace SportStore.Services.IServices
 {
     public interface IOrderRepository
     {

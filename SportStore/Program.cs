@@ -8,9 +8,10 @@ using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Resend;
 using Serilog;
 using SportStore.Configurations;
-using SportStore.Models;
+using SportStore.Data;
 using SportStore.Services;
 using SportStore.Services.IServices;
+using SportStore.Utils;
 using System;
 
 namespace SportStore

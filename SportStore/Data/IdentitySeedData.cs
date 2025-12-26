@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace SportStore.Models
+namespace SportStore.Data
 {
     public static class IdentitySeedData
     {

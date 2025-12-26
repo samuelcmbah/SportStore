@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
-using SportStore.Models.ViewModels;
+using SportStore.Services.IServices;
+using SportStore.ViewModels.ProductVM;
+using SportStore.ViewModels.Role;
 using System.Runtime.CompilerServices;
 
 namespace SportStore.Controllers

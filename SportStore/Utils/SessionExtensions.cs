@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace SportStore.Models
+namespace SportStore.Utils
 {
     public static class SessionExtensions
     {

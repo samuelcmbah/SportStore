@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace SportStore.Models.ViewModels
+namespace SportStore.ViewModels.Auth
 {
     public class LoginViewModel
     {

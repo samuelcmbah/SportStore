@@ -1,4 +1,4 @@
-﻿using SportStore.Models.ViewModels;
+﻿using SportStore.ViewModels;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SportStore.Models

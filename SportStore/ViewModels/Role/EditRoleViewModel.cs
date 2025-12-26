@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SportStore.Models.ViewModels
+namespace SportStore.ViewModels.Role
 {
     public class EditRoleViewModel
     {

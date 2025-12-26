@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SportStore.Models.ViewModels;
-using SportStore.Models.ViewModels.Auth;
 using SportStore.Services;
 using SportStore.Services.IServices;
+using SportStore.ViewModels.Auth;
 using System.ComponentModel.DataAnnotations;
 
 namespace SportStore.Controllers

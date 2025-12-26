@@ -1,4 +1,4 @@
-﻿namespace SportStore.Models.ViewModels
+﻿namespace SportStore.ViewModels.ProductVM
 {
     public class ProductEditViewModel : ProductCreateViewModel
     {

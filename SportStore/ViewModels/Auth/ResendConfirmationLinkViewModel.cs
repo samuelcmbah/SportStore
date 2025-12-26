@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SportStore.Models.ViewModels.Auth
+namespace SportStore.ViewModels.Auth
 {
     public class ResendConfirmationLinkViewModel
     {

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace SportStore.Models
+namespace SportStore.Data
 {
     public class AppIdentityDbContext : IdentityDbContext<IdentityUser>
     {

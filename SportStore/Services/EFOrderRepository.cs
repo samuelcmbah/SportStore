@@ -1,9 +1,12 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using SportStore.Data;
+using SportStore.Models;
+using SportStore.Services.IServices;
 using System.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace SportStore.Models
+namespace SportStore.Services
 {
     public class EFOrderRepository : IOrderRepository
     {

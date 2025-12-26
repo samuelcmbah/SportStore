@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using SportStore.Models.ViewModels;
 using SportStore.Services.IServices;
+using SportStore.ViewModels.Auth;
 using System.Net;
 
 namespace SportStore.Services

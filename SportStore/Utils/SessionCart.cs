@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using SportStore.Models;
 using System.Text.Json.Serialization;
 
-namespace SportStore.Models
+namespace SportStore.Utils
 {
 
     public class SessionCart 
