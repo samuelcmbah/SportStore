@@ -73,8 +73,7 @@ namespace SportStore
                 // Create and return a new instance of SessionCart
                 return new SessionCart(session);
             });
-            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            //builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
