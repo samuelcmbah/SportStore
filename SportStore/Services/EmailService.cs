@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Resend; // Main Resend namespace
 using SportStore.Configurations;
 using SportStore.Services.IServices;
-using System.Threading.Tasks;
 
 // Make sure you have the Resend SDK installed: dotnet add package Resend
 public class EmailService : IEmailService
@@ -57,7 +55,7 @@ public class EmailService : IEmailService
         {
             _logger.LogError(ex, "An unexpected error occurred while sending confirmation email to {Email}", to);
             // Depending on your strategy, you might want to re-throw or handle this
-            throw;
+            return;
         }
     }
 }

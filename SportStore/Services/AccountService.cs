@@ -43,10 +43,14 @@ namespace SportStore.Services
                 return result;
             }
 
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-            var confirmationLink = GenerateConfirmationLink(user.Id, token, scheme);
+            var confirmationLink =  await GenerateConfirmationLinkAsync(user, scheme);
 
             await emailService.SendConfirmationEmailAsync(user.Email, confirmationLink);
+            // Alternatively, we could using a library like hangfire
+            // Enqueue the job instead of calling the service directly
+            //_backgroundJobClient.Enqueue<IEmailService>(
+            //    emailService => emailService.SendConfirmationEmailAsync(user.Email, confirmationLink)
+            //);
 
             return result;
         }
@@ -94,11 +98,13 @@ namespace SportStore.Services
             return result;
         }
 
-        private string GenerateConfirmationLink(string userId, string token, string scheme)
+        private async Task<string> GenerateConfirmationLinkAsync(IdentityUser user,  string scheme)
         {
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
             var request = httpContextAccessor.HttpContext!.Request;
             var encodedToken = WebUtility.UrlEncode(token);
-            return $"{scheme}://{request.Host}/Account/ConfirmEmail?userId={userId}&token={encodedToken}";
+            return $"{scheme}://{request.Host}/Account/ConfirmEmail?userId={user.Id}&token={encodedToken}";
         }
     }
 
