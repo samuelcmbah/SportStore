@@ -10,6 +10,8 @@ namespace SportStore.Services.IServices
         Task LogoutAsync();
         Task<bool> IsEmailInUseAsync(string email);
         Task<IdentityResult> ConfirmEmailAsync(string userId, string token);
+        Task ResendConfirmationLinkAsync(string email, string scheme);
+
     }
 
 }

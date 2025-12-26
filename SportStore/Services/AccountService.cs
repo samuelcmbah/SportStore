@@ -98,6 +98,17 @@ namespace SportStore.Services
             return result;
         }
 
+        public async Task ResendConfirmationLinkAsync(string email, string scheme)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+
+            if(user != null && !user.EmailConfirmed)
+            {
+                var confirmationLink =   await GenerateConfirmationLinkAsync(user, scheme);
+                await emailService.SendConfirmationEmailAsync(user.Email, confirmationLink);
+            }
+        }
+
         private async Task<string> GenerateConfirmationLinkAsync(IdentityUser user,  string scheme)
         {
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);

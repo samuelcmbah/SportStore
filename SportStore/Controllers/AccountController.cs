@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models.ViewModels;
+using SportStore.Models.ViewModels.Auth;
 using SportStore.Services;
 using SportStore.Services.IServices;
 using System.ComponentModel.DataAnnotations;
@@ -127,6 +128,22 @@ namespace SportStore.Controllers
             ViewBag.ErrorTitle = "Email Confirmation Failed";
             ViewBag.ErrorMessage = "The confirmation link is invalid or has expired.";
             return View("Error");
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendConfirmationLink(ResendConfirmationLinkViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            await accountService.ResendConfirmationLinkAsync(model.Email, Request.Scheme);
+
+            
+            return RedirectToAction("ConfirmationEmailSent");
         }
     }
 }
