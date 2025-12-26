@@ -34,7 +34,7 @@ namespace SportStore.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Register()
+        public IActionResult Register() 
         {
             return View();
         }
@@ -49,6 +49,10 @@ namespace SportStore.Controllers
             }
 
             var result = await accountService.RegisterAsync(model, Request.Scheme);
+            if (result.Succeeded)
+            {
+                return View("ConfirmationEmailSent");
+            }
 
             foreach (var error in result.Errors)
             {
