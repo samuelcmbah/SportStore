@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SportStore.Data;
 
-
 #nullable disable
 
 namespace SportStore.Migrations
@@ -71,7 +70,7 @@ namespace SportStore.Migrations
 
                     b.HasKey("OrderID");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("SportStore.Models.OrderItem", b =>
@@ -97,7 +96,7 @@ namespace SportStore.Migrations
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("OrderItem");
+                    b.ToTable("OrderItem", (string)null);
                 });
 
             modelBuilder.Entity("SportStore.Models.Product", b =>
@@ -128,7 +127,7 @@ namespace SportStore.Migrations
 
                     b.HasKey("ProductID");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("SportStore.Models.OrderItem", b =>

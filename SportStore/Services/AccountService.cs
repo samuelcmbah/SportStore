@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using SportStore.Models;
 using SportStore.Services.IServices;
 using SportStore.ViewModels.Auth;
 using System.Net;
@@ -7,14 +8,14 @@ namespace SportStore.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
         private readonly IEmailService emailService;
         private readonly IHttpContextAccessor httpContextAccessor;
 
         public AccountService(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IEmailService emailService,
             IHttpContextAccessor httpContextAccessor)
         {
@@ -31,7 +32,7 @@ namespace SportStore.Services
 
         public async Task<IdentityResult> RegisterAsync(RegisterViewModel model, string scheme)
         {
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = model.Email,
                 Email = model.Email
@@ -109,7 +110,7 @@ namespace SportStore.Services
             }
         }
 
-        private async Task<string> GenerateConfirmationLinkAsync(IdentityUser user,  string scheme)
+        private async Task<string> GenerateConfirmationLinkAsync(ApplicationUser user,  string scheme)
         {
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 

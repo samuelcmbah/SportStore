@@ -15,11 +15,11 @@ namespace SportStore.Controllers
         private readonly IStoreRepository storeRepository;
         private readonly IOrderRepository orderRepository;
         private readonly RoleManager<IdentityRole> roleManager;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
         private readonly IWebHostEnvironment webHostEnvironment;
 
         public AdministrationController(IStoreRepository storeRepository, IOrderRepository orderRepository, RoleManager<IdentityRole> roleManager, 
-                                        UserManager<IdentityUser> userManager,IWebHostEnvironment webHostEnvironment)
+                                        UserManager<ApplicationUser> userManager,IWebHostEnvironment webHostEnvironment)
         {
             this.storeRepository = storeRepository;
             this.orderRepository = orderRepository;

@@ -9,6 +9,7 @@ using Resend;
 using Serilog;
 using SportStore.Configurations;
 using SportStore.Data;
+using SportStore.Models;
 using SportStore.Services;
 using SportStore.Services.IServices;
 using SportStore.Utils;
@@ -43,7 +44,7 @@ namespace SportStore
             builder.Services.AddHttpClient<ResendClient>();
             builder.Services.AddTransient<IResend, ResendClient>();
             //adding identity
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedEmail = true;
                 options.User.RequireUniqueEmail = true;
