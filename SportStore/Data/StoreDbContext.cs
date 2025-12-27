@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SportStore.Models;
+using SportStore.ViewModels;
 
 namespace SportStore.Data
 {
@@ -14,10 +15,19 @@ namespace SportStore.Data
         }
 
         public DbSet<Product> Products => Set<Product>();
-
+        public DbSet<Cart> Carts => Set<Cart>();
+        public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
 
-        
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            //adds a Unique index on Cart.UserId
+            modelBuilder.Entity<Cart>()
+            .HasIndex(c => c.UserId)
+            .IsUnique();
+        }
     }
 }
 

@@ -45,7 +45,7 @@ namespace SportStore.Controllers
                 cart.CartItems.Clear();
                 cart.TotalCartItems = null;
 
-                sessionCart.RemoveCart();
+                sessionCart.ClearCart();
                 sessionCart.SetCart(cart);
 
                 return View("Completed", new { orderId = order.OrderID });

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using SportStore.Models;
 using SportStore.Services.IServices;
+using SportStore.Utils;
 using SportStore.ViewModels.Auth;
 using System.Net;
 
@@ -7,21 +9,27 @@ namespace SportStore.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
         private readonly IEmailService emailService;
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly ICartService cartService;
+        private readonly SessionCart sessionCart;
 
         public AccountService(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IEmailService emailService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ICartService cartService,
+            SessionCart sessionCart)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.emailService = emailService;
             this.httpContextAccessor = httpContextAccessor;
+            this.cartService = cartService;
+            this.sessionCart = sessionCart;
         }
 
         public async Task<bool> IsEmailInUseAsync(string email)
@@ -31,7 +39,7 @@ namespace SportStore.Services
 
         public async Task<IdentityResult> RegisterAsync(RegisterViewModel model, string scheme)
         {
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = model.Email,
                 Email = model.Email
@@ -74,6 +82,19 @@ namespace SportStore.Services
             var result = await signInManager.PasswordSignInAsync(
                 user, model.Password, model.RememberMe, lockoutOnFailure: false);
 
+            if (!result.Succeeded)
+            {
+                return result;
+            }
+            //put this logic in a helper method later
+            //merge session to database cart
+            var session = sessionCart.GetCart();
+            if (session.CartItems.Any())
+            {
+                await cartService.MergeCartsAsync(user.Id, session);
+                sessionCart.ClearCart();
+            }
+
             return result;
         }
 
@@ -81,6 +102,7 @@ namespace SportStore.Services
         public async Task LogoutAsync()
         {
             await signInManager.SignOutAsync();
+            sessionCart.ClearCart();
         }
 
         public async Task<IdentityResult> ConfirmEmailAsync(string userId, string token)
@@ -109,7 +131,7 @@ namespace SportStore.Services
             }
         }
 
-        private async Task<string> GenerateConfirmationLinkAsync(IdentityUser user,  string scheme)
+        private async Task<string> GenerateConfirmationLinkAsync(ApplicationUser user,  string scheme)
         {
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
