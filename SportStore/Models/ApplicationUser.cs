@@ -5,5 +5,8 @@ namespace SportStore.Models
     public class ApplicationUser : IdentityUser
     {
         public string FullName { get; set; } = string.Empty;
+        //navigation property
+        public Cart? Cart { get; set; }
+
     }
 }
