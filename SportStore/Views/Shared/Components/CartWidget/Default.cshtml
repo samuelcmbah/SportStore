@@ -1,0 +1,8 @@
+﻿@model int?
+
+@if (Model.HasValue && Model.Value > 0)
+{
+    <span class="cart-badge text-white bg-success rounded-pill ms-2">
+        @Model
+    </span>
+}

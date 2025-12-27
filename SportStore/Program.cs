@@ -62,22 +62,9 @@ namespace SportStore
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();
             builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
-            builder.Services.AddScoped<SessionCart>(serviceProvider =>
-            {
-                // Retrieve the HttpContextAccessor service
-                var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-
-                // Retrieve the HttpContext from the HttpContextAccessor
-                var httpContext = httpContextAccessor.HttpContext;
-
-                // Retrieve the ISession service from the HttpContext
-                var session = httpContext?.Session;
-
-                // Create and return a new instance of SessionCart
-                return new SessionCart(session);
-            });
+           
             builder.Services.AddHttpContextAccessor();
-
+            builder.Services.AddScoped<SessionCart>(); 
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
@@ -85,8 +72,6 @@ namespace SportStore
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
-
-            builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();//The AddScoped method creates a service where each HTTP request gets its own repository object, which is the way that Entity Framework Core is typically used.
 
 
             builder.Services.AddControllersWithViews();
