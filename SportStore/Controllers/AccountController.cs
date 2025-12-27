@@ -89,7 +89,6 @@ namespace SportStore.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Handle specific login failures
             if (result.IsNotAllowed)
             {
                 ModelState.AddModelError(string.Empty, "Your email has not been confirmed. Please check your inbox");

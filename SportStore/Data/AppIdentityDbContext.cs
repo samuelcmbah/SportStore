@@ -14,7 +14,7 @@ namespace SportStore.Data
             this.configuration = configuration;
         }
 
-       
+        
     }
     
 }

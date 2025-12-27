@@ -19,7 +19,7 @@ namespace SportStore.Utils
         public Cart GetCart()
         {
             var sessionData = _session.GetString(CartSessionKey);
-            return sessionData == null ? new Cart() : JsonConvert.DeserializeObject<Cart>(sessionData);
+            return sessionData == null ? new Cart() : (JsonConvert.DeserializeObject<Cart>(sessionData) ?? new Cart());
         }
 
         public void SetCart(Cart cart)
@@ -27,7 +27,7 @@ namespace SportStore.Utils
             _session.SetString(CartSessionKey, JsonConvert.SerializeObject(cart));
         }
 
-        public void RemoveCart()
+        public void ClearCart()
         {
             _session.Remove(CartSessionKey);
         }

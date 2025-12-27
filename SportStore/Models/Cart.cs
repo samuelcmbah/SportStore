@@ -16,8 +16,8 @@ namespace SportStore.Models
         [Column(TypeName = "decimal(8, 2)")]
         public decimal Total { get; set; }
 
-        // Add foreign key and navigation property to ApplicationUser
-        public string? UserId { get; set; }
-        public ApplicationUser? User { get; set; }
+        // an external identifier not fk, as we are using two db contexts
+        public string UserId { get; set; } = null!;
+        //public ApplicationUser? User { get; set; }
     }
 }

@@ -19,15 +19,14 @@ namespace SportStore.Data
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // one-to-one relationship between ApplicationUser and Cart
-            modelBuilder.Entity<ApplicationUser>()
-                .HasOne(a => a.Cart)
-                .WithOne(c => c.User)
-                .HasForeignKey<Cart>(c => c.UserId);
+            //adds a Unique index on Cart.UserId
+            modelBuilder.Entity<Cart>()
+            .HasIndex(c => c.UserId)
+            .IsUnique();
         }
     }
 }

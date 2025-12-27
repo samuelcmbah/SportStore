@@ -58,7 +58,9 @@ namespace SportStore
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("SportsStoreConnection")));
 
+            builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();
             builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
             builder.Services.AddScoped<SessionCart>(serviceProvider =>
             {
