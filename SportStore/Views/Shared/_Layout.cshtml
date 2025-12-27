@@ -1,5 +1,5 @@
-﻿@inject SignInManager<IdentityUser> signInManager
-@inject SessionCart sessionCart
+﻿@using SportStore.Utils
+@inject SignInManager<ApplicationUser> signInManager
 
 <!DOCTYPE html>
 <html lang="en">
@@ -58,8 +58,8 @@
                             <a class="nav-link text-dark d-flex align-items-center" asp-area="" asp-controller="Cart" asp-action="ViewCart">
                                 <i class="fa-solid fa-cart-shopping"></i>
                                 <span class="cart-badge text-white bg-success rounded-pill ms-2">
-                                    @sessionCart.GetCart().TotalCartItems
-                                </span>Cart
+                                    @await Component.InvokeAsync("CartWidget")
+                                </span>
                             </a>
                         </li>
 

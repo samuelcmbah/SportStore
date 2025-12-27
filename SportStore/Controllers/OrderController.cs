@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
-using SportStore.Models.ViewModels;
+using SportStore.Services.IServices;
+using SportStore.Utils;
 
 namespace SportStore.Controllers
 {
@@ -44,7 +45,7 @@ namespace SportStore.Controllers
                 cart.CartItems.Clear();
                 cart.TotalCartItems = null;
 
-                sessionCart.RemoveCart();
+                sessionCart.ClearCart();
                 sessionCart.SetCart(cart);
 
                 return View("Completed", new { orderId = order.OrderID });

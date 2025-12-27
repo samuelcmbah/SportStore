@@ -3,7 +3,8 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SportStore.Models;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using SportStore.Data;
 
 #nullable disable
 
@@ -15,51 +16,80 @@ namespace SportStore.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.4");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("SportStore.Models.Cart", b =>
+                {
+                    b.Property<int>("CartId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CartId"));
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(8, 2)");
+
+                    b.Property<int?>("TotalCartItems")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("CartId");
+
+                    b.ToTable("Carts");
+                });
 
             modelBuilder.Entity("SportStore.Models.Order", b =>
                 {
                     b.Property<int>("OrderID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderID"));
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Country")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<bool>("GiftWrap")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Line1")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Line2")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Line3")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("OrderDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Shipped")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("State")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Zip")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("OrderID");
 
@@ -70,16 +100,18 @@ namespace SportStore.Migrations
                 {
                     b.Property<int>("OrderItemId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderItemId"));
 
                     b.Property<int>("OrderId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<long>("ProductID")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("OrderItemId");
 
@@ -94,22 +126,24 @@ namespace SportStore.Migrations
                 {
                     b.Property<long?>("ProductID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long?>("ProductID"));
 
                     b.Property<string>("Category")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("PhotoPath")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(8, 2)");
@@ -117,6 +151,32 @@ namespace SportStore.Migrations
                     b.HasKey("ProductID");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("SportStore.ViewModels.CartItem", b =>
+                {
+                    b.Property<int>("CartItemID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CartItemID"));
+
+                    b.Property<int>("CartId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("ProductID")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CartItemID");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("ProductID");
+
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("SportStore.Models.OrderItem", b =>
@@ -134,6 +194,30 @@ namespace SportStore.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("SportStore.ViewModels.CartItem", b =>
+                {
+                    b.HasOne("SportStore.Models.Cart", "Cart")
+                        .WithMany("CartItems")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SportStore.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("SportStore.Models.Cart", b =>
+                {
+                    b.Navigation("CartItems");
                 });
 
             modelBuilder.Entity("SportStore.Models.Order", b =>
