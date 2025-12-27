@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SportStore.ViewModels;
+using SportStore.Models.ViewModels;
 using System.Diagnostics;
 
 namespace SportStore.Controllers

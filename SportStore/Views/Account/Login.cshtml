@@ -1,5 +1,4 @@
-﻿@using SportStore.ViewModels.Auth
-@model LoginViewModel
+﻿@model LoginViewModel
 
 @{
     ViewData["Title"] = "Login";
@@ -16,16 +15,6 @@
 
                 <form asp-action="Login" asp-controller="Account" method="post">
                     <div asp-validation-summary="All" class="text-danger mb-3"></div>
-
-                    @if (ViewData["ShowResendLink"] as bool? == true)
-                    {
-                        <div class="alert alert-warning text-center">
-                            Didn't receive an email?
-                            <a asp-action="ResendConfirmationLink" class="alert-link">
-                                Resend confirmation link
-                            </a>
-                        </div>
-                    }
 
                     <input asp-for="ReturnUrl" hidden/>
 

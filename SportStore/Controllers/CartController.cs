@@ -2,12 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
-using SportStore.Services;
-using SportStore.Services.IServices;
-using SportStore.Utils;
-using SportStore.ViewModels;
-using System.Security.Claims;
-using System.Threading.Tasks;
+using SportStore.Models.ViewModels;
 
 //using Microsoft.AspNetCore.Mvc;
 //using Web.Extensions;
@@ -20,58 +15,28 @@ namespace SportStore.Controllers
     {
         private readonly IStoreRepository storeRepository;
         private readonly SessionCart sessionCart;
-        private readonly ICartService cartService;
 
-        public CartController(
-            IStoreRepository storeRepository, 
-            SessionCart sessionCart, ICartService cartService)
+        public CartController(IStoreRepository storeRepository, SessionCart sessionCart)
         {
             this.storeRepository = storeRepository;
             this.sessionCart = sessionCart;
-            this.cartService = cartService;
-        }
-
-        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-
-
-        private async Task<Cart> GetCartAsync()
-        {
-            if(User.Identity!.IsAuthenticated)
-            {
-                var userId = GetUserId();
-                return await cartService.GetOrCreateCartByUserIdAsync(userId);
-            }
-            return sessionCart.GetCart();
-        }
-
-        private async Task SaveCartAsync(Cart cart)
-        {
-            if (User.Identity!.IsAuthenticated)
-                await cartService.UpdateCartAsync(cart);
-            else
-                sessionCart.SetCart(cart);
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemoveFromCart(int productId, string returnUrl)
+        public IActionResult RemoveFromCart(int productId, string returnUrl)
         {
             Product? product = storeRepository.GetProductById(productId);
             if (product == null)
             {
-                return NotFound();
+                //Display an error message that the selected item is no longer available
             }
 
-            var cart = await GetCartAsync();
+            var cart = sessionCart.GetCart();
 
-            var itemToRemove = cart.CartItems.FirstOrDefault(item => item?.Product?.ProductID == productId);
-            if (itemToRemove != null)
-            {
-                cart.CartItems.Remove(itemToRemove);
-            }
-
+            cart.CartItems.RemoveAll(id => id?.Product?.ProductID == product?.ProductID);
             CalculateTotalAmount_Items(cart);
 
-            await SaveCartAsync(cart);
+            sessionCart.SetCart(cart); 
 
             return LocalRedirect(returnUrl);
         }
@@ -88,42 +53,49 @@ namespace SportStore.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddToCart(int productId, string returnUrl, int quantity = 1 )
+        public IActionResult AddToCart(int productId, string returnUrl, int quantity = 1 )
         {
             Product? product = storeRepository.GetProductById(productId);
             if (product == null)
             {
-                return NotFound();
+                //Display an error message that the selected item is no longer available
             }
 
-            var cart = await GetCartAsync();
+            var cart = sessionCart.GetCart();
 
+            {
+             //checks if a product is already existing in the cart
+             //increases the quantity by 1 if it already exists, adds it to the cart if it doesnt
+             //assign the sum total of the quantity of each cart item to totalcartitems
+             //and then calculates the total number of items in the cart
+            }
+            
             var existingCartItem = cart.CartItems.FirstOrDefault(item => item?.Product?.ProductID == productId);
             if (existingCartItem != null)
             {
-                existingCartItem.Quantity++;
+                existingCartItem.Quantity += 1;
             }
             else
             {
-                cart.CartItems.Add(new CartItem
+                var cartItem = new CartItem
                 {
                     Product = product,
-                    Quantity = quantity,
-                    //Subtotal = product.Price * quantity | we are already doing this in the class definition
-                });
+                    Quantity = quantity
+                };
+                cart.CartItems.Add(cartItem);
             }
 
             CalculateTotalAmount_Items(cart);
 
-            await SaveCartAsync(cart);
+            sessionCart.SetCart(cart);
 
             return LocalRedirect(returnUrl);
         }
 
 
-        public async Task<IActionResult> ViewCart()
+        public IActionResult ViewCart()
         {
-            var cart = await GetCartAsync();
+            var cart = sessionCart.GetCart();
 
             return View(cart);
         }
