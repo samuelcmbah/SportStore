@@ -15,32 +15,36 @@
             private readonly ICartService _cartService;
             private readonly SessionCart _sessionCart;
             private readonly UserManager<ApplicationUser> _userManager;
+            private readonly ICartDomainService cartDomainService;
 
             public CartWidgetViewComponent(
                 ICartService cartService,
                 SessionCart sessionCart,
-                UserManager<ApplicationUser> userManager)
+                UserManager<ApplicationUser> userManager,
+                ICartDomainService cartDomainService)
             {
                 _cartService = cartService;
                 _sessionCart = sessionCart;
                 _userManager = userManager;
+                this.cartDomainService = cartDomainService;
             }
 
             public async Task<IViewComponentResult> InvokeAsync()
             {
+                Cart cart;
                 int? totalItems = 0;
+                var userId = _userManager.GetUserId(HttpContext.User);
 
-                if (User.Identity!.IsAuthenticated)
+                if (!string.IsNullOrEmpty(userId))
                 {
-                    var userId = _userManager.GetUserId(HttpContext.User);
-                    var cart = await _cartService.GetOrCreateCartByUserIdAsync(userId);
-                    totalItems = cart.TotalCartItems;
+                    
+                    cart = await _cartService.GetOrCreateCartByUserIdAsync(userId);
                 }
                 else
                 {
-                    var cart = _sessionCart.GetCart();
-                    totalItems = cart.TotalCartItems;
+                    cart = _sessionCart.GetCart();
                 }
+                totalItems = cartDomainService.GetTotalItems(cart);
 
                 return View(totalItems);
             }

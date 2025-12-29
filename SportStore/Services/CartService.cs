@@ -2,7 +2,7 @@
 using SportStore.Data;
 using SportStore.Models;
 using SportStore.Services.IServices;
-using SportStore.ViewModels;
+using SportStore.ViewModels.CartVM;
 
 namespace SportStore.Services
 {
@@ -42,35 +42,10 @@ namespace SportStore.Services
 
         public async Task UpdateCartAsync(Cart cart)
         {
-            _context.Carts.Update(cart);
             await _context.SaveChangesAsync();
         }
 
-        public async Task MergeCartsAsync(string userId, Cart sessionCart)
-        {
-            var dbCart = await GetOrCreateCartByUserIdAsync(userId);
-
-            foreach (var sessionItem in sessionCart.CartItems)
-            {
-                var dbItem = dbCart.CartItems
-                    .FirstOrDefault(i => i.Product.ProductID == sessionItem.Product.ProductID);
-
-                if (dbItem != null)
-                {
-                    dbItem.Quantity += sessionItem.Quantity;
-                }
-                else
-                {
-                    dbCart.CartItems.Add(new CartItem
-                    {
-                        Product = sessionItem.Product,
-                        Quantity = sessionItem.Quantity
-                    });
-                }
-            }
-
-            await UpdateCartAsync(dbCart);
-        }
+       
     }
 
 }

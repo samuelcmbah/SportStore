@@ -1,7 +1,5 @@
-﻿
-
-using SportStore.Models;
-namespace SportStore.ViewModels;
+﻿using SportStore.Models;
+namespace SportStore.ViewModels.CartVM;
 
 public class CartItem
 {

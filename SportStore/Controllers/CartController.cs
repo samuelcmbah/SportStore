@@ -6,6 +6,7 @@ using SportStore.Services;
 using SportStore.Services.IServices;
 using SportStore.Utils;
 using SportStore.ViewModels;
+using SportStore.ViewModels.CartVM;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -21,15 +22,20 @@ namespace SportStore.Controllers
         private readonly IStoreRepository storeRepository;
         private readonly SessionCart sessionCart;
         private readonly ICartService cartService;
+        private readonly ICartDomainService cartDomainService;
 
         public CartController(
             IStoreRepository storeRepository, 
-            SessionCart sessionCart, ICartService cartService)
+            SessionCart sessionCart, ICartService cartService,
+            ICartDomainService cartDomainService)
         {
             this.storeRepository = storeRepository;
             this.sessionCart = sessionCart;
             this.cartService = cartService;
+            this.cartDomainService = cartDomainService;
         }
+
+        //PRIVATE HELPER METHODS
 
         private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
 
@@ -52,6 +58,26 @@ namespace SportStore.Controllers
                 sessionCart.SetCart(cart);
         }
 
+        //PUBLIC ACCESS METHODS
+
+        [HttpPost]
+        public async Task<IActionResult> AddToCart(int productId, string returnUrl, int quantity = 1)
+        {
+            Product? product = storeRepository.GetProductById(productId);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            var cart = await GetCartAsync();
+
+            cartDomainService.AddItem(cart, product, quantity);
+
+            await SaveCartAsync(cart);
+
+            return LocalRedirect(returnUrl);
+        }
+
         [HttpPost]
         public async Task<IActionResult> RemoveFromCart(int productId, string returnUrl)
         {
@@ -63,71 +89,26 @@ namespace SportStore.Controllers
 
             var cart = await GetCartAsync();
 
-            var itemToRemove = cart.CartItems.FirstOrDefault(item => item?.Product?.ProductID == productId);
-            if (itemToRemove != null)
-            {
-                cart.CartItems.Remove(itemToRemove);
-            }
-
-            CalculateTotalAmount_Items(cart);
+            cartDomainService.RemoveItem(cart, product.ProductID);
 
             await SaveCartAsync(cart);
 
             return LocalRedirect(returnUrl);
         }
-
-        private void CalculateTotalAmount_Items(Cart cart)
-        {
-            cart.TotalCartItems = cart.CartItems.Sum(item => item?.Quantity);
-            if(cart.TotalCartItems == 0)
-            {
-                cart.TotalCartItems = null;
-            }
-            ViewData["TotalCartItems"] = cart.TotalCartItems.ToString();
-            cart.Total = cart.CartItems.Sum(item => item.Subtotal);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AddToCart(int productId, string returnUrl, int quantity = 1 )
-        {
-            Product? product = storeRepository.GetProductById(productId);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            var cart = await GetCartAsync();
-
-            var existingCartItem = cart.CartItems.FirstOrDefault(item => item?.Product?.ProductID == productId);
-            if (existingCartItem != null)
-            {
-                existingCartItem.Quantity++;
-            }
-            else
-            {
-                cart.CartItems.Add(new CartItem
-                {
-                    Product = product,
-                    Quantity = quantity,
-                    //Subtotal = product.Price * quantity | we are already doing this in the class definition
-                });
-            }
-
-            CalculateTotalAmount_Items(cart);
-
-            await SaveCartAsync(cart);
-
-            return LocalRedirect(returnUrl);
-        }
-
 
         public async Task<IActionResult> ViewCart()
         {
             var cart = await GetCartAsync();
 
-            return View(cart);
+            var viewModel = new CartViewModel
+            {
+                Cart = cart,
+                TotalItems = cartDomainService.GetTotalItems(cart),
+                TotalPrice = cartDomainService.GetTotalPrice(cart),
+            };
+
+            return View(viewModel);
         }
 
-        //svdasffggf
     }
 }
