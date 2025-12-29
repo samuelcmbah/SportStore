@@ -15,19 +15,22 @@ namespace SportStore.Controllers
         private readonly ICartDomainService cartDomainService;
         private readonly IOrderDomainService orderDomainService;
         private readonly IOrderRepository orderRepository;
+        private readonly IOrderNotificationService orderNotificationService;
 
         public OrderController(
             ICartService cartService,
             SessionCart sessionCart,
             ICartDomainService cartDomainService,
             IOrderDomainService orderDomainService,
-            IOrderRepository orderRepository)
+            IOrderRepository orderRepository,
+            IOrderNotificationService orderNotificationService)
         {
             this.cartService = cartService;
             this.sessionCart = sessionCart;
             this.cartDomainService = cartDomainService;
             this.orderDomainService = orderDomainService;
             this.orderRepository = orderRepository;
+            this.orderNotificationService = orderNotificationService;
         }
 
         private async Task<Cart> GetCartAsync()
@@ -92,16 +95,19 @@ namespace SportStore.Controllers
                 sessionCart.ClearCart();
 
             // Email will go here
-            return RedirectToAction("Completed", new { orderId = order.OrderID });
+            await orderNotificationService.SendOrderPlacedEmailAsync(order);
+
+            return RedirectToAction("Completed", new {orderId = order.OrderID});
         }
 
         [HttpGet]
-        public  IActionResult Completed(int orderId)
+        public   IActionResult Completed(int orderId)
         {
-            //sending mail to user goes in here.
+            
+
             var vm = new OrderCompletedViewModel
             {
-                OrderId = orderId
+                OrderId = orderId,
             };
             return View(vm);
         }

@@ -19,6 +19,7 @@ namespace SportStore.Services
             {
                 OrderDate = DateTime.UtcNow,
                 Name = vm.Name,
+                Email = vm.Email,
                 Line1 = vm.Line1,
                 Line2 = vm.Line2,
                 Line3 = vm.Line3,
