@@ -43,7 +43,6 @@ namespace SportStore.Controllers
                 }).ToList();
                 orderRepository.SaveOrder(order);
                 cart.CartItems.Clear();
-                cart.TotalCartItems = null;
 
                 sessionCart.ClearCart();
                 sessionCart.SetCart(cart);

@@ -14,7 +14,8 @@ namespace SportStore.Services
         private readonly IEmailService emailService;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ICartService cartService;
-        private readonly SessionCart sessionCart;
+        private readonly SessionCart sessionCartService;
+        private readonly ICartDomainService cartDomainService;
 
         public AccountService(
             UserManager<ApplicationUser> userManager,
@@ -22,15 +23,41 @@ namespace SportStore.Services
             IEmailService emailService,
             IHttpContextAccessor httpContextAccessor,
             ICartService cartService,
-            SessionCart sessionCart)
+            SessionCart sessionCartService,
+            ICartDomainService cartDomainService)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.emailService = emailService;
             this.httpContextAccessor = httpContextAccessor;
             this.cartService = cartService;
-            this.sessionCart = sessionCart;
+            this.sessionCartService = sessionCartService;
+            this.cartDomainService = cartDomainService;
         }
+        //PRIVATE HELPER METHODS
+
+        private async Task<string> GenerateConfirmationLinkAsync(ApplicationUser user, string scheme)
+        {
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            var request = httpContextAccessor.HttpContext!.Request;
+            var encodedToken = WebUtility.UrlEncode(token);
+            return $"{scheme}://{request.Host}/Account/ConfirmEmail?userId={user.Id}&token={encodedToken}";
+        }
+
+        private async Task MergeSessionToDbCartAsync(string userId)
+        {
+            var sessionCart = sessionCartService.GetCart();
+            if (sessionCart.CartItems.Any())
+            {
+                var dbCart = await cartService.GetOrCreateCartByUserIdAsync(userId);
+                cartDomainService.Merge(dbCart, sessionCart);
+                await cartService.UpdateCartAsync(dbCart);
+                sessionCartService.ClearCart();
+            }
+        }
+
+        //PUBLIC ACCESS METHODS
 
         public async Task<bool> IsEmailInUseAsync(string email)
         {
@@ -86,14 +113,8 @@ namespace SportStore.Services
             {
                 return result;
             }
-            //put this logic in a helper method later
             //merge session to database cart
-            var session = sessionCart.GetCart();
-            if (session.CartItems.Any())
-            {
-                await cartService.MergeCartsAsync(user.Id, session);
-                sessionCart.ClearCart();
-            }
+            await MergeSessionToDbCartAsync(user.Id);
 
             return result;
         }
@@ -102,7 +123,7 @@ namespace SportStore.Services
         public async Task LogoutAsync()
         {
             await signInManager.SignOutAsync();
-            sessionCart.ClearCart();
+            sessionCartService.ClearCart();
         }
 
         public async Task<IdentityResult> ConfirmEmailAsync(string userId, string token)
@@ -131,14 +152,7 @@ namespace SportStore.Services
             }
         }
 
-        private async Task<string> GenerateConfirmationLinkAsync(ApplicationUser user,  string scheme)
-        {
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-
-            var request = httpContextAccessor.HttpContext!.Request;
-            var encodedToken = WebUtility.UrlEncode(token);
-            return $"{scheme}://{request.Host}/Account/ConfirmEmail?userId={user.Id}&token={encodedToken}";
-        }
+       
     }
 
 }

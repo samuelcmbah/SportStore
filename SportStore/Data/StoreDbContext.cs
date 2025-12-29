@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SportStore.Models;
-using SportStore.ViewModels;
+using SportStore.ViewModels.CartVM;
 
 namespace SportStore.Data
 {
