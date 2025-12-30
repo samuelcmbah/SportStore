@@ -25,6 +25,7 @@ This project showcases a complete web application lifecycle, from user authentic
 -   **Product Catalog:** Browse products with clean pagination and filtering by category.
 -   **Secure User Management:** Full user registration and login functionality powered by ASP.NET Core Identity.
 -   **Email Confirmation:** New users must confirm their email address before they can log in.
+-   **Order Confirmation Emails:** Customers now receive an order confirmation email after a successful checkout (includes order details and items).
 -   **Hybrid Shopping Cart:** A seamless cart experience that persists items in the browser session for guest users and saves them to the database for logged-in users.
 -   **Full Cart Functionality:** Easily add items to and remove items from the shopping cart.
 -   **Order & Checkout:** A complete checkout process and an order history page for authenticated users.
@@ -40,7 +41,20 @@ This project is built on a modern, robust technology stack:
 -   **Authentication:** **ASP.NET Core Identity** for handling all user management and security.
 -   **Frontend:** **Razor Views** with **Bootstrap** for a responsive and clean UI.
 -   **Logging:** **Serilog** for structured and file-based logging.
--   **Email Service:** **Resend API** for sending transactional emails (like registration confirmation).
+-   **Email Service:** **Resend API** for sending transactional emails (like registration confirmation and order confirmations).
+
+## What’s New (Order Confirmation Emails)
+
+This project now sends an order confirmation email to customers after a successful checkout. The checkout flow was refactored and fixed so that emails reliably include the persisted order and its items. Key improvements in this update:
+
+- Refactored checkout to rely on domain services for order creation and cart totals.
+- Fixed order persistence flow to correctly use the generated OrderID after saving.
+- Corrected order confirmation email logic by loading the persisted order from the database.
+- Ensured order items and product details are properly included when sending confirmation emails.
+- Simplified controller responsibilities by passing identifiers instead of full entities.
+- Improved reliability of cart clearing for both authenticated and guest users.
+
+These changes make the checkout process more robust and correctly handle the order lifecycle. They also prepare the system for future features like PDF receipts and asynchronous email handling.
 
 ## Getting Started
 
@@ -83,6 +97,8 @@ You will need the following software installed on your machine:
     }
     ```
 
+    Note: The Resend API key and FromEmail are required for sending both user registration confirmation emails and order confirmation emails.
+
 3.  **Apply Database Migrations:**
     Navigate to the project directory in your terminal and run the following command to create the database schema:
     ```bash
@@ -96,10 +112,16 @@ You will need the following software installed on your machine:
     ```
     The application will be available at `https://localhost:5001` or a similar address.
 
+### Testing Order Emails Locally
+
+- Ensure `ResendEmailSettings.ApiKey` and `ResendEmailSettings.FromEmail` are set in `appsettings.Development.json`.
+- Use a testing email address or Resend’s sandbox/testing features to avoid spamming real users while developing.
+
 ## Roadmap & Future Improvements
 
 I plan to continue developing this project with the following features:
 
+-   [x] **Order Confirmation Emails:** Customers now receive email confirmations after checkout.
 -   [ ] **Payment Gateway Integration:** Integrate a payment provider like Paystack to handle real transactions.
 -   [ ] **PDF Receipts:** Automatically generate and email a PDF receipt to the user upon successful checkout.
 -   [ ] **Product Reviews:** Allow users to write reviews and give ratings for products.
