@@ -58,4 +58,26 @@ public class EmailService : IEmailService
             return;
         }
     }
-}
+
+    public async Task SendEmailAsync(string to, string subject, string html)
+    {
+        try
+        {
+            var message = new EmailMessage
+            {
+                From = $"SportStore <{_emailSettings.FromEmail}>",
+                To = to,
+                Subject = subject,
+                HtmlBody = html
+            };
+
+            await _resend.EmailSendAsync(message);
+            _logger.LogInformation($"Order Confirmation email sent successfully to {to}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while sending order confirmation email to {Email}", to);
+            // Depending on your strategy, you might want to re-throw or handle this
+            return;
+        }
+    } }

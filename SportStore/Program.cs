@@ -26,7 +26,7 @@ namespace SportStore
             // Add services to the container.
 
             //configuring third party logging
-            Log.Logger = new LoggerConfiguration().MinimumLevel.Error().WriteTo.File("Logs/SportStoreLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Information().WriteTo.File("Logs/SportStoreLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
             builder.Host.UseSerilog();
             //adding email service
             builder.Services.AddScoped<IEmailService, EmailService>();
@@ -58,6 +58,8 @@ namespace SportStore
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("SportsStoreConnection")));
 
+            builder.Services.AddScoped<IOrderNotificationService, OrderNotificationService>();
+            builder.Services.AddScoped<IOrderDomainService, OrderDomainService>();
             builder.Services.AddScoped<ICartDomainService, CartDomainService>();
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IAccountService, AccountService>();

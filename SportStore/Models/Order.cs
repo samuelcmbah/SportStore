@@ -16,6 +16,12 @@ namespace SportStore.Models
         [Required(ErrorMessage = "Please enter a name")]
         public string? Name { get; set; }
 
+
+        [Required(ErrorMessage = "Please enter a valid email")]
+        [EmailAddress]
+        public string Email { get; set; }  = string.Empty;
+
+
         [Required(ErrorMessage = "Please enter the first address line")]
         public string? Line1 { get; set; }
         public string? Line2 { get; set; }
