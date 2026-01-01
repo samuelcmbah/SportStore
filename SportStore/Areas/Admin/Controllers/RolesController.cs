@@ -1,31 +1,20 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
-using SportStore.Services.IServices;
-using SportStore.ViewModels.ProductVM;
 using SportStore.ViewModels.Role;
-using System.Runtime.CompilerServices;
 
-namespace SportStore.Controllers
+namespace SportStore.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Administrator")]
-    public class AdministrationController : Controller
+    public class RolesController : Controller
     {
-        private readonly IStoreRepository storeRepository;
-        private readonly IOrderRepository orderRepository;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly IWebHostEnvironment webHostEnvironment;
 
-        public AdministrationController(IStoreRepository storeRepository, IOrderRepository orderRepository, RoleManager<IdentityRole> roleManager, 
-                                        UserManager<ApplicationUser> userManager,IWebHostEnvironment webHostEnvironment)
+        public RolesController(RoleManager<IdentityRole> roleManager,
+                                        UserManager<ApplicationUser> userManager)
         {
-            this.storeRepository = storeRepository;
-            this.orderRepository = orderRepository;
             this.roleManager = roleManager;
             this.userManager = userManager;
-            this.webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
@@ -38,7 +27,7 @@ namespace SportStore.Controllers
             if (role != null)
             {
                 var model = new List<UserRoleViewModel>();
-                
+
 
                 foreach (var user in userManager.Users)
                 {
@@ -49,7 +38,7 @@ namespace SportStore.Controllers
                     };
 
                     userRoleViewModel.Selected = (await userManager.IsInRoleAsync(user, role.Name)) ? true : false;
-                    
+
                     model.Add(userRoleViewModel);
 
                 }
@@ -84,7 +73,7 @@ namespace SportStore.Controllers
 
                     }
                     //check if not selected and  in role
-                    else if (!model[i].Selected && await userManager.IsInRoleAsync(user, role.Name)) 
+                    else if (!model[i].Selected && await userManager.IsInRoleAsync(user, role.Name))
 
                     {
                         result = await userManager.RemoveFromRoleAsync(user, role.Name);
@@ -111,7 +100,7 @@ namespace SportStore.Controllers
             return View();
         }
 
-            [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> EditRole(string id)
         {
             var editRole = await roleManager.FindByIdAsync(id);
@@ -139,7 +128,7 @@ namespace SportStore.Controllers
                 ViewBag.ErrorMessage = $"Role with id {editRole?.Id} cannot be found";
                 return View("NotFound");
             }
-            
+
         }
 
         [HttpPost]
@@ -158,7 +147,7 @@ namespace SportStore.Controllers
                     return RedirectToAction("listrole");
                 }
 
-                foreach(var error in result.Errors)
+                foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError("", error.Description);
                 }
@@ -170,7 +159,7 @@ namespace SportStore.Controllers
                 return View("NotFound");
             }
 
-            
+
         }
 
         [HttpGet]
@@ -203,7 +192,7 @@ namespace SportStore.Controllers
                     return RedirectToAction("Index", "home");
                 }
 
-                foreach(var error in result.Errors)
+                foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
@@ -211,29 +200,5 @@ namespace SportStore.Controllers
             return View();
         }
 
-        
-
-        public IActionResult ManageOrders(int orderId)
-        {
-            if(orderId != 0)
-            {
-                Order order = orderRepository.GetOrder(orderId);
-                if (order == null)
-                {
-                    //take the user to a NotFound page
-                }
-                order.Shipped = true;
-                orderRepository.SaveOrder(order);
-            }
-
-            var model = orderRepository.Orders.Where(o => !o.Shipped) ;
-            return View(model);
-        }
-
-        public IActionResult ManageShippedOrders()
-        {
-            var model = orderRepository.Orders.Where(o => o.Shipped);
-            return View(model);
-        }
     }
 }

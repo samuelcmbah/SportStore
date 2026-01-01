@@ -86,6 +86,8 @@ namespace SportStore.Controllers
                 {
                     return Redirect(model.ReturnUrl);
                 }
+
+
                 return RedirectToAction("Index", "Home");
             }
 
