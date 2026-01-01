@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SportStore.Models;
+using SportStore.Models.DTOs;
 using SportStore.Services.IServices;
 using SportStore.Utils;
 using SportStore.ViewModels.Auth;
@@ -90,19 +91,22 @@ namespace SportStore.Services
             return result;
         }
 
-        public async Task<SignInResult> LoginAsync(LoginViewModel model)
+        public async Task<LoginResultDTO> LoginAsync(LoginViewModel model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
 
             if (user == null)
             {
-                return SignInResult.Failed;
+                return new LoginResultDTO { SignInResult = SignInResult.Failed };
             }
 
             if (!await userManager.IsEmailConfirmedAsync(user))
             {
                 // This result can be checked in the controller to show a specific message
-                return SignInResult.NotAllowed;
+                return new LoginResultDTO
+                {
+                    SignInResult = SignInResult.NotAllowed
+                };
             }
 
             
@@ -111,12 +115,18 @@ namespace SportStore.Services
 
             if (!result.Succeeded)
             {
-                return result;
+                return new LoginResultDTO { SignInResult = result};
             }
             //merge session to database cart
             await MergeSessionToDbCartAsync(user.Id);
 
-            return result;
+            var isAdmin = await userManager.IsInRoleAsync(user, "Administrator");
+
+            return new LoginResultDTO
+            {
+                SignInResult = result,
+                IsAdmin = isAdmin
+            };
         }
 
 
