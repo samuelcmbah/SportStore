@@ -64,7 +64,7 @@ namespace SportStore.Controllers
        
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login(string  returnUrl = "/" )
+        public IActionResult Login(string?  returnUrl = null )
         {
             var model = new LoginViewModel { ReturnUrl = returnUrl };
             return View(model);
@@ -75,21 +75,29 @@ namespace SportStore.Controllers
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             ViewData["ReturnUrl"] = model.ReturnUrl;
-            if (!ModelState.IsValid) return View(model);
 
-            var result = await accountService.LoginAsync(model);
+            if (!ModelState.IsValid) 
+                return View(model);
 
-            if (result.Succeeded)
+            var loginResult = await accountService.LoginAsync(model);
+
+            if (loginResult.SignInResult.Succeeded)
             {
                 // If returnUrl is valid and local, redirect there. Otherwise, redirect to home.
                 if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                 {
                     return Redirect(model.ReturnUrl);
                 }
+
+                if (loginResult.IsAdmin)
+                {
+                    return RedirectToAction("ManageProducts", "Products", new {area = "Admin"});
+                }
+
                 return RedirectToAction("Index", "Home");
             }
 
-            if (result.IsNotAllowed)
+            if (loginResult.SignInResult.IsNotAllowed)
             {
                 ModelState.AddModelError(string.Empty, "Your email has not been confirmed. Please check your inbox");
                 // Pass a signal to the view to show the resend link
@@ -99,6 +107,10 @@ namespace SportStore.Controllers
             {
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
+
+            
+
+            
 
             return View(model);
         }

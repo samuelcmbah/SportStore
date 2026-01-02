@@ -37,9 +37,9 @@
                         @if (signInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <form method="post" asp-controller="account" asp-action="logout">
+                                <form method="post" asp-area="" asp-controller="account" asp-action="logout">
                                     <button type="submit" class="nav-link btn btn-link " style="width:auto">
-                                        Logout @User.Identity.Name.ToLower()
+                                        Logout @User.Identity.Name.ToLower() 
                                     </button>
                                 </form>
                             </li>

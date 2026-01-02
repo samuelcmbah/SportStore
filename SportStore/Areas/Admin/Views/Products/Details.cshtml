@@ -1,4 +1,4 @@
-﻿@model Product
+﻿@model SportStore.Models.Product
 
 @{
     ViewData["Title"] = "Product Details";
@@ -23,7 +23,7 @@
         </ul>
         <div class="d-flex justify-content-end mt-3">
             <a class="btn btn-success me-2" asp-action="Edit" asp-route-id="@Model.ProductID">Edit</a>
-            <a class="btn btn-primary" asp-action="ManageProducts">Back</a>
+            <a class="btn btn-primary" asp-controller="Products" asp-action="ManageProducts">Back</a>
         </div>
     </div>
 </div>
