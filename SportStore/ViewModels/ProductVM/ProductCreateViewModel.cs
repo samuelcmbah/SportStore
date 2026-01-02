@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SportStore.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace SportStore.ViewModels.ProductVM
 {
@@ -11,7 +12,7 @@ namespace SportStore.ViewModels.ProductVM
         public string Description { get; set; } = "";
 
         [Required]
-        public string Cartegory { get; set; } = "";
+        public Category Cartegory { get; set; }
 
         [Required]
         public decimal Price { get; set; }

@@ -23,12 +23,17 @@ namespace SportStore.Controllers
             var model = new ProductsListViewModel
             {
                 //chooses a category if one is indicated, orders the products, skips the products before the designated page and displays the next 4 products
-                Products = storeRepository.AllProducts.Where(p => category == null || p.Category == category)
-                .OrderBy(p => p.ProductID).Skip((productPage - 1) * ProductPerPage).Take(ProductPerPage),
+                Products = storeRepository.AllProducts
+                    .Where(p => category == null || p.Category.Name == category)
+                    .OrderBy(p => p.ProductID)
+                    .Skip((productPage - 1) * ProductPerPage)
+                    .Take(ProductPerPage),
 
                 PagingInfo = new PagingInfoViewModel
                 {
-                    TotalItems = category == null ? storeRepository.AllProducts.Count() : storeRepository.AllProducts.Where(c => c.Category == category).Count(),
+                    TotalItems = category == null 
+                        ? storeRepository.AllProducts.Count() 
+                        : storeRepository.AllProducts.Count(p => p.Category.Name == category),
                     ItemsPerPage = ProductPerPage,
                     CurrentPage = productPage,
                 },

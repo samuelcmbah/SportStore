@@ -15,7 +15,11 @@ namespace SportStore.Services
             this.context = context;
         }
 
-        public IQueryable<Product> AllProducts => context.Products; // returning the DbSet of products
+        public IQueryable<Product> AllProducts => 
+            context.Products.Include(p => p.Category);
+
+        public IQueryable<Category> Categories =>
+            context.Categories;
 
         public Product? CreateProduct(Product product)
         {
