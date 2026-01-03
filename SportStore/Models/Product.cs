@@ -18,7 +18,11 @@ namespace SportStore.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
 
-        public string Category { get; set; } = String.Empty;
+        // FK
+        public int CategoryId { get; set; }
+
+        // Navigation property
+        public Category Category { get; set; } = null!;
 
         public string? PhotoPath { get; set; }
     }

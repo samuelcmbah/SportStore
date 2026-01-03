@@ -57,6 +57,8 @@ public class Program
             options.UseNpgsql(
                 builder.Configuration.GetConnectionString("SportsStoreConnection")));
 
+        builder.Services.AddScoped<IProductService, ProductService>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IOrderNotificationService, OrderNotificationService>();
         builder.Services.AddScoped<IOrderDomainService, OrderDomainService>();
         builder.Services.AddScoped<ICartDomainService, CartDomainService>();

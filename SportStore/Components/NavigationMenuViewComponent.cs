@@ -5,17 +5,21 @@ namespace SportStore.Components
 {
     public class NavigationMenuViewComponent : ViewComponent
     {
-        private IStoreRepository repository;
+        private readonly ICategoryService categoryService;
 
-        public NavigationMenuViewComponent(IStoreRepository repo)
+        public NavigationMenuViewComponent(ICategoryService categoryService)
         {
-            repository = repo;
+            this.categoryService = categoryService;
         }
         public IViewComponentResult Invoke()
         {
             ViewBag.SelectedCategory = RouteData?.Values["category"];
-            return View(repository.AllProducts.Select(x => x.Category)
-                    .Distinct().OrderBy(x => x));
+
+            return View(
+                categoryService.GetAll()
+                    .OrderBy(c => c.Name)
+                    .Select(c => c.Name)
+            );
         }
     }
 }

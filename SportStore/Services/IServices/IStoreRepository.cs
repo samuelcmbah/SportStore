@@ -8,6 +8,8 @@ namespace SportStore.Services.IServices
         //a property that returns an IQueryable<Product>,
         //allowing for flexible querying of product data.
         IQueryable<Product> AllProducts { get; }
+        IQueryable<Category> Categories { get; }
+
         Product? GetProductById(long? id);
         Product? CreateProduct(Product product);
         Product? UpdateProduct(Product? editedProduct);

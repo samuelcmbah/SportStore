@@ -49,6 +49,7 @@ namespace SportStore.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 string? uniqueFileName = UploadFile(model);
+                //fix later
                 Product product = new()
                 {
                     Name = model.Name,
