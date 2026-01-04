@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
+using SportStore.Services;
 using SportStore.Services.IServices;
 using SportStore.ViewModels.ProductVM;
 
@@ -11,40 +12,37 @@ namespace SportStore.Areas.Admin.Controllers
     [Authorize(Roles = "Administrator")]
     public class ProductsController : Controller
     {
-        private readonly IStoreRepository storeRepository;
+        private readonly IProductService productService;
         private readonly IWebHostEnvironment webHostEnvironment;
 
-        public ProductsController(IStoreRepository storeRepository, IWebHostEnvironment webHostEnvironment)
+        public ProductsController( IProductService productService, IWebHostEnvironment webHostEnvironment)
         {
-            this.storeRepository = storeRepository;
+            this.productService = productService;
             this.webHostEnvironment = webHostEnvironment;
         }
-        public IActionResult DeleteProduct(long id)
+        public IActionResult ManageProducts()
         {
-            Product? product = storeRepository.GetProductById(id);
-            if (product == null)
-            {
-                //tell the admin that the product does not exist and return them to the avilable lisst of products
-            }
-            storeRepository.DeleteProduct(product);
+            IEnumerable<Product> products = productService.GetAll().ToList()
+                                                   ?? new List<Product>();
 
-            ProductsListViewModel model = new ProductsListViewModel()
-            {
-                Products = storeRepository.AllProducts
-            };
+            return View(products);
+        }
 
+        public async Task<IActionResult> DeleteProduct(long id)
+        {
+            await productService.DeleteAsync(id);
 
-            return View("ManageProducts", model);
+            return RedirectToAction("ManageProducts");
         }
 
         [HttpGet]
-        public IActionResult CreateProduct()
+        public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult CreateProduct(ProductCreateViewModel model)
+        public IActionResult Create(ProductCreateViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -59,7 +57,7 @@ namespace SportStore.Areas.Admin.Controllers
                     PhotoPath = uniqueFileName
                 };
 
-                storeRepository.CreateProduct(product);
+                productService.CreateAsync(product);
                 return RedirectToAction("Details", new { id = product.ProductID });
             }
             return View();
@@ -88,12 +86,12 @@ namespace SportStore.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Edit(long id)
+        public async Task<IActionResult> Edit(long id)
         {
-            Product? product = storeRepository.GetProductById(id);
+            var product = await productService.GetByIdAsync(id);
             if (product == null)
             {
-                //direct to ProductNotFound page and then to the admin llst of all products
+                return NotFound();
             }
             ProductEditViewModel productEditViewModel = new()
             {
@@ -109,40 +107,45 @@ namespace SportStore.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(ProductEditViewModel model)
+        public async Task<IActionResult> EditAsync(ProductEditViewModel model)
         {
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                Product? editedProduct = storeRepository.GetProductById(model.ProductID);
-                if (editedProduct != null)
-                {
-                    editedProduct.Name = model.Name;
-                    editedProduct.Description = model.Description;
-                    editedProduct.Category = model.Cartegory;
-                    editedProduct.Price = model.Price;
-                    if (model.Photo != null)
-                    {
-                        if (model.ExistingPhotoPath != null)
-                        {
-                            string filePath = Path.Combine(webHostEnvironment.WebRootPath, "images", model.ExistingPhotoPath);
-                            System.IO.File.Delete(filePath);
-                        }
-                        editedProduct.PhotoPath = UploadFile(model);
-                    }
-                }
-                storeRepository.UpdateProduct(editedProduct);
-                return RedirectToAction("Details", new { id = model.ProductID });
+                return View();
             }
-            return View();
+
+            var editedProduct = await productService.GetByIdAsync(model.ProductID);
+
+            if (editedProduct == null)
+            {
+                return NotFound();
+            }
+
+            editedProduct.Name = model.Name;
+            editedProduct.Description = model.Description;
+            editedProduct.Category = model.Cartegory;
+            editedProduct.Price = model.Price;
+
+            if (model.Photo != null)
+            {
+                if (model.ExistingPhotoPath != null)
+                {
+                    string filePath = Path.Combine(webHostEnvironment.WebRootPath, "images", model.ExistingPhotoPath);
+                    System.IO.File.Delete(filePath);
+                }
+                editedProduct.PhotoPath = UploadFile(model);
+            }
+            await productService.UpdateAsync(editedProduct);
+            return RedirectToAction("Details", new { id = model.ProductID });
         }
 
-        public IActionResult Details(long id)
+        public async Task<IActionResult> DetailsAsync(long id)
         {
-            Product? product = storeRepository.GetProductById(id);
+            var product = await productService.GetByIdAsync(id);
             if (product == null)
             {
-                //direct to ProductNotFound page and then to the admin list of all products
+                
                 Response.StatusCode = 404;
                 return View("ProductNotFound");
             }
@@ -150,13 +153,6 @@ namespace SportStore.Areas.Admin.Controllers
             return View(product);
         }
 
-        public IActionResult ManageProducts()
-        {
-            var model = new ProductsListViewModel
-            {
-                Products = storeRepository.AllProducts
-            };
-            return View(model);
-        }
+        
     }
 }

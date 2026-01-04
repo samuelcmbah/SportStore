@@ -18,6 +18,8 @@ namespace SportStore.Services
             return new Order
             {
                 OrderDate = DateTime.UtcNow,
+                ShippedDate = new DateTime(),
+                UserId = userId,
                 Name = vm.Name,
                 Email = vm.Email,
                 Line1 = vm.Line1,
