@@ -34,11 +34,11 @@ namespace SportStore.Areas.Admin.Controllers
             return View(products);
         }
 
-        public async Task<IActionResult> DeleteProduct(long id)
+        public async Task<IActionResult> Delete(long id)
         {
             await productService.DeleteAsync(id);
 
-            return RedirectToAction("ManageProducts");
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -73,44 +73,19 @@ namespace SportStore.Areas.Admin.Controllers
 
                 return View(model);
             }
-            string? uniqueFileName = UploadFile(model);
+            
+           var product = await productService.CreateAsync(model);
 
-            Product product = new()
+            if(product == null)
             {
-                Name = model.Name,
-                Description = model.Description,
-                CategoryId = model.CategoryId,
-                Price = model.Price,
-                PhotoPath = uniqueFileName
-            };
-
-            await productService.CreateAsync(product);
+                return View("Error");
+            }
 
             return RedirectToAction(nameof(Index));
 
         }
 
-        private string? UploadFile(ProductCreateViewModel model)
-        {
-            string? uniqueFileName = null;
-
-            if (model.Photo != null)
-            {
-                //create the upload path
-                var uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "images");
-                //create unique file name
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Photo.FileName;
-                //create file path
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                //copy to images folder
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    model.Photo.CopyTo(fileStream);
-                }
-            }
-
-            return uniqueFileName;
-        }
+       
 
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
@@ -156,28 +131,8 @@ namespace SportStore.Areas.Admin.Controllers
                 return View(model);
             }
 
-            var editedProduct = await productService.GetByIdAsync(model.ProductID);
-
-            if (editedProduct == null)
-            {
-                return NotFound();
-            }
-
-            editedProduct.Name = model.Name;
-            editedProduct.Description = model.Description;
-            editedProduct.CategoryId = model.CategoryId;
-            editedProduct.Price = model.Price;
-
-            if (model.Photo != null)
-            {
-                if (model.ExistingPhotoPath != null)
-                {
-                    string filePath = Path.Combine(webHostEnvironment.WebRootPath, "images", model.ExistingPhotoPath);
-                    System.IO.File.Delete(filePath);
-                }
-                editedProduct.PhotoPath = UploadFile(model);
-            }
-            await productService.UpdateAsync(editedProduct);
+           
+            await productService.UpdateAsync(model);
             return RedirectToAction("Details", new { id = model.ProductID });
         }
 
