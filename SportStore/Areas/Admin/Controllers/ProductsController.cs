@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using SportStore.Models;
 using SportStore.Services;
 using SportStore.Services.IServices;
@@ -14,13 +15,18 @@ namespace SportStore.Areas.Admin.Controllers
     {
         private readonly IProductService productService;
         private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly ICategoryService categoryService;
 
-        public ProductsController( IProductService productService, IWebHostEnvironment webHostEnvironment)
+        public ProductsController(
+            IProductService productService, 
+            IWebHostEnvironment webHostEnvironment,
+            ICategoryService categoryService)
         {
             this.productService = productService;
             this.webHostEnvironment = webHostEnvironment;
+            this.categoryService = categoryService;
         }
-        public IActionResult ManageProducts()
+        public IActionResult Index()
         {
             IEnumerable<Product> products = productService.GetAll().ToList()
                                                    ?? new List<Product>();
@@ -38,29 +44,50 @@ namespace SportStore.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var model = new ProductCreateViewModel
+            {
+                //populate categories selectlist item
+                Categories = categoryService.GetAll()
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryId.ToString(),
+                        Text = c.Name
+                    })
+                    .ToList()
+            };
+
+            return View(model);
         }
 
         [HttpPost]
-        public IActionResult Create(ProductCreateViewModel model)
+        public async Task<IActionResult> CreateAsync(ProductCreateViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                string? uniqueFileName = UploadFile(model);
-                //fix later
-                Product product = new()
-                {
-                    Name = model.Name,
-                    Description = model.Description,
-                    Category = model.Cartegory,
-                    Price = model.Price,
-                    PhotoPath = uniqueFileName
-                };
+                model.Categories = categoryService.GetAll()
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryId.ToString(),
+                        Text = c.Name
+                    });
 
-                productService.CreateAsync(product);
-                return RedirectToAction("Details", new { id = product.ProductID });
+                return View(model);
             }
-            return View();
+            string? uniqueFileName = UploadFile(model);
+
+            Product product = new()
+            {
+                Name = model.Name,
+                Description = model.Description,
+                CategoryId = model.CategoryId,
+                Price = model.Price,
+                PhotoPath = uniqueFileName
+            };
+
+            await productService.CreateAsync(product);
+
+            return RedirectToAction(nameof(Index));
+
         }
 
         private string? UploadFile(ProductCreateViewModel model)
@@ -98,9 +125,16 @@ namespace SportStore.Areas.Admin.Controllers
                 ProductID = product.ProductID,
                 Name = product.Name,
                 Description = product.Description,
-                Cartegory = product.Category,
                 Price = product.Price,
                 ExistingPhotoPath = product.PhotoPath,
+                CategoryId = product.CategoryId,
+                Categories = categoryService.GetAll()
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryId.ToString(),
+                        Text = c.Name
+                    })
+                    .ToList()
             };
 
             return View(productEditViewModel);
@@ -112,7 +146,14 @@ namespace SportStore.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                return View();
+                model.Categories = categoryService.GetAll()
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryId.ToString(),
+                        Text = c.Name
+                    });
+
+                return View(model);
             }
 
             var editedProduct = await productService.GetByIdAsync(model.ProductID);
@@ -124,7 +165,7 @@ namespace SportStore.Areas.Admin.Controllers
 
             editedProduct.Name = model.Name;
             editedProduct.Description = model.Description;
-            editedProduct.Category = model.Cartegory;
+            editedProduct.CategoryId = model.CategoryId;
             editedProduct.Price = model.Price;
 
             if (model.Photo != null)

@@ -26,11 +26,15 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="Cartegory" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <input asp-for="Cartegory" class="form-control" placeholder="Cartegory">
-        </div>
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId"
+                asp-items="Model.Categories"
+                class="form-select">
+            <option value="">-- Select Category --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
     </div>
+
 
     <div class="mb-3">
         <label asp-for="Price" class="col-sm-2 col-form-label"></label>
@@ -56,7 +60,7 @@
     <div>
         <div class="col-sm-10">
             <button type="submit" class="btn btn-primary">Create</button>
-            <a class="btn btn-primary" asp-controller="administration" asp-action="manageproducts">Cancel</a>
+            <a class="btn btn-primary"  asp-action="Index">Cancel</a>
         </div>
     </div>
 </form>
