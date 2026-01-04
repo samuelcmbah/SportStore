@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SportStore.ViewModels.CartVM;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SportStore.Models
@@ -25,5 +26,9 @@ namespace SportStore.Models
         public Category Category { get; set; } = null!;
 
         public string? PhotoPath { get; set; }
+
+        public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+
     }
 }
