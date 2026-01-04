@@ -30,12 +30,13 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="Cartegory" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <input asp-for="Cartegory" class="form-control" placeholder="Cartegory">
-            <span asp-validation-for="Cartegory" class="text-danger"></span>
-
-        </div>
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId"
+                asp-items="Model.Categories"
+                class="form-select">
+            <option value="CatetoryId">--</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
@@ -64,7 +65,9 @@
     <div>
         <div class="col-sm-10">
             <button type="submit" class="btn btn-primary">Update</button>
-            <a class="btn btn-primary" asp-controller="administration" asp-action="manageproducts">Cancel</a>
+            <a class="btn btn-primary" 
+                asp-controller="products" 
+                asp-action="index">Cancel</a>
         </div>
     </div>
 </form>

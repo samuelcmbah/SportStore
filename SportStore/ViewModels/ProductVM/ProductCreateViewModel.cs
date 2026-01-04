@@ -1,4 +1,5 @@
-﻿using SportStore.Models;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using SportStore.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace SportStore.ViewModels.ProductVM
@@ -11,8 +12,12 @@ namespace SportStore.ViewModels.ProductVM
         [Required]
         public string Description { get; set; } = "";
 
-        [Required]
-        public Category Cartegory { get; set; }
+        // Selected category
+        public int CategoryId { get; set; }
+
+        // Dropdown data
+        public IEnumerable<SelectListItem> Categories { get; set; }
+            = Enumerable.Empty<SelectListItem>();
 
         [Required]
         public decimal Price { get; set; }

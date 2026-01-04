@@ -91,7 +91,7 @@ namespace SportStore.Controllers
 
                 if (loginResult.IsAdmin)
                 {
-                    return RedirectToAction("ManageProducts", "Products", new {area = "Admin"});
+                    return RedirectToAction("Index", "Products", new {area = "Admin"});
                 }
 
                 return RedirectToAction("Index", "Home");

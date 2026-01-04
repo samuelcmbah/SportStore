@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using SportStore.Models;
 using SportStore.Services;
 using SportStore.Services.IServices;
@@ -14,13 +15,18 @@ namespace SportStore.Areas.Admin.Controllers
     {
         private readonly IProductService productService;
         private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly ICategoryService categoryService;
 
-        public ProductsController( IProductService productService, IWebHostEnvironment webHostEnvironment)
+        public ProductsController(
+            IProductService productService, 
+            IWebHostEnvironment webHostEnvironment,
+            ICategoryService categoryService)
         {
             this.productService = productService;
             this.webHostEnvironment = webHostEnvironment;
+            this.categoryService = categoryService;
         }
-        public IActionResult ManageProducts()
+        public IActionResult Index()
         {
             IEnumerable<Product> products = productService.GetAll().ToList()
                                                    ?? new List<Product>();
@@ -28,62 +34,58 @@ namespace SportStore.Areas.Admin.Controllers
             return View(products);
         }
 
-        public async Task<IActionResult> DeleteProduct(long id)
+        public async Task<IActionResult> Delete(long id)
         {
             await productService.DeleteAsync(id);
 
-            return RedirectToAction("ManageProducts");
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var model = new ProductCreateViewModel
+            {
+                //populate categories selectlist item
+                Categories = categoryService.GetAll()
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryId.ToString(),
+                        Text = c.Name
+                    })
+                    .ToList()
+            };
+
+            return View(model);
         }
 
         [HttpPost]
-        public IActionResult Create(ProductCreateViewModel model)
+        public async Task<IActionResult> CreateAsync(ProductCreateViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                string? uniqueFileName = UploadFile(model);
-                //fix later
-                Product product = new()
-                {
-                    Name = model.Name,
-                    Description = model.Description,
-                    Category = model.Cartegory,
-                    Price = model.Price,
-                    PhotoPath = uniqueFileName
-                };
+                model.Categories = categoryService.GetAll()
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryId.ToString(),
+                        Text = c.Name
+                    });
 
-                productService.CreateAsync(product);
-                return RedirectToAction("Details", new { id = product.ProductID });
+                return View(model);
             }
-            return View();
-        }
+            
+           var product = await productService.CreateAsync(model);
 
-        private string? UploadFile(ProductCreateViewModel model)
-        {
-            string? uniqueFileName = null;
-
-            if (model.Photo != null)
+            if(product == null)
             {
-                //create the upload path
-                var uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "images");
-                //create unique file name
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Photo.FileName;
-                //create file path
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                //copy to images folder
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    model.Photo.CopyTo(fileStream);
-                }
+                return View("Error");
             }
 
-            return uniqueFileName;
+            return RedirectToAction(nameof(Index));
+
         }
+
+       
 
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
@@ -98,9 +100,16 @@ namespace SportStore.Areas.Admin.Controllers
                 ProductID = product.ProductID,
                 Name = product.Name,
                 Description = product.Description,
-                Cartegory = product.Category,
                 Price = product.Price,
                 ExistingPhotoPath = product.PhotoPath,
+                CategoryId = product.CategoryId,
+                Categories = categoryService.GetAll()
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryId.ToString(),
+                        Text = c.Name
+                    })
+                    .ToList()
             };
 
             return View(productEditViewModel);
@@ -112,31 +121,18 @@ namespace SportStore.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                return View();
+                model.Categories = categoryService.GetAll()
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryId.ToString(),
+                        Text = c.Name
+                    });
+
+                return View(model);
             }
 
-            var editedProduct = await productService.GetByIdAsync(model.ProductID);
-
-            if (editedProduct == null)
-            {
-                return NotFound();
-            }
-
-            editedProduct.Name = model.Name;
-            editedProduct.Description = model.Description;
-            editedProduct.Category = model.Cartegory;
-            editedProduct.Price = model.Price;
-
-            if (model.Photo != null)
-            {
-                if (model.ExistingPhotoPath != null)
-                {
-                    string filePath = Path.Combine(webHostEnvironment.WebRootPath, "images", model.ExistingPhotoPath);
-                    System.IO.File.Delete(filePath);
-                }
-                editedProduct.PhotoPath = UploadFile(model);
-            }
-            await productService.UpdateAsync(editedProduct);
+           
+            await productService.UpdateAsync(model);
             return RedirectToAction("Details", new { id = model.ProductID });
         }
 
