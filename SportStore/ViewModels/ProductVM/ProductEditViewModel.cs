@@ -2,7 +2,7 @@
 {
     public class ProductEditViewModel : ProductCreateViewModel
     {
-        public long? ProductID { get; set; }
+        public long ProductID { get; set; }
 
         public string? ExistingPhotoPath { get; set; }
     }

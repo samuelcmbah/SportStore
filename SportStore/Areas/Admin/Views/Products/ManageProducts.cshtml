@@ -1,37 +1,54 @@
-﻿@using SportStore.ViewModels.ProductVM;
-@model ProductsListViewModel
+﻿@model IEnumerable<Product>
 
 @{
     ViewData["Title"] = "Products";
 }
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var product in Model.Products ?? Enumerable.Empty<Product>())
-        {
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No products found. Click <strong>Add a product</strong> to get started.
+    </div>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
             <tr>
-                <td>@product.Name</td>
-                <td>@product.Category</td>
-                <td>@product.Price.ToString("c")</td>
-                <td>
-                    <a class="btn btn-secondary" asp-action="Details" asp-controller="administration" asp-route-id="@product.ProductID">Details</a>
-                    <a class="btn btn-success" asp-action="Edit" asp-controller="administration" asp-route-id="@product.ProductID">Edit</a>
-                    <a class="btn btn-danger" asp-action="DeleteProduct" asp-controller="administration" asp-route-id="@product.ProductID">Delete</a>
-
-                </td>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
-<div>
-    <a class="btn btn-primary" asp-action="CreateProduct" asp-controller="administration">Add a product to the store</a>
-</div>
+        </thead>
+        <tbody>
+            @foreach (var product in Model)
+            {
+                <tr>
+                    <td>@product.Name</td>
+                    <td>@product.Category?.Name</td>
+                    <td>@product.Price.ToString("c")</td>
+                    <td>
+                        <a class="btn btn-secondary"
+                           asp-action="Details"
+                           asp-route-id="@product.ProductID">Details</a>
 
+                        <a class="btn btn-success"
+                           asp-action="Edit"
+                           asp-route-id="@product.ProductID">Edit</a>
+
+                        <a class="btn btn-danger"
+                           asp-action="Delete"
+                           asp-route-id="@product.ProductID">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div>
+    <a class="btn btn-primary" asp-action="Create">
+        Add a product to the store
+    </a>
+</div>
