@@ -17,15 +17,35 @@ namespace SportStore.Services
             this.context = context;
         }
 
-        public IQueryable<Order> Orders => context.Orders.Include(opt => opt.OrderItems).ThenInclude(opt => opt.Product);
-
-        public Order GetOrder(int id)
+        public IQueryable<Order> GetAllOrders()
         {
-            return context.Orders.Find(id);
+            return context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .AsNoTracking();
+        }            
+
+        public async Task<Order?> GetOrderByIdAsync(int id)
+        {
+            return await context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.OrderID == id);
         }
 
-        public void SaveOrder(Order order)
+        public async Task<IEnumerable<Order>> GetOrdersByUserAsync(string userId)
         {
+            return await context.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+        }
+
+        public async Task CreateOrderAsync(Order order)
+        {
+            // Attach products to prevent EF from re-inserting them
             context.AttachRange(order.OrderItems.Select(opt => opt.Product));
 
             if (order.OrderID == 0)
@@ -33,8 +53,40 @@ namespace SportStore.Services
                 context.Orders.Add(order);
             }
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
+        public async Task MarkOrderAsShippedAsync(int orderId)
+        {
+            var order = await context.Orders.FindAsync(orderId);
+
+            if (order == null)
+            {
+                throw new InvalidOperationException("Order not found.");
+            }
+
+            order.Shipped = true;
+            order.ShippedDate = DateTime.UtcNow;
+
+            await context.SaveChangesAsync();
+
+            //send mail to usser
+        }
+
+        public async Task<bool> DeleteOrderAsync(int orderId)
+        {
+            var order = await context.Orders.FindAsync(orderId);
+
+            if (order == null)
+            {
+                return false;
+            }
+
+            context.Orders.Remove(order);
+            await context.SaveChangesAsync();
+            return true;
+        }
+
+       
     }
 }

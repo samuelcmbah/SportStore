@@ -85,7 +85,9 @@ namespace SportStore.Controllers
 
             var order = orderDomainService.CreateOrderFromCart(cart, vm, userId);
 
-            orderRepository.SaveOrder(order);
+            await orderRepository.CreateOrderAsync(order);
+            // Email will go here
+            await orderNotificationService.SendOrderPlacedEmailAsync(order);
 
             // Clear cart
             cart.CartItems.Clear();
@@ -93,9 +95,6 @@ namespace SportStore.Controllers
                 await cartService.UpdateCartAsync(cart);
             else
                 sessionCart.ClearCart();
-
-            // Email will go here
-            await orderNotificationService.SendOrderPlacedEmailAsync(order);
 
             return RedirectToAction("Completed", new {orderId = order.OrderID});
         }

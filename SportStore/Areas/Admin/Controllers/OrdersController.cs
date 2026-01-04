@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
 using SportStore.Services.IServices;
 
 namespace SportStore.Areas.Admin.Controllers
 {
+    [Area("Admin")]
+    [Authorize(Roles ="Administrator")]
     public class OrdersController : Controller
     {
         private readonly IOrderRepository orderRepository;
@@ -13,27 +16,68 @@ namespace SportStore.Areas.Admin.Controllers
             this.orderRepository = orderRepository;
         }
 
-        public IActionResult ManageOrders(int orderId)
+        // GET: Admin/Orders
+        public IActionResult Index()
         {
-            if (orderId != 0)
+            var orders = orderRepository.GetAllOrders()
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+
+            return View(orders);
+        }
+
+        // GET: Admin/Orders/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var order = await orderRepository.GetOrderByIdAsync(id);
+
+            if (order == null)
             {
-                Order order = orderRepository.GetOrder(orderId);
-                if (order == null)
-                {
-                    //take the user to a NotFound page
-                }
-                order.Shipped = true;
-                orderRepository.SaveOrder(order);
+                return NotFound();
             }
 
-            var model = orderRepository.Orders.Where(o => !o.Shipped);
-            return View(model);
+            return View(order);
         }
 
-        public IActionResult ManageShippedOrders()
+        // POST: Admin/Orders/MarkShipped/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkShipped(int id)
         {
-            var model = orderRepository.Orders.Where(o => o.Shipped);
-            return View(model);
+            try
+            {
+                await orderRepository.MarkOrderAsShippedAsync(id);
+            }
+            catch (InvalidOperationException)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
+
+        // GET: Admin/Orders/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            var order = await orderRepository.GetOrderByIdAsync(id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
+        }
+
+        // POST: Admin/Orders/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await orderRepository.DeleteOrderAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+
+
     }
 }

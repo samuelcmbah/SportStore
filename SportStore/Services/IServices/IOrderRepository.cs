@@ -2,12 +2,17 @@
 
 namespace SportStore.Services.IServices
 {
+
     public interface IOrderRepository
     {
-        IQueryable<Order> Orders { get; }
+        IQueryable<Order> GetAllOrders();
+        Task<Order?> GetOrderByIdAsync(int id);
+        Task<IEnumerable<Order>> GetOrdersByUserAsync(string userId);
 
-        Order GetOrder(int id);
+        Task CreateOrderAsync(Order order);
+        Task MarkOrderAsShippedAsync(int orderId);
 
-        void SaveOrder (Order order);   
+        Task<bool> DeleteOrderAsync(int orderId);
     }
+
 }
