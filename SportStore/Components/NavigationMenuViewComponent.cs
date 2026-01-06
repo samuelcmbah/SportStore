@@ -13,12 +13,12 @@ namespace SportStore.Components
         }
         public IViewComponentResult Invoke()
         {
-            ViewBag.SelectedCategory = RouteData?.Values["category"];
+            ViewBag.SelectedCategoryId = RouteData?.Values["categoryId"];
 
             return View(
                 categoryService.GetAll()
                     .OrderBy(c => c.Name)
-                    .Select(c => c.Name)
+                    .ToList()
             );
         }
     }
