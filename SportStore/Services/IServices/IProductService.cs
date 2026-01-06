@@ -13,7 +13,7 @@ namespace SportStore.Services.IServices
         Task<Product> UpdateAsync(ProductEditViewModel product);
         Task<bool> DeleteAsync(long id);
 
-        IQueryable<Product> Search(ProductSearchQuery query);
+        IQueryable<Product> SearchFilter(ProductSearchFilterQuery query);
 
     }
 }

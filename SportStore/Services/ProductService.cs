@@ -44,7 +44,7 @@ namespace SportStore.Services
             return uniqueFileName;
         }
 
-        public IQueryable<Product> Search(ProductSearchQuery query)
+        public IQueryable<Product> Search(ProductSearchFilterQuery query)
         {
             IQueryable<Product> products = context.Products
                     .Include(p => p.Category);
@@ -62,6 +62,16 @@ namespace SportStore.Services
             if (query.CategoryId.HasValue)
             {
                 products = products.Where(p => p.CategoryId == query.CategoryId.Value);
+            }
+
+            if (query.MinPrice.HasValue)
+            {
+                products = products.Where(p => p.Price >= query.MinPrice.Value);
+            }
+
+            if (query.MaxPrice.HasValue)
+            {
+                products = products.Where(p => p.Price <= query.MaxPrice.Value);
             }
 
             //if (!query.IncludeInactive)
