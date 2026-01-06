@@ -33,6 +33,31 @@
                         </li>
                     </ul>
 
+                    <form class="d-flex me-3"
+                          asp-controller="Home"
+                          asp-action="Index"
+                          method="get">
+
+                        <input class="form-control me-2"
+                               type="search"
+                               name="search"
+                               placeholder="Search products..."
+                               value="@Context.Request.Query["search"]" />
+
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+
+                        @* Preserve category if one is selected *@
+                        @if (Context.Request.Query.ContainsKey("categoryId"))
+                        {
+                            <input type="hidden"
+                                   name="categoryId"
+                                   value="@Context.Request.Query["categoryId"]" />
+                        }
+                    </form>
+
+
                     <ul class="navbar-nav  ms-auto">
                         @if (signInManager.IsSignedIn(User))
                         {
