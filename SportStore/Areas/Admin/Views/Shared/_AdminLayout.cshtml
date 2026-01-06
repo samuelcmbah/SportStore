@@ -8,6 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SportStore</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/lib/font-awesome/css/fontawesome.min.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/solid.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SportStore.styles.css" asp-append-version="true" />
 </head>
@@ -44,8 +46,29 @@
                             </ul>
                         </li>
                     </ul>
+                    <ul class="navbar-nav d-flex mx-auto">
+                        <li class="nav-item">
+                            <form class="d-flex me-3"
+                                  asp-area="Admin"
+                                  asp-controller="Products"
+                                  asp-action="Index"
+                                  method="get">
+
+                                <input class="form-control me-2"
+                                       type="search"
+                                       name="search"
+                                       placeholder="Search products..."
+                                       value="@Context.Request.Query["search"]" />
+
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                     
                     <ul class="navbar-nav  ms-auto">
+                       
                         @if (signInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
@@ -64,17 +87,14 @@
         </nav>
     </header>
 
-    <div class="row m-1 p-1">
-        <div class="col-3" >
+    
 
-        </div>
-
-        <div class="container col-9">
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
-        </div>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
     </div>
+  
 
     <footer class="border-top footer text-muted">
         <div class="container">
