@@ -1,4 +1,5 @@
 ﻿using SportStore.Models;
+using SportStore.ViewModels;
 using SportStore.ViewModels.ProductVM;
 
 namespace SportStore.Services.IServices
@@ -11,5 +12,8 @@ namespace SportStore.Services.IServices
         Task<Product> CreateAsync(ProductCreateViewModel product);
         Task<Product> UpdateAsync(ProductEditViewModel product);
         Task<bool> DeleteAsync(long id);
+
+        IQueryable<Product> Search(ProductSearchQuery query);
+
     }
 }
