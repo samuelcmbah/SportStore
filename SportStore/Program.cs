@@ -9,6 +9,8 @@ using Resend;
 using Serilog;
 using SportStore.Configurations;
 using SportStore.Data;
+using SportStore.Extensions;
+using SportStore.Middleware;
 using SportStore.Models;
 using SportStore.Services;
 using SportStore.Services.IServices;
@@ -117,33 +119,8 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        //AREA ROUTE (must come first)
-        app.MapControllerRoute(
-            name: "areas",
-            pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-        );
-
-        app.MapControllerRoute(
-             name: "catpage",
-             pattern: "{category}/Page{productPage:int}",
-             defaults: new { Controller = "Home", action = "Index" });
-
-        app.MapControllerRoute(
-            name: "page",
-            pattern: "Page{productPage:int}",
-            defaults: new { Controller = "Home", action = "Index", productPage = 1 });
-
-        app.MapControllerRoute(
-            name: "category",
-            pattern: "{category}",
-            defaults: new { Controller = "Home", action = "Index", productPage = 1 });
-
-
-        app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
-
-        app.MapDefaultControllerRoute();
+        app.UseMiddleware<RoleBasedRootRedirectMiddleware>(); //redirect to admin/products/index for administrator role
+        app.MapApplicationRoutes();
 
         SeedData.EnsurePopulated(app);
         IdentitySeedData.EnsurePopulated(app);
