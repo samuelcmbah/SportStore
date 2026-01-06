@@ -5,10 +5,8 @@
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-brightgreen)
 ![Entity Framework Core](https://img.shields.io/badge/ORM-EF_Core-orange)
 
-> SportStore is a full-featured e-commerce application built with ASP.NET Core MVC. As one of my foundational .NET projects, it was built to demonstrate a practical understanding of C# and the ASP.NET Core ecosystem.
-
-This project showcases a complete web application lifecycle, from user authentication and session management to data persistence and administration, serving as a comprehensive portfolio piece.
-
+> SportStore is a full-featured e-commerce application built with ASP.NET Core MVC. As one of my foundational .NET projects, It demonstrates a realistic web application lifecycle: user authentication, session-backed shopping cart, data persistence with EF Core and PostgreSQL, transactional emails, and an administration area for managing products, categories, orders and roles..
+<!--
 ### ✨ **[View the Live Demo Here](https://sportstore-67nv.onrender.com/)** ✨
 
 ---
@@ -29,7 +27,11 @@ This project showcases a complete web application lifecycle, from user authentic
 -   **Hybrid Shopping Cart:** A seamless cart experience that persists items in the browser session for guest users and saves them to the database for logged-in users.
 -   **Full Cart Functionality:** Easily add items to and remove items from the shopping cart.
 -   **Order & Checkout:** A complete checkout process and an order history page for authenticated users.
--   **Admin Panel:** A secure area for administrators to manage products in the store.
+-   **Admin Panel:**
+   - CRUD for Category entity (create, read, update, delete)
+   - CRUD for Product entity
+   - Create Product form includes a Category dropdown
+   - Admin-specific layout and navigation for a consistent admin UX
 
 ## Technology Stack
 
@@ -45,16 +47,13 @@ This project is built on a modern, robust technology stack:
 
 ## What’s New (Order Confirmation Emails)
 
-This project now sends an order confirmation email to customers after a successful checkout. The checkout flow was refactored and fixed so that emails reliably include the persisted order and its items. Key improvements in this update:
+This repository includes several recent improvements focused on admin usability and order reliability:
 
-- Refactored checkout to rely on domain services for order creation and cart totals.
-- Fixed order persistence flow to correctly use the generated OrderID after saving.
-- Corrected order confirmation email logic by loading the persisted order from the database.
-- Ensured order items and product details are properly included when sending confirmation emails.
-- Simplified controller responsibilities by passing identifiers instead of full entities.
-- Improved reliability of cart clearing for both authenticated and guest users.
-
-These changes make the checkout process more robust and correctly handle the order lifecycle. They also prepare the system for future features like PDF receipts and asynchronous email handling.
+- Implemented CRUD for the Category entity and integrated category management into the Admin area.
+- Product creation/edit forms show a Category dropdown so products can be assigned to categories.
+- Admin-specific layout and startup adjustments to ensure the admin UI loads with a consistent navigation and styling.
+- Implemented a product search bar (global) that supports searching by product name, category, or description.
+- Fixed checkout and order persistence flow so order confirmation emails reliably include the persisted order and its items.
 
 ## Getting Started
 
@@ -110,7 +109,7 @@ You will need the following software installed on your machine:
     ```bash
     dotnet run
     ```
-    The application will be available at `https://localhost:5001` or a similar address.
+    The application will be available at `https://localhost:7000` or a similar address.
 
 ### Testing Order Emails Locally
 
@@ -125,6 +124,11 @@ I plan to continue developing this project with the following features:
 -   [ ] **Payment Gateway Integration:** Integrate a payment provider like Paystack to handle real transactions.
 -   [ ] **PDF Receipts:** Automatically generate and email a PDF receipt to the user upon successful checkout.
 -   [ ] **Product Reviews:** Allow users to write reviews and give ratings for products.
+- [ ] Asynchronous background handling for emails (e.g., queues/workers)
+
+## Contributing
+
+Contributions and fixes are welcome. Please open issues or pull requests for bug fixes and feature requests.
 
 ---
 
