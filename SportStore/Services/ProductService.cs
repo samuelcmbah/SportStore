@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SportStore.Data;
 using SportStore.Models;
 using SportStore.Services.IServices;
+using SportStore.ViewModels;
 using SportStore.ViewModels.ProductVM;
 
 namespace SportStore.Services
@@ -41,6 +42,34 @@ namespace SportStore.Services
             }
 
             return uniqueFileName;
+        }
+
+        public IQueryable<Product> Search(ProductSearchQuery query)
+        {
+            IQueryable<Product> products = context.Products
+                    .Include(p => p.Category);
+
+            if (!string.IsNullOrEmpty(query.SearchTerm))
+            {
+                string term = query.SearchTerm.Trim().ToLower();
+
+                products = products.Where(p => 
+                    p.Name.ToLower().Contains(term) ||
+                    p.Description.ToLower().Contains(term) ||
+                    p.Category.Name.ToLower().Contains(term));
+            }
+
+            if (query.CategoryId.HasValue)
+            {
+                products = products.Where(p => p.CategoryId == query.CategoryId.Value);
+            }
+
+            //if (!query.IncludeInactive)
+            //{
+            //    products = products.Where(p => p.IsActive);
+            //}
+
+            return products;
         }
 
         public IQueryable<Product> GetAll()

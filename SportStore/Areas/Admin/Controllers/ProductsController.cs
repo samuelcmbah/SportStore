@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using SportStore.Models;
 using SportStore.Services;
 using SportStore.Services.IServices;
+using SportStore.ViewModels;
 using SportStore.ViewModels.ProductVM;
 
 namespace SportStore.Areas.Admin.Controllers
@@ -26,10 +27,19 @@ namespace SportStore.Areas.Admin.Controllers
             this.webHostEnvironment = webHostEnvironment;
             this.categoryService = categoryService;
         }
-        public IActionResult Index()
+
+        public IActionResult Index(string? search)
         {
-            IEnumerable<Product> products = productService.GetAll().ToList()
-                                                   ?? new List<Product>();
+            var query = new ProductSearchQuery
+            {
+                SearchTerm = search,
+                IncludeInactive = true
+            };
+
+            var products = productService
+                .Search(query)
+                .OrderByDescending(p => p.ProductID)
+                .ToList() ?? new List<Product>();
 
             return View(products);
         }

@@ -8,6 +8,6 @@ namespace SportStore.ViewModels.ProductVM
     {
         public IEnumerable<Product> Products { get; set; } = Enumerable.Empty<Product>();
         public PagingInfoViewModel PagingInfo { get; set; } = new();
-        public string? CurrentCategory { get; set; }
+        public int? CurrentCategoryId { get; set; }
     }
 }

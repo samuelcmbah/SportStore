@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SportStore.Models;
 using SportStore.Services.IServices;
+using SportStore.ViewModels;
 using SportStore.ViewModels.ProductVM;
 
 namespace SportStore.Controllers
@@ -18,31 +20,36 @@ namespace SportStore.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Index(string? category = null, int productPage = 1)
+        public IActionResult Index(string? search, int? categoryId, int productPage = 1)
         {
+            var query = new ProductSearchQuery
+            {
+                SearchTerm = search,
+                CategoryId = categoryId
+            };
+
+            var productsQuery = productService.Search(query) ;
+
             var model = new ProductsListViewModel
             {
-                //chooses a category if one is indicated, orders the products, skips the products before the designated page and displays the next 4 products
-                Products = productService.GetAll()
-                    .Where(p => category == null || p.Category.Name == category)
+                Products = productsQuery
                     .OrderBy(p => p.ProductID)
                     .Skip((productPage - 1) * ProductPerPage)
                     .Take(ProductPerPage),
 
                 PagingInfo = new PagingInfoViewModel
                 {
-                    TotalItems = category == null 
-                        ? productService.GetAll().Count() 
-                        : productService.GetAll().Count(p => p.Category.Name == category),
+                    TotalItems = productsQuery.Count(),
                     ItemsPerPage = ProductPerPage,
-                    CurrentPage = productPage,
+                    CurrentPage = productPage
                 },
 
-                CurrentCategory = category
+                CurrentCategoryId = categoryId
             };
 
             return View(model);
         }
+
 
         public IActionResult Privacy()
         {
