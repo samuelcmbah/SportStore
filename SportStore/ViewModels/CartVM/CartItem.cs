@@ -5,7 +5,7 @@ public class CartItem
 {
     public int CartItemId { get; set; }
 
-    public int ProductId { get; set; }
+    public long ProductId { get; set; }
     public Product Product { get; set; } = null!;
 
     public int Quantity { get; set; }
