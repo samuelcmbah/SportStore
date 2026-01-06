@@ -51,10 +51,12 @@ namespace SportStore.Services
 
             if (!string.IsNullOrEmpty(query.SearchTerm))
             {
-                string term = query.SearchTerm.Trim();
+                string term = query.SearchTerm.Trim().ToLower();
 
                 products = products.Where(p => 
-                    p.Name.Contains(term) || p.Description.Contains(term));
+                    p.Name.ToLower().Contains(term) ||
+                    p.Description.ToLower().Contains(term) ||
+                    p.Category.Name.ToLower().Contains(term));
             }
 
             if (query.CategoryId.HasValue)
