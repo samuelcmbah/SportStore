@@ -1,23 +1,27 @@
 ﻿@model IEnumerable<Category>
 
-<div class="d-grid gap-2">
-    <a class="btn btn-outline-secondary" 
+<li>
+    <a class="dropdown-item @(ViewBag.SelectedCategoryId == null ? "active" : "")"
        asp-action="Index"
        asp-controller="Home"
-       asp-route-categoryId="">
-        Home
+       asp-route-categoryId=""
+       asp-route-search="@Context.Request.Query["search"]">
+        @* Keep current search if changing category *@>
+        All Categories
     </a>
-    @foreach (var category in Model)
-    {
-        <a class="btn @(category.CategoryId == (long?)ViewBag.SelectedCategoryId
-                              ? "btn-primary"
-                              : "btn-outline-secondary")"
+</li>
+<li><hr class="dropdown-divider"></li>
+
+@foreach (var category in Model)
+{
+    <li>
+        <a class="dropdown-item @(category.CategoryId == (long?)ViewBag.SelectedCategoryId ? "active" : "")"
            asp-action="Index"
            asp-controller="Home"
            asp-route-categoryId="@category.CategoryId"
-           asp-route-productPage="1">
+           asp-route-productPage="1"
+           asp-route-search="@Context.Request.Query["search"]">
             @category.Name
         </a>
-    }
-
-</div>
+    </li>
+}

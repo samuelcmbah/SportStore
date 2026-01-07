@@ -44,7 +44,7 @@ namespace SportStore.Services
             return uniqueFileName;
         }
 
-        public IQueryable<Product> Search(ProductSearchFilterQuery query)
+        public IQueryable<Product> SearchFilter(ProductSearchFilterQuery query)
         {
             IQueryable<Product> products = context.Products
                     .Include(p => p.Category);
