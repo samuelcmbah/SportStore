@@ -30,14 +30,14 @@ namespace SportStore.Areas.Admin.Controllers
 
         public IActionResult Index(string? search)
         {
-            var query = new ProductSearchQuery
+            var query = new ProductSearchFilterQuery
             {
                 SearchTerm = search,
                 IncludeInactive = true
             };
 
             var products = productService
-                .Search(query)
+                .SearchFilter(query)
                 .OrderByDescending(p => p.ProductID)
                 .ToList() ?? new List<Product>();
 

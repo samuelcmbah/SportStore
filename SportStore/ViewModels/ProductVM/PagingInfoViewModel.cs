@@ -12,6 +12,10 @@
 
         public int NextPage => CurrentPage < TotalPages ? CurrentPage + 1 : 1;
 
-        public int PrevPage => CurrentPage > 1 ? CurrentPage - 1 : TotalPages; 
+        public int PrevPage => CurrentPage > 1 ? CurrentPage - 1 : TotalPages;
+
+        public bool HasPrevious => CurrentPage > 1;
+
+        public bool HasNext => CurrentPage < TotalPages;
     }
 }

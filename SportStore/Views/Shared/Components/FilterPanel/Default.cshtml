@@ -1,0 +1,57 @@
+﻿
+
+<form asp-action="Index" asp-controller="Home" method="get" class="price-filter-form">
+    <!-- CRITICAL: Keep existing search and category context -->
+    @if (!string.IsNullOrEmpty(Context.Request.Query["search"]))
+    {
+        <input type="hidden" name="search" value="@Context.Request.Query["search"]" />
+    }
+    @if (!string.IsNullOrEmpty(Context.Request.Query["categoryId"]))
+    {
+        <input type="hidden" name="categoryId" value="@Context.Request.Query["categoryId"]" />
+    }
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white border-bottom-0 pt-3">
+            <h6 class="fw-bold mb-0">PRICE (NGN)</h6>
+        </div>
+        <div class="card-body pt-2">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white">₦</span>
+                    <input type="number"
+                           name="minPrice"
+                           class="form-control"
+                           placeholder="Min"
+                           value="@Context.Request.Query["minPrice"]"
+                           aria-label="Minimum Price" />
+                </div>
+                <span class="text-muted">-</span>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white">₦</span>
+                    <input type="number"
+                           name="maxPrice"
+                           class="form-control"
+                           placeholder="Max"
+                           value="@Context.Request.Query["maxPrice"]"
+                           aria-label="Maximum Price" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold py-2 shadow-sm">
+                APPLY FILTER
+            </button>
+
+            @if (!string.IsNullOrEmpty(Context.Request.Query["minPrice"]) || !string.IsNullOrEmpty(Context.Request.Query["maxPrice"]))
+            {
+                <a asp-action="Index"
+                   asp-route-search="@Context.Request.Query["search"]"
+                   asp-route-categoryId="@Context.Request.Query["categoryId"]"
+                   class="btn btn-link btn-sm w-100 mt-2 text-decoration-none text-danger small">
+                    <i class="fa-solid fa-xmark me-1"></i> Clear Price
+                </a>
+            }
+        </div>
+    </div>
+</form>
+

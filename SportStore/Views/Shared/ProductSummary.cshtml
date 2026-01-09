@@ -2,37 +2,36 @@
 
 @{
     var photoPath = "~/images/" + Model.PhotoPath;
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 }
 
-<div class="card card-outline-primary m-1 p-3 d-flex flex-column">
-    <div class="row">
-        <div class="col-md-4 col-lg-3 p-1">
-            <img src="@photoPath" alt="@Model.Name" class=" imageThumbnail img-fluid rounded" asp-append-version="true">
-        </div>
+<div class="card h-100 shadow-sm product-card">
+    <img src="@photoPath"
+         alt="@Model.Name"
+         class="card-img-top img-fluid"
+         asp-append-version="true"
+         style="object-fit: cover; height: 200px;" />
 
-        <div class="col-md-8 col-lg-9 p-3 d-flex flex-column justify-content-between">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                    <h4>@Model.Name</h4>
-                </div>
-                <span class="badge rounded-pill bg-primary text-white font-weight-bold" style="font-size: 1.2rem;">
-                    <small>@Model.Price.ToString("c")</small>
-                </span>
-            </div>
+    <div class="card-body d-flex flex-column">
+        <h6 class="card-title text-truncate" title="@Model.Name">
+            @Model.Name
+        </h6>
 
-            <div class="card-text mb-3">
-                <p>@Model.Description</p>
-            </div>
+        <p class="fw-bold text-primary mb-2">
+            @Model.Price.ToString("c")
+        </p>
 
-            <div class="align-self-end">
-                <form method="post" asp-controller="cart" asp-action="AddToCart">
-                    <input type="hidden" asp-for="ProductID" />
-                    <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
-                    <button type="submit" class="btn btn-success btn-sm">Add To Cart</button>
-                </form>
-            </div>
-        </div>
+        <form method="post"
+              asp-controller="Cart"
+              asp-action="AddToCart"
+              class="mt-auto">
+            <input type="hidden" asp-for="ProductID" />
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+            <button type="submit"
+                    class="btn btn-success btn-sm w-100">
+                Add to Cart
+            </button>
+        </form>
     </div>
 </div>
-
-

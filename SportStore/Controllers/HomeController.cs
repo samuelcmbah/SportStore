@@ -11,7 +11,7 @@ namespace SportStore.Controllers
     {
         private readonly ILogger<HomeController> logger;
         private readonly IProductService productService;
-        public int ProductPerPage = 4;
+        public int ProductPerPage = 8;
 
         public HomeController(ILogger<HomeController> logger, IProductService productService )
         {
@@ -20,15 +20,22 @@ namespace SportStore.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Index(string? search, int? categoryId, int productPage = 1)
+        public IActionResult Index(
+            string? search, 
+            int? categoryId, 
+            decimal? minPrice,
+            decimal? maxPrice, 
+            int productPage = 1)
         {
-            var query = new ProductSearchQuery
+            var query = new ProductSearchFilterQuery
             {
                 SearchTerm = search,
-                CategoryId = categoryId
+                CategoryId = categoryId,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice
             };
 
-            var productsQuery = productService.Search(query) ;
+            var productsQuery = productService.SearchFilter(query) ;
 
             var model = new ProductsListViewModel
             {
