@@ -2,6 +2,8 @@
 
 @{
     var photoPath = "~/images/" + Model.PhotoPath;
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+
 }
 
 <div class="card card-outline-primary m-1 p-3 d-flex flex-column">
@@ -27,7 +29,7 @@
             <div class="align-self-end">
                 <form method="post" asp-controller="cart" asp-action="AddToCart">
                     <input type="hidden" asp-for="ProductID" />
-                    <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
                     <button type="submit" class="btn btn-success btn-sm">Add To Cart</button>
                 </form>
             </div>

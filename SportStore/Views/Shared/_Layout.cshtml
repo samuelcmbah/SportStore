@@ -148,7 +148,8 @@
                     <div class="card-body">
                         <p class="text-muted small">Showing results for: <strong>"@Context.Request.Query["search"]"</strong></p>
                         <hr />
-                        @* @await Component.InvokeAsync("FilterPanel") *@
+                            @await Component.InvokeAsync("FilterPanel")
+                        <!-- You can add more filters here later (Brand, Rating, etc.) -->
                         <div class="text-center py-3">
                             <i class="fa-solid fa-sliders fa-2x text-light"></i>
                             <p class="mt-2 text-muted">Filter panel goes here</p>
