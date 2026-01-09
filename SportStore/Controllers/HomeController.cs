@@ -11,7 +11,7 @@ namespace SportStore.Controllers
     {
         private readonly ILogger<HomeController> logger;
         private readonly IProductService productService;
-        public int ProductPerPage = 4;
+        public int ProductPerPage = 8;
 
         public HomeController(ILogger<HomeController> logger, IProductService productService )
         {
