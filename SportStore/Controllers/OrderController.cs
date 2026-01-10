@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
 using SportStore.Services;
 using SportStore.Services.IServices;
@@ -8,6 +9,7 @@ using System.Security.Claims;
 
 namespace SportStore.Controllers
 {
+    [AllowAnonymous]
     public class OrderController : Controller
     {
         private readonly ICartService cartService;
@@ -42,6 +44,16 @@ namespace SportStore.Controllers
             }
 
             return sessionCart.GetCart();
+        }
+
+        [HttpGet]
+        [Route("Order")]
+        public async Task<IActionResult> Index()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            
+            var orders = await orderRepository.GetOrdersByUserAsync(userId);
+            return View(orders);
         }
 
         [HttpGet]

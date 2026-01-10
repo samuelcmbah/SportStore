@@ -36,6 +36,7 @@ namespace SportStore.Services
         public async Task<IEnumerable<Order>> GetOrdersByUserAsync(string userId)
         {
             return await context.Orders
+                .AsNoTracking()
                 .Where(o => o.UserId == userId)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)

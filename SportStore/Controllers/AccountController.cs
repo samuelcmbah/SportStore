@@ -116,6 +116,7 @@ namespace SportStore.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await accountService.LogoutAsync();
