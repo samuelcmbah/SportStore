@@ -1,61 +1,113 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 200px;
+    background-color: #f4f7f6;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-body {
-    background-color: #f8f9fa;
+
+/*CUSTOM CLASSES
+*/
+
+:root {
+    --sport-blue: #0056b3;
+    --sport-blue-dark: #004494;
+    --sport-orange: #f68b1e;
+    --sport-light: #f8f9fa;
 }
 
-.login-container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    margin-top: 100px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+/* Navbar Rebranding */
+.navbar-custom {
+    background-color: var(--sport-blue);
+    padding: 0.6rem 1rem;
 }
 
-.login-header {
-    text-align: center;
-    margin-bottom: 20px;
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    font-style: italic;
+    color: white !important;
 }
 
+/* Search Group Styling */
+.search-group .btn-category {
+    background-color: #f1f1f1;
+    border: 1px solid #ddd;
+    border-right: none;
+    color: #555;
+    font-weight: 500;
+}
+
+.search-group .btn-search {
+    background-color: var(--sport-orange);
+    border: 1px solid var(--sport-orange);
+    color: white;
+    transition: 0.2s;
+}
+
+    .search-group .btn-search:hover {
+        background-color: #e67a0d;
+    }
+
+/* Custom Nav Links */
+.nav-link-custom {
+    color: rgba(255,255,255,0.9) !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+}
+
+    .nav-link-custom:hover {
+        color: white !important;
+        background-color: rgba(255,255,255,0.1);
+        border-radius: 5px;
+    }
+
+/* Cart Badge Fix */
 .cart-badge {
-    font-size: 12px;
-    padding: 5px 8px; /* Adjust padding as needed */
+    background-color: var(--sport-orange) !important;
+    color: white !important;
+    font-size: 0.7rem;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
 }
 
-#sidebar {
-    overflow-y: auto; /* Enable scrolling for long sidebars */
+.cart-pill {
+    background-color: rgba(255,255,255,0.15);
+    border-radius: 50px;
+    padding: 6px 15px;
+    transition: 0.2s;
 }
 
-.imageThumbnail{
-    height:200px;
-        width:200px;
-}
+    .cart-pill:hover {
+        background-color: rgba(255,255,255,0.25);
+    }
+
 footer {
-    /* Existing footer styles... */
-    position: sticky; /* Make footer stick to the bottom */
-    bottom: 0; /* Position it at the absolute bottom */
-    width: 100%; /* Set width to 100% */
+    background: white;
+    padding: 30px 0;
+    border-top: 1px solid #dee2e6;
 }
