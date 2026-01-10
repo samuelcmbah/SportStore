@@ -1,26 +1,54 @@
 ﻿@model Product
 
 @{
-    var photoPath = "~/images/" + Model.PhotoPath;
+    
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+
 }
 
-<div class="card h-100 shadow-sm product-card">
-    <a asp-action="Details" asp-route-id="@Model.ProductID" class="text-decoration-none text-dark">
-    <img src="@photoPath"
-         alt="@Model.Name"
-         class="card-img-top img-fluid"
-         asp-append-version="true"
-         style="object-fit: cover; height: 200px;" />
-
-    <div class="card-body d-flex flex-column">
-        <h6 class="card-title text-truncate" title="@Model.Name">
-            @Model.Name
-        </h6>
-
-        <p class="fw-bold text-primary mb-2">
-            @Model.Price.ToString("c")
-        </p>
-    </div>
+<div class="card h-100 product-card border-0 shadow-sm">
+    <a asp-action="Details" asp-controller="Home" asp-route-id="@Model.ProductID" class="text-decoration-none text-dark">
+        <!-- Square Image Container -->
+        <div class="product-img-container">
+            <img src="~/images/@(Model.PhotoPath ?? "noimage.png")"
+                 alt="@Model.Name"
+                 class="card-img-top"
+                 asp-append-version="true" />
+        </div>
     </a>
- 
+
+        <div class="card-body p-2 p-md-3">
+            <!-- Product Name (2-line clamp) -->
+            <h6 class="product-title mb-1">@Model.Name</h6>
+
+            <!-- Rating & Sold Count (Aesthetics) -->
+            <div class="d-flex align-items-center mb-1">
+                <div class="text-warning small me-1">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star-half-stroke"></i>
+                </div>
+                <span class="text-muted extra-small">10k+ sold</span>
+            </div>
+
+            <!-- Price and Cart Button -->
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <div>
+                    <span class="fw-bold fs-5 text-dark">@Model.Price.ToString("c0")</span>
+                    @* Simulated original price for the "deal" look *@
+                    <span class="text-muted text-decoration-line-through extra-small ms-1">@((Model.Price * 1.2m).ToString("c0"))</span>
+                </div>
+
+                @* Quick Add Button *@
+                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline">
+                    <input type="hidden" name="productId" value="@Model.ProductID" />
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <button type="submit" class="btn btn-outline-dark btn-sm rounded-circle quick-add-btn">
+                        <i class="fa-solid fa-cart-plus"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
 </div>

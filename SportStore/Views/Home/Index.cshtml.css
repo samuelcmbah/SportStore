@@ -1,0 +1,13 @@
+﻿/* This only affects the Index page */
+
+.pagination .page-link {
+    border: none;
+    color: #444;
+    margin: 0 3px;
+    border-radius: 8px !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--sport-blue);
+    color: white;
+}

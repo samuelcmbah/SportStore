@@ -1,0 +1,68 @@
+﻿.product-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+/* Keep images perfectly square */
+.product-img-container {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+    .product-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* Clamp text to 2 lines */
+.product-title {
+    font-size: 0.9rem;
+    font-weight: 400;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.6rem; /* Ensures alignment even with 1 line titles */
+    line-height: 1.3rem;
+}
+
+.extra-small {
+    font-size: 0.7rem;
+}
+
+.quick-add-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.2s;
+}
+
+    .quick-add-btn:hover {
+        background-color: var(--sport-orange);
+        border-color: var(--sport-orange);
+        color: white;
+    }
+
+/* Mobile specific tweaks */
+@@media (max-width: 576px) {
+    .product-title {
+        font-size: 0.8rem;
+        height: 2.2rem;
+        line-height: 1.1rem;
+    }
+
+    .fs-5 {
+        font-size: 1rem !important;
+    }
+}

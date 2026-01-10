@@ -1,54 +1,46 @@
 ﻿@model ProductsListViewModel
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Shop Performance Gear";
     var searchTerm = Context.Request.Query["search"];
 }
 
-<div class="container">
+<div class="container-fluid px-2 px-md-5">
 
     @if (Model.Products != null && Model.Products.Any())
     {
-        <div class="row g-3">
+        <!-- Gutter 2 on mobile (g-2), Gutter 3 on desktop (g-md-3) -->
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3">
             @foreach (var product in Model.Products)
             {
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="col">
                     <partial name="ProductSummary" model="product" />
                 </div>
             }
         </div>
 
         <!-- Pagination -->
-        <nav class="mt-4 d-flex justify-content-center">
-            <ul class="pagination">
+        <nav class="mt-5 d-flex justify-content-center">
+            <ul class="pagination pagination-sm">
                 <li class="page-item @(Model.PagingInfo.HasPrevious ? "" : "disabled")">
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-productPage="@Model.PagingInfo.PrevPage">
-                        &laquo;
+                    <a class="page-link shadow-sm" asp-action="Index" asp-route-productPage="@Model.PagingInfo.PrevPage">
+                        <i class="bi bi-chevron-left"></i>
                     </a>
                 </li>
 
                 @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
                 {
-                    if (i >= Model.PagingInfo.CurrentPage - 2 &&
-                    i <= Model.PagingInfo.CurrentPage + 2)
+                    if (i >= Model.PagingInfo.CurrentPage - 2 && i <= Model.PagingInfo.CurrentPage + 2)
                     {
                         <li class="page-item @(i == Model.PagingInfo.CurrentPage ? "active" : "")">
-                            <a class="page-link"
-                               asp-action="Index"
-                               asp-route-productPage="@i">
-                                @i
-                            </a>
+                            <a class="page-link shadow-sm" asp-action="Index" asp-route-productPage="@i">@i</a>
                         </li>
                     }
                 }
 
                 <li class="page-item @(Model.PagingInfo.HasNext ? "" : "disabled")">
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-productPage="@Model.PagingInfo.NextPage">
-                        &raquo;
+                    <a class="page-link shadow-sm" asp-action="Index" asp-route-productPage="@Model.PagingInfo.NextPage">
+                        <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
             </ul>
