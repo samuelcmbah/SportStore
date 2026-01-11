@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Category>
 
 <li>
-    <a class="dropdown-item @(ViewBag.SelectedCategoryId == null ? "active" : "")"
+    <a class="dropdown-item "
        asp-action="Index"
        asp-controller="Home"
        asp-route-categoryId=""
@@ -15,7 +15,7 @@
 @foreach (var category in Model)
 {
     <li>
-        <a class="dropdown-item @(category.CategoryId == (long?)ViewBag.SelectedCategoryId ? "active" : "")"
+        <a class="dropdown-item "
            asp-action="Index"
            asp-controller="Home"
            asp-route-categoryId="@category.CategoryId"

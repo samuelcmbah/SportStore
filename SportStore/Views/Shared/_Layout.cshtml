@@ -19,10 +19,10 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SportStore.styles.css" asp-append-version="true" />
 
-   
+
 </head>
 <body>
-    <header>
+    <header class="sticky-top">
         <nav class="navbar navbar-expand-lg navbar-custom shadow-sm mb-4">
             <div class="container-fluid">
                 <!-- Brand -->
@@ -128,34 +128,36 @@
             </div>
         </nav>
     </header>
+    <div class="page-content">
 
-    <div class="container-fluid px-lg-5">
-        @{
-            bool isSearching = !string.IsNullOrEmpty(Context.Request.Query["search"]);
-            string mainContentClass = isSearching ? "col-md-9" : "col-12";
-        }
-
-        <div class="row">
-            @if (isSearching)
-            {
-                <div class="col-md-3 mb-4">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white border-bottom py-3">
-                            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-sliders me-2"></i>Filter Results</h6>
-                        </div>
-                        <div class="card-body">
-                            <p class="small text-muted">Searching for: <span class="text-dark fw-bold">"@Context.Request.Query["search"]"</span></p>
-                            <hr />
-                            @await Component.InvokeAsync("FilterPanel")
-                        </div>
-                    </div>
-                </div>
+        <div class="container-fluid px-lg-5">
+            @{
+                bool isSearching = !string.IsNullOrEmpty(Context.Request.Query["search"]);
+                string mainContentClass = isSearching ? "col-md-9" : "col-12";
             }
 
-            <div class="@mainContentClass">
-                <main role="main" class="pb-3">
-                    @RenderBody()
-                </main>
+            <div class="row">
+                @if (isSearching)
+                {
+                    <div class="col-md-3 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <h6 class="mb-0 fw-bold"><i class="fa-solid fa-sliders me-2"></i>Filter Results</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="small text-muted">Searching for: <span class="text-dark fw-bold">"@Context.Request.Query["search"]"</span></p>
+                                <hr />
+                                @await Component.InvokeAsync("FilterPanel")
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="@mainContentClass">
+                    <main role="main" class="pb-3">
+                        @RenderBody()
+                    </main>
+                </div>
             </div>
         </div>
     </div>
