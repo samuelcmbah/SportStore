@@ -1,113 +1,237 @@
-html {
-    font-size: 14px;
-}
-
-@media (min-width: 768px) {
-    html {
-        font-size: 16px;
-    }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-    position: relative;
-    min-height: 100%;
+﻿/* site.css - Global Styles */
+:root {
+    /* Primary sport brand color (red-pink, more red) */
+    --sport-primary: #0056b3; /* ← THIS IS BLUE */
+    
+    /* Neutrals */
+    --sport-black: #111111;
+    --sport-gray: #f4f7f6;
+    --sport-border: #e5e5e5;
 }
 
 body {
-    margin-bottom: 200px;
-    background-color: #f4f7f6;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--sport-gray);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    margin-bottom: 60px; /* Space for footer */
+}
+
+.text-sport-primary {
+    color: var(--sport-primary) !important;
 }
 
 
-/*CUSTOM CLASSES
-*/
-
-:root {
-    --sport-blue: #0047ff;
-    --sport-blue-dark: #004494;
-    --sport-orange: #f68b1e;
-    --sport-light: #f8f9fa;
+/* -------------------------------
+   Product Grid & Cards
+-------------------------------- */
+.product-grid {
+    display: flex;
+    flex-wrap: wrap;
 }
 
+.product-card {
+    border: none !important;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-/* Navbar Rebranding */
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+
+/* -------------------------------
+   Product Images (Square)
+-------------------------------- */
+.product-img-container {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+    .product-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 10px;
+    }
+
+/* -------------------------------
+   Product Text
+-------------------------------- */
+.product-title {
+    font-size: 0.9rem;
+    font-weight: 400;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.6rem;
+    line-height: 1.3rem;
+}
+
+.extra-small {
+    font-size: 0.7rem;
+}
+
+/* -------------------------------
+   Cart Badge (Notification)
+-------------------------------- */
+.cart-badge {
+    /* 1. Dimensions */
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    /* 2. Colors */
+    background-color: var(--sport-primary) !important;
+    color: white !important;
+    border: 1.5px solid white; /* Makes it pop */
+    /* 3. Centering the Number */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    /* 4. Text Styling */
+    font-size: 0.7rem !important;
+    font-weight: 700;
+    line-height: 1;
+    /* 5. Reset Bootstrap */
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* -------------------------------
+   Quick Add To Cart Button
+-------------------------------- */
+.quick-add-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    position: relative;
+    z-index: 3;
+}
+
+    .quick-add-btn:hover {
+        background-color: var(--sport-primary);
+        border-color: var(--sport-primary);
+        color: white;
+    }
+
+/* -------------------------------
+   Mobile Tweaks
+-------------------------------- */
+@media (max-width: 576px) {
+    .product-title {
+        font-size: 0.8rem;
+        height: 2.2rem;
+        line-height: 1.1rem;
+    }
+
+    .fs-5 {
+        font-size: 1rem !important;
+    }
+}
+
+/* layout.cshtml - Navbar & Footer Styles */
+
+/* -------------------------------
+   Navbar
+-------------------------------- */
 .navbar-custom {
-    background-color: var(--sport-blue);
+    background-color: #ffffff;
     padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--sport-border);
 }
 
 .navbar-brand {
     font-weight: 800;
-    letter-spacing: -1px;
-    text-transform: uppercase;
     font-style: italic;
-    color: white !important;
+    text-transform: uppercase;
+    color: var(--sport-black) !important;
 }
 
-/* Search Group Styling */
-.search-group .btn-category {
-    background-color: #f1f1f1;
-    border: 1px solid #ddd;
-    border-right: none;
-    color: #555;
-    font-weight: 500;
-}
-
-.search-group .btn-search {
-    background-color: var(--sport-orange);
-    border: 1px solid var(--sport-orange);
-    color: white;
-    transition: 0.2s;
-}
-
-    .search-group .btn-search:hover {
-        background-color: #e67a0d;
-    }
-
-/* Custom Nav Links */
+/* Navbar links */
 .nav-link-custom {
-    color: rgba(255,255,255,0.9) !important;
+    color: var(--sport-black) !important;
     font-weight: 500;
-    padding: 0.5rem 1rem !important;
 }
 
     .nav-link-custom:hover {
-        color: white !important;
-        background-color: rgba(255,255,255,0.1);
-        border-radius: 5px;
+        color: var(--sport-primary) !important;
     }
 
-/* Cart Badge Fix */
-.cart-badge {
-    background-color: var(--sport-orange) !important;
-    color: white !important;
-    font-size: 0.7rem;
-    min-width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
+/* Mobile toggle icon */
+.navbar-toggler i {
+    color: var(--sport-black);
 }
 
-.cart-pill {
-    background-color: rgba(255,255,255,0.15);
-    border-radius: 50px;
-    padding: 6px 15px;
-    transition: 0.2s;
+/* -------------------------------
+   Search Bar
+-------------------------------- */
+.search-group .btn-category {
+    background-color: white;
+    border: 1px solid var(--sport-border);
+    border-right: none;
+    color: #555;
+    font-size: 0.85rem;
 }
 
-    .cart-pill:hover {
-        background-color: rgba(255,255,255,0.25);
+.search-group .form-control {
+    border: 1px solid var(--sport-border);
+}
+
+.search-group .btn-search {
+    background-color: var(--sport-black);
+    border: 1px solid var(--sport-black);
+    color: white;
+}
+
+    .search-group .btn-search:hover {
+        background-color: var(--sport-primary);
+        border-color: var(--sport-primary);
     }
 
-footer {
-    background: white;
-    padding: 30px 0;
-    border-top: 1px solid #dee2e6;
+/* -------------------------------
+   Pagination
+-------------------------------- */
+/* 1. All Pagination Links (Non-active state) */
+.pagination .page-link {
+    background-color: white; 
+    color: var(--sport-black); /* Black text */
+    border: none; /* Remove borders */
+    margin: 0 3px;
+    border-radius: 8px;
+}
+
+    /* 2. Hover State (Non-active) */
+    .pagination .page-link:hover {
+        color: var(--sport-primary); /* Blue text on hover */
+        background-color: #e9ecef; /* Slightly darker grey */
+    }
+
+/* 3. Active State (The Current Page) */
+.pagination .page-item.active .page-link {
+    background-color: var(--sport-black) !important; 
+    color: white !important; 
+}
+
+/* 4. Remove the blue "glow" and "outline" when clicking */
+.pagination .page-link:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+
+
+/* -------------------------------
+   Footer
+-------------------------------- */
+.footer {
+    background-color: white;
+    padding: 20px 0;
+    border-top: 1px solid var(--sport-border);
 }

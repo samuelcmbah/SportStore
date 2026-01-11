@@ -21,7 +21,7 @@
 
         <!-- Pagination -->
         <nav class="mt-5 d-flex justify-content-center">
-            <ul class="pagination pagination-sm">
+            <ul class="pagination">
                 <li class="page-item @(Model.PagingInfo.HasPrevious ? "" : "disabled")">
                     <a class="page-link shadow-sm" asp-action="Index" asp-route-productPage="@Model.PagingInfo.PrevPage">
                         <i class="bi bi-chevron-left"></i>

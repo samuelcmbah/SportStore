@@ -6,8 +6,7 @@
 
 }
 
-<div class="card h-100 product-card border-0 shadow-sm">
-    <a asp-action="Details" asp-controller="Home" asp-route-id="@Model.ProductID" class="text-decoration-none text-dark">
+<div class="card h-100 product-card border-0 shadow-sm position-relative">
         <!-- Square Image Container -->
         <div class="product-img-container">
             <img src="~/images/@(Model.PhotoPath ?? "noimage.png")"
@@ -15,11 +14,14 @@
                  class="card-img-top"
                  asp-append-version="true" />
         </div>
-    </a>
 
         <div class="card-body p-2 p-md-3">
-            <!-- Product Name (2-line clamp) -->
+        <!--  stretched-link: This Bootstrap class uses a CSS ::after pseudo-element to expand
+        the clickable area of the <a> tag to the nearest parent with position: relative. -->
+        <a asp-action="Details" asp-controller="Home" asp-route-id="@Model.ProductID" 
+           class="stretched-link text-decoration-none text-dark">
             <h6 class="product-title mb-1">@Model.Name</h6>
+        </a>
 
             <!-- Rating & Sold Count (Aesthetics) -->
             <div class="d-flex align-items-center mb-1">
@@ -42,7 +44,8 @@
                 </div>
 
                 @* Quick Add Button *@
-                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline">
+                <form asp-controller="Cart" asp-action="AddToCart" method="post" 
+                        class="d-inline position-relative" style="z-index: 2">
                     <input type="hidden" name="productId" value="@Model.ProductID" />
                     <input type="hidden" name="returnUrl" value="@returnUrl" />
                     <button type="submit" class="btn btn-outline-dark btn-sm rounded-circle quick-add-btn">

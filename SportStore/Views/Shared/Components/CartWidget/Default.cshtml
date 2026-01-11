@@ -2,7 +2,8 @@
 
 @if (Model.HasValue && Model.Value > 0)
 {
-    <span class="cart-badge text-white bg-success rounded-pill ms-2">
+    @* We put the positioning and the styling all in this one span *@
+    <span class="position-absolute top-0 start-100 translate-middle cart-badge">
         @Model
     </span>
 }

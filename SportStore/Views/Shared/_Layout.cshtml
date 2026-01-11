@@ -26,13 +26,13 @@
         <nav class="navbar navbar-expand-lg navbar-custom shadow-sm mb-4">
             <div class="container-fluid">
                 <!-- Brand -->
-                <a class="navbar-brand me-4" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
                     <i class="fa-solid fa-bolt-lightning me-1"></i>SportStore
                 </a>
 
                 <!-- Responsive Toggle -->
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-                    <i class="fa-solid fa-bars text-white"></i>
+                    <i class="fa-solid fa-bars"></i>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarMain">
@@ -87,7 +87,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                                     <li>
                                         <a class="dropdown-item" asp-controller="Order" asp-action="Index">
-                                            <i class="bi bi-box-seam me-2 text-primary"></i> My Orders
+                                            <i class="bi bi-box-seam me-2 text-sport-primary"></i> My Orders
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
@@ -112,13 +112,15 @@
                         <li class="nav-item ms-lg-3">
                             <a class="nav-link nav-link-custom d-flex align-items-center cart-pill text-white text-decoration-none"
                                asp-controller="Cart" asp-action="ViewCart">
+
                                 <div class="position-relative">
                                     <i class="fa-solid fa-cart-shopping fs-5"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle  ">
-                                        @await Component.InvokeAsync("CartWidget")
-                                    </span>
+
+                                    @* The component now handles the <span> entirely *@
+                                    @await Component.InvokeAsync("CartWidget")
                                 </div>
-                                <span class="ms-2 d-none d-md-inline">Cart</span>
+
+                                <span class="ms-2 d-none d-md-inline text-dark">Cart</span>
                             </a>
                         </li>
                     </ul>
