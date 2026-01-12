@@ -119,7 +119,7 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseMiddleware<RoleBasedRootRedirectMiddleware>(); //redirect to admin/products/index for administrator role
+        //app.UseMiddleware<RoleBasedRootRedirectMiddleware>(); //redirect to admin/products/index for administrator role
         app.MapApplicationRoutes();
 
         SeedData.EnsurePopulated(app);

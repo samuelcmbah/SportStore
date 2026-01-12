@@ -15,6 +15,8 @@ namespace SportStore.Models
 
         public DateTime OrderDate { get; set; }
         public DateTime ShippedDate { get; set; }
+        [BindNever]
+        public bool Shipped { get; set; }
 
         [Required(ErrorMessage = "Please enter a name")]
         public string? Name { get; set; }
@@ -42,7 +44,6 @@ namespace SportStore.Models
 
         public bool GiftWrap { get; set; }
 
-        [BindNever]
-        public bool Shipped { get; set; } 
+        
     }
 }

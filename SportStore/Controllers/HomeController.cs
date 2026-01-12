@@ -58,11 +58,19 @@ namespace SportStore.Controllers
         }
 
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Details(long id)
         {
-            return View();
+            
+            var product = await productService.GetByIdAsync(id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
         }
 
-        
+
     }
 }

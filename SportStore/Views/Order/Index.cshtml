@@ -1,0 +1,126 @@
+﻿@model IEnumerable<Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container mt-4 pb-5">
+    <div class="row">
+        <!-- Sidebar  -->
+        <div class="col-md-3 d-none d-md-block">
+            <div class="list-group shadow-sm mb-4 sidebar-menu">
+                <a href="#" class="list-group-item list-group-item-action border-0">
+                    <i class="bi bi-person me-3"></i> My Account
+                </a>
+                <a asp-action="Index" class="list-group-item list-group-item-action active  fw-bold">
+                    <i class="bi bi-box-seam me-3 text-sport-primary"></i> Orders
+                </a>
+                <a href="#" class="list-group-item list-group-item-action ">
+                    <i class="bi bi-envelope me-3"></i> Inbox
+                </a>
+                <a href="#" class="list-group-item list-group-item-action ">
+                    <i class="bi bi-heart me-3"></i> Wishlist
+                </a>
+                <hr class="mx-3 my-2">
+                <a href="#" class="list-group-item list-group-item-action text-danger">
+                    <i class="bi bi-box-arrow-right me-3"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="bg-white shadow-sm rounded p-4">
+                <h4 class="fw-bold mb-4">Orders</h4>
+
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-4" id="orderTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active text-uppercase fw-bold small" id="ongoing-tab" data-bs-toggle="tab" data-bs-target="#ongoing">
+                            Ongoing/Delivered (@Model.Count())
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link text-uppercase fw-bold small" id="canceled-tab" data-bs-toggle="tab" data-bs-target="#canceled">
+                            Canceled/Returned (0)
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="ongoing">
+                        @if (!Model.Any())
+                        {
+                            <div class="text-center py-5">
+                                <div class="mb-3">
+                                    <i class="bi bi-bag-x display-1 text-light-grey"></i>
+                                </div>
+                                <h5 class="fw-bold">No orders yet</h5>
+                                <p class="text-muted">When you place an order, it will appear here.</p>
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-sport fw-bold px-4">START SHOPPING</a>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var order in Model)
+                            {
+                                @foreach (var item in order.OrderItems)
+                                {
+                                    <div class="card mb-3 order-item-card position-relative">
+                                        <a asp-action="Details"
+                                           asp-route-id="@order.OrderID"
+                                           class="stretched-link"></a>
+
+                                        <div class="card-body">
+                                            <div class="row align-items-center">
+                                                <!-- Image -->
+                                                <div class="col-3 col-md-2">
+                                                    <img src="~/images/@(item.Product.PhotoPath ?? "noimage.png")"
+                                                         class="img-fluid rounded border"
+                                                         alt="@item.Product.Name">
+                                                </div>
+
+                                                <!-- Info -->
+                                                <div class="col-9 col-md-10">
+                                                    <h6 class="fw-bold mb-1">@item.Product.Name</h6>
+                                                    <p class="small text-muted mb-1">Order #@order.OrderID</p>
+
+                                                    @if (order.Shipped)
+                                                    {
+                                                        <span class="badge bg-success-soft text-success text-uppercase small">
+                                                            Delivered
+                                                        </span>
+                                                        <p class="small text-muted fw-bold mt-1 mb-0">On @order.ShippedDate.ToString("dd MMM yyyy")</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning-soft text-dark text-uppercase small">
+                                                            Processing
+                                                        </span>
+                                                        <p class="small mt-1 mb-0 text-muted">Placed on @order.OrderDate.ToString("dd MMM yyyy")</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                            }
+                        }
+                    </div>
+
+                    <div class="tab-pane fade" id="canceled">
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-slash-circle display-4 d-block mb-3"></i>
+                            No canceled orders to show.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/order.css" />
+}

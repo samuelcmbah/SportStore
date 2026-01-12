@@ -1,0 +1,56 @@
+﻿/* pages/orders.css */
+
+
+
+/* Tabs */
+/* 1. Remove the default border from the whole tab container */
+.nav-tabs {
+    border-bottom: 2px solid #eeeeee; /* A light, clean base line */
+    gap: 20px; /* Space between the tab headers */
+}
+
+    /* 2. Base styling for all tab links */
+    .nav-tabs .nav-link {
+        border: none !important; /* Kill default Bootstrap borders */
+        background: none !important;
+        color: var(--sport-black);
+        padding: 10px 5px;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent !important; /* Prepare the space for the thick border */
+    }
+
+        /* 3. Hover state */
+        .nav-tabs .nav-link:hover {
+            color: var(--sport-primary);
+            border-bottom: 3px solid #ddd !important;
+        }
+
+        /* 4. ACTIVE State: The Thick Bottom Border */
+        .nav-tabs .nav-link.active {
+            color: var(--sport-primary) !important;
+            font-weight: 700 !important;
+            /* This is your "Thick bottom border" */
+            border-bottom: 3px solid var(--sport-primary) !important;
+        }
+
+/* 5. Cleanup for Mobile */
+@media (max-width: 576px) {
+    .nav-tabs {
+        gap: 10px;
+    }
+
+        .nav-tabs .nav-link {
+            font-size: 0.75rem; /* Shrink text on mobile so tabs don't wrap */
+        }
+}
+
+/* Order cards */
+.order-item-card {
+    border-radius: 8px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .order-item-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
