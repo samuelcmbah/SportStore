@@ -66,39 +66,42 @@
                             {
                                 @foreach (var item in order.OrderItems)
                                 {
-                                    <div class="card mb-3 border shadow-none order-item-card">
+                                    <div class="card mb-3 order-item-card position-relative">
+                                        <a asp-action="Details"
+                                           asp-route-id="@order.OrderID"
+                                           class="stretched-link"></a>
+
                                         <div class="card-body">
                                             <div class="row align-items-center">
                                                 <!-- Image -->
                                                 <div class="col-3 col-md-2">
                                                     <img src="~/images/@(item.Product.PhotoPath ?? "noimage.png")"
-                                                         class="img-fluid rounded border" alt="@item.Product.Name">
+                                                         class="img-fluid rounded border"
+                                                         alt="@item.Product.Name">
                                                 </div>
 
                                                 <!-- Info -->
-                                                <div class="col-6 col-md-7">
-                                                    <h6 class="mb-1 fw-bold">@item.Product.Name</h6>
+                                                <div class="col-9 col-md-10">
+                                                    <h6 class="fw-bold mb-1">@item.Product.Name</h6>
                                                     <p class="small text-muted mb-1">Order #@order.OrderID</p>
 
                                                     @if (order.Shipped)
                                                     {
-                                                        <span class="badge bg-success-soft text-success text-uppercase" style="font-size: 0.7rem;">Delivered</span>
-                                                        <p class="small fw-bold mt-1 mb-0">On @order.ShippedDate.ToString("dd MMM yyyy")</p>
+                                                        <span class="badge bg-success-soft text-success text-uppercase small">
+                                                            Delivered
+                                                        </span>
                                                     }
                                                     else
                                                     {
-                                                        <span class="badge bg-warning-soft text-dark text-uppercase" style="font-size: 0.7rem;">Processing</span>
-                                                        <p class="small mt-1 mb-0 text-muted">Placed on @order.OrderDate.ToString("dd MMM yyyy")</p>
+                                                        <span class="badge bg-warning-soft text-dark text-uppercase small">
+                                                            Processing
+                                                        </span>
                                                     }
-                                                </div>
-
-                                                <!-- Action -->
-                                                <div class="col-3 col-md-3 text-end">
-                                                    <a href="#" class="text-sport-primary text-decoration-none fw-bold small">SEE DETAILS</a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
                                 }
                             }
                         }
@@ -116,96 +119,6 @@
     </div>
 </div>
 
-<style>
-    :root {
-        --sport-blue: #0056b3;
-        --sport-blue-hover: #004494;
-        --sport-blue-soft: rgba(0, 86, 179, 0.08);
-        --sport-bg: #f8f9fa;
-        --text-muted: #75757a;
-    }
-
-    body {
-        background-color: var(--sport-bg);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    /* Primary Text Color */
-    .text-sport-primary {
-        color: var(--sport-blue) !important;
-    }
-
-    /* Buttons */
-    .btn-sport {
-        background-color: var(--sport-blue);
-        color: white;
-        border: none;
-        transition: all 0.2s;
-    }
-
-        .btn-sport:hover {
-            background-color: var(--sport-blue-hover);
-            color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-    /* Sidebar Styling */
-    .sidebar-menu .list-group-item {
-        padding: 0.8rem 1.25rem;
-        color: #444;
-    }
-
-        .sidebar-menu .list-group-item.active {
-            background-color: var(--sport-blue-soft) !important;
-            color: var(--sport-blue) !important;
-            border-left: 4px solid var(--sport-blue) !important;
-            border-radius: 0;
-        }
-
-        .sidebar-menu .list-group-item:hover:not(.active) {
-            background-color: #f1f1f1;
-        }
-
-    /* Tab Styling */
-    .nav-tabs {
-        border-bottom: 2px solid #eee;
-    }
-
-        .nav-tabs .nav-link {
-            color: var(--text-muted);
-            border: none;
-            border-bottom: 3px solid transparent;
-            padding: 10px 20px;
-        }
-
-            .nav-tabs .nav-link.active {
-                color: var(--sport-blue);
-                border-bottom: 3px solid var(--sport-blue);
-                background: none;
-            }
-
-    /* Order Card Styling */
-    .order-item-card {
-        transition: transform 0.15s ease-in-out, border-color 0.15s;
-        border-radius: 8px;
-    }
-
-        .order-item-card:hover {
-            border-color: var(--sport-blue) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
-        }
-
-    /* Badge Soft Colors */
-    .bg-success-soft {
-        background-color: #e8f5e9;
-    }
-
-    .bg-warning-soft {
-        background-color: #fff3e0;
-    }
-
-    .text-light-grey {
-        color: #dee2e6;
-    }
-</style>
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/order.css" />
+}

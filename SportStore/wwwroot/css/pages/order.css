@@ -1,0 +1,38 @@
+﻿/* pages/orders.css */
+
+/* Sidebar */
+.sidebar-menu .list-group-item {
+    padding: 0.8rem 1.25rem;
+    color: #444;
+}
+
+    .sidebar-menu .list-group-item.active {
+        background-color: rgba(0,0,0,0.05);
+        color: var(--sport-primary);
+        border-left: 4px solid var(--sport-primary);
+        border-radius: 0;
+    }
+
+/* Tabs */
+.order-tabs .nav-link {
+    color: #75757a;
+    border: none;
+    border-bottom: 3px solid transparent;
+}
+
+    .order-tabs .nav-link.active {
+        color: var(--sport-primary);
+        border-bottom-color: var(--sport-primary);
+        background: none;
+    }
+
+/* Order cards */
+.order-item-card {
+    border-radius: 8px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .order-item-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
