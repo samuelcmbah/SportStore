@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using SportStore.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace SportStore.Models
@@ -10,6 +11,9 @@ namespace SportStore.Models
 
         [BindNever]
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+
+        public OrderStatus Status { get; set; }  
+        public string PaymentReference { get; set; } = string.Empty;
 
         public string UserId { get; set; } = null!;
 
@@ -43,7 +47,6 @@ namespace SportStore.Models
         public string? Country { get; set; }
 
         public bool GiftWrap { get; set; }
-
-        
+        public DateTime PaidAt { get; internal set; }
     }
 }

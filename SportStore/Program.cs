@@ -26,6 +26,16 @@ public class Program
 
         // Add services to the container.
 
+        // SportStore/Program.cs
+        var payBridgeUrl = builder.Configuration["ExternalServices:PayBridgeUrl"];
+
+        builder.Services.AddHttpClient("PayBridge", client =>
+        {
+            client.BaseAddress = new Uri(payBridgeUrl!);
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            // add Shared Secret here if you've implemented it
+            // client.DefaultRequestHeaders.Add("X-PayBridge-Secret", "your_secret");
+        });
         //configuring third party logging
         builder.Host.UseSerilog((context, configuration) =>
             configuration.ReadFrom.Configuration(context.Configuration));
