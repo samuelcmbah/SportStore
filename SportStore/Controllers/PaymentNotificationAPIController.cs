@@ -14,14 +14,14 @@ namespace SportStore.Controllers
     [ApiController]
     [Route("api/notifications")]
     [AllowAnonymous] //  webhooks don't have user authentication
-    public class PaymentNotificationController : ControllerBase
+    public class PaymentNotificationAPIController : ControllerBase
     {
         private readonly IOrderRepository orderRepository;
         private readonly IOrderNotificationService notificationService;
         private readonly ICartService cartService;
         private readonly SessionCart sessionCart;
 
-        public PaymentNotificationController(IOrderRepository orderRepository, IOrderNotificationService notificationService,
+        public PaymentNotificationAPIController(IOrderRepository orderRepository, IOrderNotificationService notificationService,
             ICartService cartService, SessionCart sessionCart)
         {
             this.orderRepository = orderRepository;
@@ -81,17 +81,6 @@ namespace SportStore.Controllers
             return Ok();
         }
 
-        [HttpGet("api/orders/{orderId}/status")]
-        public async Task<IActionResult> GetOrderStatus(int orderId)
-        {
-            var order = await orderRepository.GetOrderByIdAsync(orderId);
-
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new { status = order.Status.ToString() });
-        }
+       
     }
 }

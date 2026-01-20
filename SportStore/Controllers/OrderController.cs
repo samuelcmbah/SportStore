@@ -166,7 +166,7 @@ namespace SportStore.Controllers
                     _ => "Processing..."
                 }
             };
-            return View(vm);
+            return View("Completed", vm);
         }
     }
 }
