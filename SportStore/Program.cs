@@ -78,6 +78,7 @@ public class Program
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();
         builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
+        builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<SessionCart>();

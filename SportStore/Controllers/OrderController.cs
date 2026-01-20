@@ -22,7 +22,9 @@ namespace SportStore.Controllers
         private readonly IOrderDomainService orderDomainService;
         private readonly IOrderRepository orderRepository;
         private readonly IOrderNotificationService orderNotificationService;
-        private readonly IHttpClientFactory httpClientFactory;
+        private readonly ICurrentUserService currentUserService;
+        private readonly IPaymentService paymentService;
+        private readonly ILogger<OrderController> logger;
 
         public OrderController(
             ICartService cartService,
@@ -31,7 +33,9 @@ namespace SportStore.Controllers
             IOrderDomainService orderDomainService,
             IOrderRepository orderRepository,
             IOrderNotificationService orderNotificationService,
-            IHttpClientFactory httpClientFactory )
+            ICurrentUserService currentUserService,
+            IPaymentService paymentService,
+            ILogger<OrderController> logger)
         {
             this.cartService = cartService;
             this.sessionCart = sessionCart;
@@ -39,7 +43,9 @@ namespace SportStore.Controllers
             this.orderDomainService = orderDomainService;
             this.orderRepository = orderRepository;
             this.orderNotificationService = orderNotificationService;
-            this.httpClientFactory = httpClientFactory;
+            this.currentUserService = currentUserService;
+            this.paymentService = paymentService;
+            this.logger = logger;
         }
 
         private async Task<Cart> GetCartAsync()
@@ -91,55 +97,50 @@ namespace SportStore.Controllers
             {
                 ModelState.AddModelError("", "Your cart is empty.");
             }
-
+            var totalPrice = cartDomainService.GetTotalPrice(cart);
             if (!ModelState.IsValid)
             {
-                vm.TotalPrice = cartDomainService.GetTotalPrice(cart);
+                vm.TotalPrice = totalPrice;
                 return View(vm);
             }
 
-            var userId = User.Identity!.IsAuthenticated
-                ? User.FindFirstValue(ClaimTypes.NameIdentifier)
-                : null;
-
-            // ✅ Get user email from claims
-            var userEmail = User.Identity!.IsAuthenticated
-                ? User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue(ClaimTypes.Name)
-                : "guest@sportstore.com";
+            var userId = currentUserService.UserId;
+            var userEmail = currentUserService.Email;
 
             var order = orderDomainService.CreateOrderFromCart(cart, vm, userId);
-
             await orderRepository.CreateOrderAsync(order);
 
-            var payload = new
+            // Controller generates the redirect URL and passes to service
+            var redirectUrl = Url.Action("Completed", "Order", new { orderId = order.OrderID }, Request.Scheme);
+            if (string.IsNullOrWhiteSpace(redirectUrl))
             {
-                ExternalUserId = userEmail, // 
-                Amount = cartDomainService.GetTotalPrice(cart),
-                Purpose = 0,  // ProductCheckout
-                Provider = 0, // Paystack  
-                AppName = "SportStore",
-                ExternalReference = order.OrderID.ToString(),
-                RedirectUrl = Url.Action("Completed", "Order", new { orderId = order.OrderID }, Request.Scheme),
-                NotificationUrl = "https://localhost:7001/api/notifications/paybridge"
-            };
-            
-            var json = JsonSerializer.Serialize(payload);
-            Console.WriteLine($"Sending to PayBridge: {json}");
+                // Log this — it should NEVER happen in normal flow
+                logger.LogError(
+                    "Failed to generate redirect URL for order {OrderId}",
+                    order.OrderID
+                );
 
-            var client = httpClientFactory.CreateClient("PayBridge");
-            var response = await client.PostAsJsonAsync("/api/payments/initialize", payload);
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Unable to start payment at this time. Please try again later."
+                );
 
-            if (!response.IsSuccessStatusCode)
+                vm.TotalPrice = totalPrice;
+                return View(vm);
+            }
+            string authorizationUrl;
+            try
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"PayBridge Error: {errorContent}");
-                ModelState.AddModelError("", $"Payment error: {errorContent}");
+                authorizationUrl = await paymentService.InitializeCheckoutAsync(order, totalPrice, userEmail, redirectUrl);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                vm.TotalPrice = totalPrice;
                 return View(vm);
             }
 
-            var result = await response.Content.ReadFromJsonAsync<PayBridgeInitResponse>();
-
-            return Redirect(result!.AuthorizationUrl);
+            return Redirect(authorizationUrl);
         }
 
         [HttpGet]
@@ -160,7 +161,7 @@ namespace SportStore.Controllers
                 OrderStatus = order.Status, // Show current status
                 Message = order.Status switch
                 {
-                    OrderStatus.Pending => "Your payment is being processed. You'll receive an email confirmation shortly.",
+                    OrderStatus.Pending => "Your payment is being processed.",
                     OrderStatus.Success => "Payment successful! Your order has been confirmed.",
                     OrderStatus.Failed => "Payment failed. Please try again.",
                     _ => "Processing..."
