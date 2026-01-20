@@ -88,6 +88,10 @@ namespace SportStore.Services
             return true;
         }
 
-       
+        public async Task UpdateOrderAsync(Order order)
+        {
+            context.Update(order);
+            await context.SaveChangesAsync();
+        }
     }
 }

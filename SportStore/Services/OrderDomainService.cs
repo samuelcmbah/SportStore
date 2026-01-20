@@ -1,4 +1,5 @@
 ﻿using SportStore.Models;
+using SportStore.Models.Enums;
 using SportStore.Services.IServices;
 using SportStore.ViewModels;
 
@@ -17,6 +18,7 @@ namespace SportStore.Services
         {
             return new Order
             {
+                Status = OrderStatus.Pending,
                 OrderDate = DateTime.UtcNow,
                 ShippedDate = new DateTime(),
                 UserId = userId,

@@ -13,6 +13,7 @@ namespace SportStore.Services.IServices
         Task MarkOrderAsShippedAsync(int orderId);
 
         Task<bool> DeleteOrderAsync(int orderId);
+        Task UpdateOrderAsync(Order order);
     }
 
 }

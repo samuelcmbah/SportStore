@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SportStore.Dtos;
 using SportStore.Models;
+using SportStore.Models.Enums;
 using SportStore.Services;
 using SportStore.Services.IServices;
 using SportStore.Utils;
 using SportStore.ViewModels;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace SportStore.Controllers
 {
@@ -18,6 +22,7 @@ namespace SportStore.Controllers
         private readonly IOrderDomainService orderDomainService;
         private readonly IOrderRepository orderRepository;
         private readonly IOrderNotificationService orderNotificationService;
+        private readonly IHttpClientFactory httpClientFactory;
 
         public OrderController(
             ICartService cartService,
@@ -25,7 +30,8 @@ namespace SportStore.Controllers
             ICartDomainService cartDomainService,
             IOrderDomainService orderDomainService,
             IOrderRepository orderRepository,
-            IOrderNotificationService orderNotificationService)
+            IOrderNotificationService orderNotificationService,
+            IHttpClientFactory httpClientFactory )
         {
             this.cartService = cartService;
             this.sessionCart = sessionCart;
@@ -33,6 +39,7 @@ namespace SportStore.Controllers
             this.orderDomainService = orderDomainService;
             this.orderRepository = orderRepository;
             this.orderNotificationService = orderNotificationService;
+            this.httpClientFactory = httpClientFactory;
         }
 
         private async Task<Cart> GetCartAsync()
@@ -95,30 +102,69 @@ namespace SportStore.Controllers
                 ? User.FindFirstValue(ClaimTypes.NameIdentifier)
                 : null;
 
+            // ✅ Get user email from claims
+            var userEmail = User.Identity!.IsAuthenticated
+                ? User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue(ClaimTypes.Name)
+                : "guest@sportstore.com";
+
             var order = orderDomainService.CreateOrderFromCart(cart, vm, userId);
 
             await orderRepository.CreateOrderAsync(order);
-            // Email will go here
-            await orderNotificationService.SendOrderPlacedEmailAsync(order);
 
-            // Clear cart
-            cart.CartItems.Clear();
-            if (User.Identity!.IsAuthenticated)
-                await cartService.UpdateCartAsync(cart);
-            else
-                sessionCart.ClearCart();
+            var payload = new
+            {
+                ExternalUserId = userEmail, // 
+                Amount = cartDomainService.GetTotalPrice(cart),
+                Purpose = 0,  // ProductCheckout
+                Provider = 0, // Paystack  
+                AppName = "SportStore",
+                ExternalReference = order.OrderID.ToString(),
+                RedirectUrl = Url.Action("Completed", "Order", new { orderId = order.OrderID }, Request.Scheme),
+                NotificationUrl = "https://localhost:7001/api/notifications/paybridge"
+            };
+            
+            var json = JsonSerializer.Serialize(payload);
+            Console.WriteLine($"Sending to PayBridge: {json}");
 
-            return RedirectToAction("Completed", new {orderId = order.OrderID});
+            var client = httpClientFactory.CreateClient("PayBridge");
+            var response = await client.PostAsJsonAsync("/api/payments/initialize", payload);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"PayBridge Error: {errorContent}");
+                ModelState.AddModelError("", $"Payment error: {errorContent}");
+                return View(vm);
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<PayBridgeInitResponse>();
+
+            return Redirect(result!.AuthorizationUrl);
         }
 
         [HttpGet]
-        public   IActionResult Completed(int orderId)
+        [Route("Order/Completed")]
+        public  async Task<IActionResult> CompletedAsync(int orderId)
         {
-            
+            var order = await orderRepository.GetOrderByIdAsync(orderId);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
 
             var vm = new OrderCompletedViewModel
             {
                 OrderId = orderId,
+                OrderStatus = order.Status, // Show current status
+                Message = order.Status switch
+                {
+                    OrderStatus.Pending => "Your payment is being processed. You'll receive an email confirmation shortly.",
+                    OrderStatus.Success => "Payment successful! Your order has been confirmed.",
+                    OrderStatus.Failed => "Payment failed. Please try again.",
+                    _ => "Processing..."
+                }
             };
             return View(vm);
         }
