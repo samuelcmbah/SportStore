@@ -23,7 +23,7 @@ namespace SportStore.Services
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .AsNoTracking();
-        }            
+        }
 
         public async Task<Order?> GetOrderByIdAsync(int id)
         {
@@ -92,6 +92,16 @@ namespace SportStore.Services
         {
             context.Update(order);
             await context.SaveChangesAsync();
+        }
+
+        public async Task<Order> GetOrderByReferenceAsync(string orderRef)
+        {
+            var order = await context.Orders.FirstOrDefaultAsync(o => o.OrderReference == orderRef);
+            if (order == null)
+            {
+                throw new InvalidOperationException("Order not found.");
+            }
+            return order;
         }
     }
 }

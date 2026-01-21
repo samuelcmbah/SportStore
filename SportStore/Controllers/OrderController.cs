@@ -22,7 +22,9 @@ namespace SportStore.Controllers
         private readonly IOrderDomainService orderDomainService;
         private readonly IOrderRepository orderRepository;
         private readonly IOrderNotificationService orderNotificationService;
-        private readonly IHttpClientFactory httpClientFactory;
+        private readonly ICurrentUserService currentUserService;
+        private readonly IPaymentService paymentService;
+        private readonly ILogger<OrderController> logger;
 
         public OrderController(
             ICartService cartService,
@@ -31,7 +33,9 @@ namespace SportStore.Controllers
             IOrderDomainService orderDomainService,
             IOrderRepository orderRepository,
             IOrderNotificationService orderNotificationService,
-            IHttpClientFactory httpClientFactory )
+            ICurrentUserService currentUserService,
+            IPaymentService paymentService,
+            ILogger<OrderController> logger)
         {
             this.cartService = cartService;
             this.sessionCart = sessionCart;
@@ -39,7 +43,9 @@ namespace SportStore.Controllers
             this.orderDomainService = orderDomainService;
             this.orderRepository = orderRepository;
             this.orderNotificationService = orderNotificationService;
-            this.httpClientFactory = httpClientFactory;
+            this.currentUserService = currentUserService;
+            this.paymentService = paymentService;
+            this.logger = logger;
         }
 
         private async Task<Cart> GetCartAsync()
@@ -58,7 +64,7 @@ namespace SportStore.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            
+
             var orders = await orderRepository.GetOrdersByUserAsync(userId);
             return View(orders);
         }
@@ -75,7 +81,8 @@ namespace SportStore.Controllers
 
             var vm = new CheckoutViewModel
             {
-                TotalPrice = cartDomainService.GetTotalPrice(cart)
+                TotalPrice = cartDomainService.GetTotalPrice(cart),
+                CartItems = cart.CartItems
             };
 
             return View(vm);
@@ -83,70 +90,76 @@ namespace SportStore.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(CheckoutViewModel vm)
         {
             var cart = await GetCartAsync();
-
-            if (!cart.CartItems.Any())
+            if (cart == null || !cart.CartItems.Any())
             {
                 ModelState.AddModelError("", "Your cart is empty.");
+                return RedirectToAction("ViewCart", "Cart"); 
             }
 
             if (!ModelState.IsValid)
             {
-                vm.TotalPrice = cartDomainService.GetTotalPrice(cart);
+                RePopulateViewModel(vm, cart);
                 return View(vm);
             }
 
-            var userId = User.Identity!.IsAuthenticated
-                ? User.FindFirstValue(ClaimTypes.NameIdentifier)
-                : null;
-
-            // ✅ Get user email from claims
-            var userEmail = User.Identity!.IsAuthenticated
-                ? User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue(ClaimTypes.Name)
-                : "guest@sportstore.com";
-
-            var order = orderDomainService.CreateOrderFromCart(cart, vm, userId);
-
-            await orderRepository.CreateOrderAsync(order);
-
-            var payload = new
+            try
             {
-                ExternalUserId = userEmail, // 
-                Amount = cartDomainService.GetTotalPrice(cart),
-                Purpose = 0,  // ProductCheckout
-                Provider = 0, // Paystack  
-                AppName = "SportStore",
-                ExternalReference = order.OrderID.ToString(),
-                RedirectUrl = Url.Action("Completed", "Order", new { orderId = order.OrderID }, Request.Scheme),
-                NotificationUrl = "https://localhost:7001/api/notifications/paybridge"
-            };
-            
-            var json = JsonSerializer.Serialize(payload);
-            Console.WriteLine($"Sending to PayBridge: {json}");
+                var userId = currentUserService.UserId;
+                var userEmail = currentUserService.Email;
+                var totalPrice = cartDomainService.GetTotalPrice(cart);
 
-            var client = httpClientFactory.CreateClient("PayBridge");
-            var response = await client.PostAsJsonAsync("/api/payments/initialize", payload);
+                // Create Order Object (Wait to save to DB until payment is ready or use a transaction)
+                var order = orderDomainService.CreateOrderFromCart(cart, vm, userId);
 
-            if (!response.IsSuccessStatusCode)
+                // Generate Callback URL
+                var redirectUrl = Url.Action("Completed", "Order", new { orderRef = order.OrderReference }, Request.Scheme);
+
+                if (redirectUrl is null)
+                {
+                    logger.LogCritical("Routing Error: Could not generate Redirect URL for Order {OrderId}. Check 'Order/Completed' route configuration.", order.OrderID);
+
+                    ModelState.AddModelError(string.Empty, "A system error occurred while preparing your payment. Please contact support.");
+
+                    RePopulateViewModel(vm, cart);
+                    return View(vm);
+                }
+                var authorizationUrl = await paymentService.InitializeCheckoutAsync(order.OrderReference, totalPrice, userEmail, redirectUrl);
+
+                // Persist Order only after successful payment initialization
+                await orderRepository.CreateOrderAsync(order);
+
+                return Redirect(authorizationUrl);
+            }
+            catch (Exception ex)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"PayBridge Error: {errorContent}");
-                ModelState.AddModelError("", $"Payment error: {errorContent}");
+                logger.LogError(ex, "Checkout failure for user {Email}", currentUserService.Email);
+
+                ModelState.AddModelError(string.Empty, "Unable to process payment at the moment. Please try again.");
+
+                RePopulateViewModel(vm, cart);
                 return View(vm);
             }
+        }
 
-            var result = await response.Content.ReadFromJsonAsync<PayBridgeInitResponse>();
-
-            return Redirect(result!.AuthorizationUrl);
+        /// <summary>
+        /// Helper to ensure the view doesn't crash when returning due to validation errors
+        /// </summary>
+        private void RePopulateViewModel(CheckoutViewModel vm, Cart cart)
+        {
+            vm.CartItems = cart.CartItems; // Critical: Prevents NullReference in @foreach
+            vm.TotalPrice = cartDomainService.GetTotalPrice(cart);
         }
 
         [HttpGet]
         [Route("Order/Completed")]
-        public  async Task<IActionResult> CompletedAsync(int orderId)
+        public async Task<IActionResult> CompletedAsync(string orderRef)
         {
-            var order = await orderRepository.GetOrderByIdAsync(orderId);
+            //find using fist or default with orderref
+            var order = await orderRepository.GetOrderByReferenceAsync(orderRef);
 
             if (order == null)
             {
@@ -156,17 +169,17 @@ namespace SportStore.Controllers
 
             var vm = new OrderCompletedViewModel
             {
-                OrderId = orderId,
+                OrderRef = order.OrderReference,
                 OrderStatus = order.Status, // Show current status
                 Message = order.Status switch
                 {
-                    OrderStatus.Pending => "Your payment is being processed. You'll receive an email confirmation shortly.",
+                    OrderStatus.Pending => "Your payment is being processed.",
                     OrderStatus.Success => "Payment successful! Your order has been confirmed.",
                     OrderStatus.Failed => "Payment failed. Please try again.",
                     _ => "Processing..."
                 }
             };
-            return View(vm);
+            return View("Completed", vm);
         }
     }
 }

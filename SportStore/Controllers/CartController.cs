@@ -23,30 +23,33 @@ namespace SportStore.Controllers
         private readonly SessionCart sessionCart;
         private readonly ICartService cartService;
         private readonly ICartDomainService cartDomainService;
+        private readonly ICurrentUserService currentUserService;
 
         public CartController(
             IStoreRepository storeRepository, 
             SessionCart sessionCart, ICartService cartService,
-            ICartDomainService cartDomainService)
+            ICartDomainService cartDomainService,
+            ICurrentUserService currentUserService)
         {
             this.storeRepository = storeRepository;
             this.sessionCart = sessionCart;
             this.cartService = cartService;
             this.cartDomainService = cartDomainService;
+            this.currentUserService = currentUserService;
         }
 
         //PRIVATE HELPER METHODS
 
-        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
 
 
         private async Task<Cart> GetCartAsync()
         {
-            if(User.Identity!.IsAuthenticated)
+            if (User.Identity!.IsAuthenticated)
             {
-                var userId = GetUserId();
+                var userId = currentUserService.UserId;
                 return await cartService.GetOrCreateCartByUserIdAsync(userId);
-            }
+            }  
+            
             return sessionCart.GetCart();
         }
 
