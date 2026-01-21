@@ -14,6 +14,7 @@ namespace SportStore.Services.IServices
 
         Task<bool> DeleteOrderAsync(int orderId);
         Task UpdateOrderAsync(Order order);
+        Task<Order> GetOrderByReferenceAsync(string orderRef);
     }
 
 }

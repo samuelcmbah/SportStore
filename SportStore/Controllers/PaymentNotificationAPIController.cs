@@ -40,7 +40,7 @@ namespace SportStore.Controllers
             }
 
 
-            var order = await orderRepository.GetOrderByIdAsync(int.Parse(payload.ExternalReference));
+            var order = await orderRepository.GetOrderByReferenceAsync(payload.ExternalReference);
 
             if (order == null)
             {

@@ -5,7 +5,7 @@
     ViewData["Title"] = "Order Confirmation";
 }
 <div id="order-status"
-     data-order-id="@Model.OrderId"
+     data-order-id="@Model.OrderRef"
      data-order-status="@Model.OrderStatus">
     <!-- status UI lives here -->
 
@@ -23,7 +23,7 @@
                                 </div>
                                 <h3>@Model.Message</h3>
                                 <p class="text-muted">Please wait while we confirm your payment.</p>
-                                <p><strong>Order #@Model.OrderId</strong></p>
+                                <p><strong>Order #@Model.OrderRef</strong></p>
                             }
                             else if (Model.OrderStatus == OrderStatus.Success)
                             {
@@ -33,7 +33,7 @@
                                     </svg>
                                 </div>
                                 <h3>@Model.Message</h3>
-                                <p>Order <strong>#@Model.OrderId</strong></p>
+                                <p>Order <strong>#@Model.OrderRef</strong></p>
                                 <p class="text-muted">We'll ship your goods as soon as possible.</p>
                             }
                             else if (Model.OrderStatus == OrderStatus.Failed)
@@ -44,7 +44,7 @@
                                     </svg>
                                 </div>
                                 <h3>Payment Failed</h3>
-                                <p>Order <strong>#@Model.OrderId</strong></p>
+                                <p>Order <strong>#@Model.OrderRef</strong></p>
                                 <p class="text-muted">Please try again or contact support.</p>
                                 <a class="btn btn-danger mt-2" asp-controller="Order" asp-action="Checkout">Try Again</a>
                             }

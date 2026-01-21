@@ -14,19 +14,18 @@ namespace SportStore.Services
             _cartDomain = cartDomain;
         }
 
-        public Order CreateOrderFromCart(Cart cart, CheckoutViewModel vm, string? userId)
+        public Order CreateOrderFromCart(Cart cart, CheckoutViewModel vm, string userId)
         {
             return new Order
             {
+                OrderReference = $"ORD_{Guid.NewGuid():N}",
                 Status = OrderStatus.Pending,
                 OrderDate = DateTime.UtcNow,
                 ShippedDate = new DateTime(),
                 UserId = userId,
                 Name = vm.Name,
                 Email = vm.Email,
-                Line1 = vm.Line1,
-                Line2 = vm.Line2,
-                Line3 = vm.Line3,
+                Address = vm.Address,
                 City = vm.City,
                 State = vm.State,
                 Zip = vm.Zip,

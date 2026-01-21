@@ -5,7 +5,7 @@ namespace SportStore.Services.IServices
 {
     public interface IOrderDomainService
     {
-        Order CreateOrderFromCart(Cart cart, CheckoutViewModel vm, string? userId);
+        Order CreateOrderFromCart(Cart cart, CheckoutViewModel vm, string userId);
 
     }
 }

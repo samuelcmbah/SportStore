@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SportStore.Data;
@@ -11,9 +12,11 @@ using SportStore.Data;
 namespace SportStore.Migrations
 {
     [DbContext(typeof(StoreDbContext))]
-    partial class StoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260120183018_updateOrderTable")]
+    partial class updateOrderTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,10 +95,6 @@ namespace SportStore.Migrations
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("OrderReference")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("PaidAt")
                         .HasColumnType("timestamp with time zone");

@@ -4,7 +4,7 @@ namespace SportStore.Services.IServices
 {
     public interface IPaymentService
     {
-        Task<string> InitializeCheckoutAsync(Order order, decimal amount, string userEmail,
+        Task<string> InitializeCheckoutAsync(string orderRef, decimal amount, string userEmail,
             string redirectUrl);
     }
 }

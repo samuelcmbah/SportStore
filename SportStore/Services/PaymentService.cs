@@ -17,7 +17,7 @@ namespace SportStore.Services
         }
 
         public async Task<string> InitializeCheckoutAsync(
-            Order order,
+            string orderRef,
             decimal amount,
             string userEmail,
             string redirectUrl)
@@ -30,7 +30,7 @@ namespace SportStore.Services
                 Purpose = 0,  // ProductCheckout
                 Provider = 0, // Paystack  
                 AppName = "SportStore",
-                ExternalReference = order.OrderID.ToString(),
+                ExternalReference = orderRef,
                 RedirectUrl = redirectUrl,
                 NotificationUrl = "https://localhost:7001/api/notifications/paybridge"
             };
