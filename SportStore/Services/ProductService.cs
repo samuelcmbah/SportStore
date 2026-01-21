@@ -106,6 +106,7 @@ namespace SportStore.Services
                 Description = model.Description,
                 CategoryId = model.CategoryId,
                 Price = model.Price,
+                StockQuantity = model.StockQuantity,
                 PhotoPath = uniqueFileName
             };
             context.Products.Add(product);
@@ -126,6 +127,7 @@ namespace SportStore.Services
             editedProduct.Description = model.Description;
             editedProduct.CategoryId = model.CategoryId;
             editedProduct.Price = model.Price;
+            editedProduct.StockQuantity = model.StockQuantity;
 
             if (model.Photo != null)
             {
