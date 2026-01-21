@@ -1,11 +1,11 @@
 ﻿@* SportStore/Views/Home/Details.cshtml *@
-@model Product
+@model ProductDetailsViewModel
 
 @{
-    ViewData["Title"] = Model.Name;
-    var photoPath = "~/images/" + (Model.PhotoPath ?? "noimage.png");
+    ViewData["Title"] = Model.Product.Name;
+    var photoPath = Model.PhotoPath;
     var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
-    var maxQuantity = Math.Min(Model.StockQuantity, 10); // Limit to 10 in dropdown
+    var maxQuantity = Math.Min(Model.Product.StockQuantity, 10); // Limit to 10 in dropdown
 }
 
 <div class="container mt-4">
@@ -13,8 +13,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Home</a></li>
-            <li class="breadcrumb-item">@Model.Category?.Name</li>
-            <li class="breadcrumb-item active">@Model.Name</li>
+            <li class="breadcrumb-item">@Model.Product.Category?.Name</li>
+            <li class="breadcrumb-item active">@Model.Product.Name</li>
         </ol>
     </nav>
 
@@ -31,7 +31,7 @@
         <div class="col-md-5 text-center border-end">
             <img src="@photoPath"
                  class="img-fluid"
-                 alt="@Model.Name"
+                 alt="@Model.Product.Name"
                  asp-append-version="true"
                  style="max-height: 400px; object-fit: contain;" />
         </div>
@@ -40,22 +40,22 @@
         <div class="col-md-7 ps-md-5">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <span class="badge bg-info mb-2">@Model.Category?.Name</span>
-                    <h2 class="fw-bold">@Model.Name</h2>
+                    <span class="badge bg-info mb-2">@Model.Product.Category?.Name</span>
+                    <h2 class="fw-bold">@Model.Product.Name</h2>
                 </div>
             </div>
 
             <hr />
 
             <div class="price-section mb-4">
-                <h3 class="text-primary fw-bold">@Model.Price.ToString("c")</h3>
-                @if (Model.IsInStock)
+                <h3 class="text-primary fw-bold">@Model.Product.Price.ToString("c")</h3>
+                @if (Model.Product.IsInStock)
                 {
                     <small class="text-success">
                         <i class="bi bi-check-circle"></i> In stock
-                        @if (Model.StockQuantity <= 10)
+                        @if (Model.Product.StockQuantity <= 10)
                         {
-                            <span class="text-warning">(@Model.StockQuantity available)</span>
+                            <span class="text-warning">(@Model.Product.StockQuantity available)</span>
                         }
                     </small>
                 }
@@ -69,7 +69,7 @@
 
             <div class="actions-section border-top pt-4">
                 <form method="post" asp-controller="Cart" asp-action="AddToCart">
-                    <input type="hidden" asp-for="ProductID" />
+                    <input type="hidden" name="productId" value="@Model.Product.ProductID" />
                     <input type="hidden" name="returnUrl" value="@returnUrl" />
 
                     <!-- Quantity Selector Dropdown -->
@@ -78,14 +78,14 @@
                         <select name="quantity"
                                 class="form-select"
                                 style="width: 100px;"
-                                @(!Model.IsInStock ? "disabled" : "")>
-                            @if (Model.IsInStock)
+                                @(!Model.Product.IsInStock ? "disabled" : "")>
+                            @if (Model.Product.IsInStock)
                             {
-                                @for (int i = 1; i <= maxQuantity; i++)
+                                @for (int i = 1; i <= Model.MaxQuantity; i++)
                                 {
                                     <option value="@i">@i</option>
                                 }
-                                @if (Model.StockQuantity > 10)
+                                @if (Model.Product.StockQuantity > 10)
                                 {
                                     <option value="10" disabled>10+ in stock</option>
                                 }
@@ -97,11 +97,24 @@
                         </select>
                     </div>
 
-                    <button type="submit"
-                            class="btn btn-action btn-lg w-100 fw-bold text-uppercase shadow-sm"
-                            @(!Model.IsInStock ? "disabled" : "")>
-                        <i class="bi bi-cart-plus"></i> Add to Cart
-                    </button>
+                    @if (Model.IsInCart)
+                    {
+                        <a asp-controller="Cart"
+                           asp-action="ViewCart"
+                           class="btn btn-action btn-lg w-100 fw-bold text-uppercase shadow-sm">
+                            <i class="bi bi-bag-check"></i>
+                            In Cart (@Model.QuantityInCart) – Go to Cart
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="submit"
+                                class="btn btn-action btn-lg w-100 fw-bold text-uppercase shadow-sm"
+                                @(!Model.Product.IsInStock ? "disabled" : "")>
+                            <i class="bi bi-cart-plus"></i> Add to Cart
+                        </button>
+                    }
+
                 </form>
             </div>
 
@@ -118,9 +131,9 @@
         <div class="col-12">
             <h4 class="border-bottom pb-2 mb-3">Product Details</h4>
             <div class="product-description" style="line-height: 1.8;">
-                @if (!string.IsNullOrEmpty(Model.Description))
+                @if (!string.IsNullOrEmpty(Model.Product.Description))
                 {
-                    @Model.Description
+                    @Model.Product.Description
                 }
                 else
                 {
