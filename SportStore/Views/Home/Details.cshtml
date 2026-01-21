@@ -1,14 +1,15 @@
-﻿@model Product
+﻿@* SportStore/Views/Home/Details.cshtml *@
+@model Product
 
 @{
     ViewData["Title"] = Model.Name;
     var photoPath = "~/images/" + (Model.PhotoPath ?? "noimage.png");
     var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
-
+    var maxQuantity = Math.Min(Model.StockQuantity, 10); // Limit to 10 in dropdown
 }
 
 <div class="container mt-4">
-    <!-- Breadcrumbs (Optional but helpful for UX) -->
+    <!-- Breadcrumbs -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Home</a></li>
@@ -16,6 +17,14 @@
             <li class="breadcrumb-item active">@Model.Name</li>
         </ol>
     </nav>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
     <div class="row bg-white p-3 shadow-sm rounded">
         <!-- Left Column: Product Image -->
@@ -40,7 +49,22 @@
 
             <div class="price-section mb-4">
                 <h3 class="text-primary fw-bold">@Model.Price.ToString("c")</h3>
-                <small class="text-muted">In stock</small>
+                @if (Model.IsInStock)
+                {
+                    <small class="text-success">
+                        <i class="bi bi-check-circle"></i> In stock
+                        @if (Model.StockQuantity <= 10)
+                        {
+                            <span class="text-warning">(@Model.StockQuantity available)</span>
+                        }
+                    </small>
+                }
+                else
+                {
+                    <small class="text-danger">
+                        <i class="bi bi-x-circle"></i> Out of stock
+                    </small>
+                }
             </div>
 
             <div class="actions-section border-top pt-4">
@@ -48,13 +72,34 @@
                     <input type="hidden" asp-for="ProductID" />
                     <input type="hidden" name="returnUrl" value="@returnUrl" />
 
-                    <!-- Optional: Quantity Selector -->
+                    <!-- Quantity Selector Dropdown -->
                     <div class="mb-3 d-flex align-items-center">
-                        <label class="me-3 fw-bold">Quantity:</label>
-                        <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 80px;" />
+                        <label class="me-3 fw-bold">Qty:</label>
+                        <select name="quantity"
+                                class="form-select"
+                                style="width: 100px;"
+                                @(!Model.IsInStock ? "disabled" : "")>
+                            @if (Model.IsInStock)
+                            {
+                                @for (int i = 1; i <= maxQuantity; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                                @if (Model.StockQuantity > 10)
+                                {
+                                    <option value="10" disabled>10+ in stock</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="0">Out of stock</option>
+                            }
+                        </select>
                     </div>
 
-                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold text-uppercase shadow-sm">
+                    <button type="submit"
+                            class="btn btn-action btn-lg w-100 fw-bold text-uppercase shadow-sm"
+                            @(!Model.IsInStock ? "disabled" : "")>
                         <i class="bi bi-cart-plus"></i> Add to Cart
                     </button>
                 </form>
@@ -62,7 +107,7 @@
 
             <div class="promotions mt-4 p-3 bg-light rounded">
                 <h6 class="fw-bold"><i class="bi bi-shield-check text-success"></i> Promotions</h6>
-                <p class="small mb-1">• Free delivery on orders over 50,000</p>
+                <p class="small mb-1">• Free delivery on orders over ₦50,000</p>
                 <p class="small mb-0">• 7 days easy return policy</p>
             </div>
         </div>
@@ -87,7 +132,6 @@
 </div>
 
 <style>
-    /* Mimic the Jumia-style look */
     body {
         background-color: #f5f5f5;
     }

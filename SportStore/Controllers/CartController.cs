@@ -40,13 +40,11 @@ namespace SportStore.Controllers
 
         //PRIVATE HELPER METHODS
 
-
-
         private async Task<Cart> GetCartAsync()
         {
             if (User.Identity!.IsAuthenticated)
             {
-                var userId = currentUserService.UserId;
+                var userId = currentUserService.UserId!;
                 return await cartService.GetOrCreateCartByUserIdAsync(userId);
             }  
             
@@ -72,11 +70,66 @@ namespace SportStore.Controllers
                 return NotFound();
             }
 
+            // Check stock availability
+            if (!product.HasStock(quantity))
+            {
+                TempData["Error"] = $"Only {product.StockQuantity} items available in stock";
+                return LocalRedirect(returnUrl);
+            }
+
             var cart = await GetCartAsync();
+
+            // Check if adding this quantity would exceed stock
+            var existingItem = cart.CartItems
+                .FirstOrDefault(i => i.Product.ProductID == productId);
+
+            int totalQuantity = (existingItem?.Quantity ?? 0) + quantity;
+
+            if (!product.HasStock(totalQuantity))
+            {
+                TempData["Error"] = $"Cannot add {quantity} more. Only {product.StockQuantity} items available (you have {existingItem?.Quantity ?? 0} in cart)";
+                return LocalRedirect(returnUrl);
+            }
 
             cartDomainService.AddItem(cart, product, quantity);
 
             await SaveCartAsync(cart);
+
+            return LocalRedirect(returnUrl);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateQuantity(int productId, int quantity, string returnUrl)
+        {
+            if (quantity < 1)
+            {
+                // If quantity is 0, remove the item
+                return await RemoveFromCart(productId, returnUrl);
+            }
+
+            Product? product = storeRepository.GetProductById(productId);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            // Check stock availability
+            if (!product.HasStock(quantity))
+            {
+                TempData["Error"] = $"Only {product.StockQuantity} items available in stock";
+                return LocalRedirect(returnUrl);
+            }
+
+            var cart = await GetCartAsync();
+
+            var existingItem = cart.CartItems
+                .FirstOrDefault(i => i.Product.ProductID == productId);
+
+            if (existingItem != null)
+            {
+                existingItem.Quantity = quantity;
+                await SaveCartAsync(cart);
+            }
 
             return LocalRedirect(returnUrl);
         }
