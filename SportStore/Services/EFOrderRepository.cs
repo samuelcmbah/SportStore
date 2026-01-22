@@ -96,7 +96,9 @@ namespace SportStore.Services
 
         public async Task<Order> GetOrderByReferenceAsync(string orderRef)
         {
-            var order = await context.Orders.FirstOrDefaultAsync(o => o.OrderReference == orderRef);
+            var order = await context.Orders
+                    .Include(o => o.OrderItems)
+                    .FirstOrDefaultAsync(o => o.OrderReference == orderRef);
             if (order == null)
             {
                 throw new InvalidOperationException("Order not found.");
