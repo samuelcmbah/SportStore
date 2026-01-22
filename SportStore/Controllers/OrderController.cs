@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace SportStore.Controllers
 {
-    [AllowAnonymous]
+    [Authorize]
     public class OrderController : Controller
     {
         private readonly ICartService cartService;

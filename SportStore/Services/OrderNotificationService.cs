@@ -54,7 +54,7 @@ namespace SportStore.Services
         {
             return new OrderPlacedEmailDto
             {
-                OrderId = order.OrderID,
+                OrderRef = order.OrderReference,
                 OrderDate = order.OrderDate,
                 CustomerName = order.Name!,
                 Email = order.Email!,
@@ -81,7 +81,7 @@ namespace SportStore.Services
 
             return $@"
                 <h2>Thank you for your order, {order.CustomerName}!</h2>
-                <p>Your order <strong>#{order.OrderId}</strong> has been successfully placed.</p>
+                <p>Your order <strong>{order.OrderRef}</strong> has been successfully placed.</p>
 
                 <table style='border-collapse:collapse;width:100%;margin-top:20px;'>
                     <thead>
