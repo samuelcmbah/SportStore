@@ -65,9 +65,10 @@
             </div>
 
             @* Quick Add Button *@
-            <form asp-controller="Cart" asp-action="AddToCart" method="post"
+            <form asp-controller="Cart" asp-action="UpdateCart" method="post"
                   class="d-inline position-relative" style="z-index: 2">
                 <input type="hidden" name="productId" value="@Model.ProductID" />
+                <input type="hidden" name="quantity" value="1" />
                 <input type="hidden" name="returnUrl" value="@returnUrl" />
                 <button type="submit" class="btn btn-outline-dark btn-sm rounded-circle quick-add-btn">
                     <i class="fa-solid fa-cart-plus"></i>
