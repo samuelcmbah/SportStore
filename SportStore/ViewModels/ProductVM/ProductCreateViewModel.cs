@@ -22,6 +22,11 @@ namespace SportStore.ViewModels.ProductVM
         [Required]
         public decimal Price { get; set; }
 
+        [Required]
+        [Range(0, int.MaxValue, ErrorMessage = "Stock quantity must be 0 or greater")]
+        [Display(Name = "Stock Quantity")]
+        public int StockQuantity { get; set; }
+
         public IFormFile? Photo { get; set; }
     }
 }

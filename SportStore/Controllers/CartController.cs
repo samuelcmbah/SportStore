@@ -1,18 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿// SportStore/Controllers/CartController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
-using SportStore.Services;
 using SportStore.Services.IServices;
 using SportStore.Utils;
-using SportStore.ViewModels;
 using SportStore.ViewModels.CartVM;
-using System.Security.Claims;
-using System.Threading.Tasks;
-
-//using Microsoft.AspNetCore.Mvc;
-//using Web.Extensions;
-
 
 namespace SportStore.Controllers
 {
@@ -26,8 +18,9 @@ namespace SportStore.Controllers
         private readonly ICurrentUserService currentUserService;
 
         public CartController(
-            IStoreRepository storeRepository, 
-            SessionCart sessionCart, ICartService cartService,
+            IStoreRepository storeRepository,
+            SessionCart sessionCart,
+            ICartService cartService,
             ICartDomainService cartDomainService,
             ICurrentUserService currentUserService)
         {
@@ -39,17 +32,14 @@ namespace SportStore.Controllers
         }
 
         //PRIVATE HELPER METHODS
-
-
-
         private async Task<Cart> GetCartAsync()
         {
             if (User.Identity!.IsAuthenticated)
             {
-                var userId = currentUserService.UserId;
+                var userId = currentUserService.UserId!;
                 return await cartService.GetOrCreateCartByUserIdAsync(userId);
-            }  
-            
+            }
+
             return sessionCart.GetCart();
         }
 
@@ -63,8 +53,12 @@ namespace SportStore.Controllers
 
         //PUBLIC ACCESS METHODS
 
+        /// <summary>
+        /// Handles both adding new items and updating existing item quantities
+        /// Used by: Product Details page dropdown, Cart page dropdown
+        /// </summary>
         [HttpPost]
-        public async Task<IActionResult> AddToCart(int productId, string returnUrl, int quantity = 1)
+        public async Task<IActionResult> UpdateCart(int productId, int quantity, string returnUrl)
         {
             Product? product = storeRepository.GetProductById(productId);
             if (product == null)
@@ -73,32 +67,67 @@ namespace SportStore.Controllers
             }
 
             var cart = await GetCartAsync();
+            var existingItem = cart.CartItems
+                .FirstOrDefault(i => i.Product.ProductID == productId);
 
-            cartDomainService.AddItem(cart, product, quantity);
+            // Handle removal (quantity = 0)
+            if (quantity == 0)
+            {
+                if (existingItem != null)
+                {
+                    cartDomainService.RemoveItem(cart, productId);
+                    await SaveCartAsync(cart);
+                    TempData["Success"] = "Item removed from cart";
+                }
+                return LocalRedirect(returnUrl);
+            }
+
+            // Validate quantity
+            if (quantity < 0)
+            {
+                return BadRequest("Invalid quantity");
+            }
+
+            // Check stock availability
+            if (!product.HasStock(quantity))
+            {
+                TempData["Error"] = $"Only {product.StockQuantity} items available in stock";
+                return LocalRedirect(returnUrl);
+            }
+
+            // Update or add item
+            if (existingItem != null)
+            {
+                existingItem.Quantity = quantity;
+                TempData["Success"] = "Cart updated successfully";
+            }
+            else
+            {
+                cartDomainService.AddItem(cart, product, quantity);
+                TempData["Success"] = "Item added to cart";
+            }
 
             await SaveCartAsync(cart);
-
             return LocalRedirect(returnUrl);
         }
 
+        /// <summary>
+        /// Quick remove action for cart page
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> RemoveFromCart(int productId, string returnUrl)
         {
-            Product? product = storeRepository.GetProductById(productId);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
             var cart = await GetCartAsync();
-
-            cartDomainService.RemoveItem(cart, product.ProductID);
-
+            cartDomainService.RemoveItem(cart, productId);
             await SaveCartAsync(cart);
 
+            TempData["Success"] = "Item removed from cart";
             return LocalRedirect(returnUrl);
         }
 
+        /// <summary>
+        /// Display cart page
+        /// </summary>
         public async Task<IActionResult> ViewCart()
         {
             var cart = await GetCartAsync();
@@ -112,6 +141,5 @@ namespace SportStore.Controllers
 
             return View(viewModel);
         }
-
     }
 }

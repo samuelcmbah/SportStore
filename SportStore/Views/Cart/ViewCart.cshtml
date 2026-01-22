@@ -1,4 +1,5 @@
-﻿@model CartViewModel
+﻿@* SportStore/Views/Cart/ViewCart.cshtml *@
+@model CartViewModel
 
 @{
     ViewData["Title"] = "My Cart";
@@ -11,38 +12,65 @@
         <span class="ms-2 text-muted">(@Model.Cart.CartItems.Count() items)</span>
     </div>
 
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     @if (Model.Cart.CartItems.Any())
     {
         <div class="row g-4">
             <!-- LEFT SIDE: Cart Items -->
             <div class="col-lg-8">
                 <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-                    
-
                     <div class="card-body p-0">
                         @foreach (var item in Model.Cart.CartItems)
                         {
+                            var maxQuantity = Math.Min(item.Product.StockQuantity, 10); // Limit dropdown to 10 or stock quantity
+
                             <div class="p-3 border-bottom cart-item-row">
                                 <div class="row align-items-center">
                                     <!-- Product Info -->
                                     <div class="col-12 col-md-6 mb-3 mb-md-0">
                                         <div class="d-flex align-items-center">
                                             <div class="cart-img-wrap me-3">
-                                                <img src="~/images/@(item.Product.PhotoPath ?? "noimage.png")" alt="@item.Product.Name" class="rounded border">
+                                                <img src="~/images/@(item.Product.PhotoPath ?? "noimage.png")"
+                                                     alt="@item.Product.Name"
+                                                     class="rounded border"
+                                                     style="width: 80px; height: 80px; object-fit: cover;">
                                             </div>
-                                            <div>
-                                                <h6 class="mb-1 fw-bold text-truncate-2">@item.Product.Name</h6>
-                                                <p class="small text-success mb-2"><i class="bi bi-check2-circle"></i> In Stock</p>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1 fw-bold">@item.Product.Name</h6>
+                                                @if (item.Product.IsInStock)
+                                                {
+                                                    <p class="small text-success mb-0">
+                                                        <i class="bi bi-check2-circle"></i> In Stock
+                                                    </p>
+                                                    @if (item.Product.StockQuantity <= 5)
+                                                    {
+                                                        <p class="small text-warning mb-0">
+                                                            Only @item.Product.StockQuantity left
+                                                        </p>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <p class="small text-danger mb-0">
+                                                        <i class="bi bi-x-circle"></i> Out of Stock
+                                                    </p>
+                                                }
 
                                                 <!-- Remove Link -->
-                                                <form asp-action="RemoveFromCart" asp-controller="Cart" method="post">
+                                                <form asp-action="RemoveFromCart" asp-controller="Cart" method="post" class="d-inline">
                                                     <input type="hidden" name="productId" value="@item.Product.ProductID" />
                                                     <input type="hidden" name="returnUrl" value="@returnUrl" />
                                                     <button type="submit"
-                                                            class="btn btn-link p-0 text-decoration-none small cart-remove-btn">
+                                                            class="btn btn-link p-0 text-decoration-none small cart-remove-btn mt-1">
                                                         <i class="bi bi-trash3 me-1"></i> Remove
                                                     </button>
-
                                                 </form>
                                             </div>
                                         </div>
@@ -53,14 +81,31 @@
                                         <span class="fw-bold">@item.Product.Price.ToString("c0")</span>
                                     </div>
 
-                                    <!-- Quantity -->
+                                    <!-- Quantity Dropdown -->
                                     <div class="col-4 col-md-2 text-center">
-                                        <div class="d-inline-flex align-items-center border rounded">
-                                            @* In a real app, these would be forms to increment/decrement *@
-                                            <button class="btn btn-sm px-2 border-0"><i class="bi bi-dash"></i></button>
-                                            <span class="px-2 small fw-bold">@item.Quantity</span>
-                                            <button class="btn btn-sm px-2 border-0"><i class="bi bi-plus"></i></button>
-                                        </div>
+                                        <form asp-action="UpdateCart" asp-controller="Cart" method="post" id="qty-form-@item.Product.ProductID">
+                                            <input type="hidden" name="productId" value="@item.Product.ProductID" />
+                                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                                            <div class="quantity-selector">
+                                                <label for="qty-@item.Product.ProductID" class="visually-hidden">Quantity</label>
+                                                <select name="quantity"
+                                                        id="qty-@item.Product.ProductID"
+                                                        class="form-select form-select-sm"
+                                                        onchange="this.form.submit()"
+                                                        @(!item.Product.IsInStock ? "disabled" : "")>
+                                                    <option value="0">0 (Remove)</option>
+                                                    @for (int i = 1; i <= maxQuantity; i++)
+                                                    {
+                                                        <option value="@i" selected="@(i == item.Quantity)">@i</option>
+                                                    }
+                                                    @if (maxQuantity < item.Product.StockQuantity)
+                                                    {
+                                                        <option value="@(maxQuantity + 1)" disabled>10+</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </form>
                                     </div>
 
                                     <!-- Subtotal -->
@@ -80,7 +125,7 @@
                 </div>
             </div>
 
-            <!-- RIGHT SIDE: Order Summary (Sticky) -->
+            <!-- RIGHT SIDE: Order Summary -->
             <div class="col-lg-4">
                 <div class="card border-0 shadow-sm sticky-top" style="top: 100px; z-index: 10;">
                     <div class="card-header bg-white py-3 border-bottom">
@@ -106,9 +151,9 @@
                         </a>
 
                         <div class="mt-3 text-center">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" height="20" class="mx-2 opacity-50">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="20" class="mx-2 opacity-50">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="20" class="mx-2 opacity-50">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" height="20" class="mx-2 opacity-50" alt="PayPal">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="20" class="mx-2 opacity-50" alt="Mastercard">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="20" class="mx-2 opacity-50" alt="Visa">
                         </div>
                     </div>
                     <div class="card-footer bg-light-soft border-0 p-3">
@@ -135,4 +180,35 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/pages/cart.css" />
+    <style>
+        .quantity-selector select {
+            min-width: 70px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+        }
+
+            .quantity-selector select:focus {
+                border-color: #86b7fe;
+                outline: 0;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+
+        .cart-img-wrap img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+        }
+
+        .cart-remove-btn {
+            color: #dc3545;
+            font-size: 0.875rem;
+        }
+
+            .cart-remove-btn:hover {
+                color: #bb2d3b;
+                text-decoration: underline !important;
+            }
+    </style>
 }
