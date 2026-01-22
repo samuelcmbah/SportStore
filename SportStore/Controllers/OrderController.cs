@@ -24,6 +24,7 @@ namespace SportStore.Controllers
         private readonly IOrderNotificationService orderNotificationService;
         private readonly ICurrentUserService currentUserService;
         private readonly IPaymentService paymentService;
+        private readonly IInventoryService inventoryService;
         private readonly ILogger<OrderController> logger;
 
         public OrderController(
@@ -35,6 +36,7 @@ namespace SportStore.Controllers
             IOrderNotificationService orderNotificationService,
             ICurrentUserService currentUserService,
             IPaymentService paymentService,
+            IInventoryService inventoryService,
             ILogger<OrderController> logger)
         {
             this.cartService = cartService;
@@ -45,6 +47,7 @@ namespace SportStore.Controllers
             this.orderNotificationService = orderNotificationService;
             this.currentUserService = currentUserService;
             this.paymentService = paymentService;
+            this.inventoryService = inventoryService;
             this.logger = logger;
         }
 
@@ -59,12 +62,14 @@ namespace SportStore.Controllers
             return sessionCart.GetCart();
         }
 
+      
+
+
         [HttpGet]
         [Route("Order")]
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
             var orders = await orderRepository.GetOrdersByUserAsync(userId);
             return View(orders);
         }
@@ -98,6 +103,18 @@ namespace SportStore.Controllers
             {
                 ModelState.AddModelError("", "Your cart is empty.");
                 return RedirectToAction("ViewCart", "Cart"); 
+            }
+
+            // Validate stock availability before payment
+            var stockErrors = await inventoryService.ValidateCartStockAsync(cart);
+            if (stockErrors.Any())
+            {
+                foreach (var error in stockErrors)
+                {
+                    ModelState.AddModelError("", error);
+                }
+                vm.TotalPrice = cartDomainService.GetTotalPrice(cart);
+                return View(vm);
             }
 
             if (!ModelState.IsValid)
