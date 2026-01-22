@@ -83,7 +83,7 @@
 
                                     <!-- Quantity Dropdown -->
                                     <div class="col-4 col-md-2 text-center">
-                                        <form asp-action="UpdateQuantity" asp-controller="Cart" method="post" id="qty-form-@item.Product.ProductID">
+                                        <form asp-action="UpdateCart" asp-controller="Cart" method="post" id="qty-form-@item.Product.ProductID">
                                             <input type="hidden" name="productId" value="@item.Product.ProductID" />
                                             <input type="hidden" name="returnUrl" value="@returnUrl" />
 
