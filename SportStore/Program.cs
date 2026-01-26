@@ -26,19 +26,22 @@ public class Program
 
         // Add services to the container.
 
-        // SportStore/Program.cs
         var payBridgeUrl = builder.Configuration["ExternalServices:PayBridgeUrl"];
 
         builder.Services.AddHttpClient("PayBridge", client =>
         {
             client.BaseAddress = new Uri(payBridgeUrl!);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
-            // add Shared Secret here if you've implemented it
-            // client.DefaultRequestHeaders.Add("X-PayBridge-Secret", "your_secret");
+            
         });
-        //configuring third party logging
-        builder.Host.UseSerilog((context, configuration) =>
-            configuration.ReadFrom.Configuration(context.Configuration));
+        // Replace default logging with Serilog
+        builder.Host.UseSerilog((_, logger) =>
+        {
+            logger
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                .WriteTo.Console();
+        });
         //adding email service
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.Configure<ResendEmailSettings>(
@@ -94,13 +97,7 @@ public class Program
 
 
         builder.Services.AddControllersWithViews();
-        //builder.Services.AddControllersWithViews(options =>
-        //{
-        //    var policy = new AuthorizationPolicyBuilder()
-        //                     .RequireAuthenticatedUser()
-        //                     .Build();
-        //    options.Filters.Add(new AuthorizeFilter(policy));
-        //});
+        
         builder.Services.AddAuthorization(options =>
         {
             options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -132,11 +129,12 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        //app.UseMiddleware<RoleBasedRootRedirectMiddleware>(); //redirect to admin/products/index for administrator role
         app.MapApplicationRoutes();
 
         SeedData.EnsurePopulated(app);
         IdentitySeedData.EnsurePopulated(app);
+
+        app.UseSerilogRequestLogging();
 
         app.Run();
     }
