@@ -44,7 +44,7 @@ namespace SportStore.Services
 
             await emailService.SendEmailAsync(
                 savedOrder.Email,
-                $"Order #{savedOrder.OrderID} Confirmation",
+                $"{savedOrder.OrderReference} Confirmation",
                 html
             );
         }

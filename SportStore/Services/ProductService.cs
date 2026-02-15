@@ -148,8 +148,19 @@ namespace SportStore.Services
         {
             var product = await context.Products.FindAsync(id);
 
-            if (product == null)
-                return false;
+            if (product == null) return false;
+
+            // Delete the image file if it exists
+            if (!string.IsNullOrEmpty(product.PhotoPath))
+            {
+                string filePath = Path.Combine(webHostEnvironment.WebRootPath, "images", product.PhotoPath);
+
+                // Check if file exists before attempting to delete
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
 
             context.Products.Remove(product);
             await context.SaveChangesAsync();
