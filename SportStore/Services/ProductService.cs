@@ -12,37 +12,70 @@ namespace SportStore.Services
     {
         private readonly StoreDbContext context;
         private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly ICloudinaryService cloudinaryService;
+        private readonly ILogger<ProductService> logger;
 
         public ProductService(
-                    StoreDbContext context,
-                    IWebHostEnvironment webHostEnvironment
+            StoreDbContext context,
+            IWebHostEnvironment webHostEnvironment,
+            ICloudinaryService cloudinaryService,
+            ILogger<ProductService> logger
         )
         {
             this.context = context;
             this.webHostEnvironment = webHostEnvironment;
+            this.cloudinaryService = cloudinaryService;
+            this.logger = logger;
         }
 
-        private string? UploadFile(ProductCreateViewModel model)
+        private async Task<string?> UploadImageAsync(IFormFile? photo)
         {
-            string? uniqueFileName = null;
-
-            if (model.Photo != null)
+            if (photo == null)
             {
-                //create the upload path
-                var uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "images");
-                //create unique file name
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Photo.FileName;
-                //create file path
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                //copy to images folder
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    model.Photo.CopyTo(fileStream);
-                }
+                return null;
             }
 
-            return uniqueFileName;
+            try
+            {
+                var uploadResult = await cloudinaryService.UploadImageAsync(photo);
+
+                if (uploadResult.Error != null)
+                {
+                    logger.LogError("Cloudinary upload error: {ErrorMessage}", uploadResult.Error.Message);
+                    return null;
+                }
+
+                return uploadResult.SecureUrl.ToString();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Exception during image upload: {ExceptionMessage}", ex.Message);
+                return null;
+            }
         }
+
+        private async Task DeleteImageAsync(string? imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl))
+                return;
+
+            try
+            {
+                var publicId = cloudinaryService.ExtractPublicIdFromUrl(imageUrl);
+
+                if (!string.IsNullOrEmpty(publicId))
+                {
+                    await cloudinaryService.DeleteImageAsync(publicId);
+                    logger.LogInformation("Deleted image with public ID: {PublicId}", publicId);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Exception during image deletion: {ExceptionMessage}", ex.Message);
+            }
+        }
+
+
 
         public IQueryable<Product> SearchFilter(ProductSearchFilterQuery query)
         {
@@ -53,7 +86,7 @@ namespace SportStore.Services
             {
                 string term = query.SearchTerm.Trim().ToLower();
 
-                products = products.Where(p => 
+                products = products.Where(p =>
                     p.Name.ToLower().Contains(term) ||
                     p.Description.ToLower().Contains(term) ||
                     p.Category.Name.ToLower().Contains(term));
@@ -98,7 +131,7 @@ namespace SportStore.Services
 
         public async Task<Product> CreateAsync(ProductCreateViewModel model)
         {
-            string? uniqueFileName = UploadFile(model);
+            string? imageUrl = await UploadImageAsync(model.Photo);
 
             Product product = new()
             {
@@ -107,10 +140,12 @@ namespace SportStore.Services
                 CategoryId = model.CategoryId,
                 Price = model.Price,
                 StockQuantity = model.StockQuantity,
-                PhotoPath = uniqueFileName
+                PhotoPath = imageUrl //stores full cloudinary url
             };
             context.Products.Add(product);
             await context.SaveChangesAsync();
+
+            logger.LogInformation("Created new product with ID: {ProductId}", product.ProductID);
             return product;
         }
 
@@ -131,12 +166,11 @@ namespace SportStore.Services
 
             if (model.Photo != null)
             {
-                if (model.ExistingPhotoPath != null)
-                {
-                    string filePath = Path.Combine(webHostEnvironment.WebRootPath, "images", model.ExistingPhotoPath);
-                    System.IO.File.Delete(filePath);
-                }
-                editedProduct.PhotoPath = UploadFile(model);
+                // Delete old image from Cloudinary
+                await DeleteImageAsync(editedProduct.PhotoPath);
+
+                // Upload new image
+                editedProduct.PhotoPath = await UploadImageAsync(model.Photo);
             }
 
             context.Products.Update(editedProduct);
@@ -150,20 +184,13 @@ namespace SportStore.Services
 
             if (product == null) return false;
 
-            // Delete the image file if it exists
-            if (!string.IsNullOrEmpty(product.PhotoPath))
-            {
-                string filePath = Path.Combine(webHostEnvironment.WebRootPath, "images", product.PhotoPath);
-
-                // Check if file exists before attempting to delete
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
-            }
+            // Delete image from Cloudinary before deleting product
+            await DeleteImageAsync(product.PhotoPath);
 
             context.Products.Remove(product);
             await context.SaveChangesAsync();
+
+            logger.LogInformation("Deleted product {id}", id);
             return true;
         }
     }
