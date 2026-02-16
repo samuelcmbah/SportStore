@@ -25,7 +25,7 @@ namespace SportStore.Services
             this.logger = logger;
         }
 
-        public async Task<DeletionResult> DeletionAsync(string publicId)
+        public async Task<DeletionResult> DeleteImageAsync(string publicId)
         {
             var deleteParams = new DeletionParams(publicId);
             var result = await _cloudinary.DestroyAsync(deleteParams);
