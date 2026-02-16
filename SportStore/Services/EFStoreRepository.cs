@@ -28,7 +28,7 @@ namespace SportStore.Services
             return product;
         }
 
-        public Product? DeleteProduct(Product product)
+        public Product DeleteProduct(Product product)
         {
             context.Entry(product).State = EntityState.Deleted;
             context.SaveChanges();
@@ -40,7 +40,7 @@ namespace SportStore.Services
             return context.Products.Find(id);
         }
 
-        public Product? UpdateProduct(Product? editedProduct)
+        public Product? UpdateProduct(Product editedProduct)
         {
             var product = context.Products.Attach(editedProduct);
             product.State = EntityState.Modified;

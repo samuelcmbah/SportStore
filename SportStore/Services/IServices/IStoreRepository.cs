@@ -12,7 +12,7 @@ namespace SportStore.Services.IServices
 
         Product? GetProductById(long? id);
         Product? CreateProduct(Product product);
-        Product? UpdateProduct(Product? editedProduct);
-        Product? DeleteProduct(Product? product);
+        Product? UpdateProduct(Product editedProduct);
+        Product? DeleteProduct(Product product);
     }
 }
