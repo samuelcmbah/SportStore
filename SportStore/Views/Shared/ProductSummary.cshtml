@@ -9,8 +9,8 @@
 <div class="card h-100 product-card border-0 shadow-sm position-relative">
     <!-- Square Image Container -->
     <div class="product-img-container">
-        <img src="~/images/@(Model.PhotoPath ?? "noimage.png")"
-             alt="@Model.Name"
+        <img src="@(Model.PhotoPath ?? "/images/noimage.png")"           
+            alt="@Model.Name"
              class="card-img-top"
              asp-append-version="true" />
     </div>

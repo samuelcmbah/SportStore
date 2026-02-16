@@ -14,6 +14,6 @@ namespace SportStore.ViewModels.ProductVM
         // UI helpers
         public int MaxQuantity { get; set; }
         public string PhotoPath =>
-            "/images/" + (Product.PhotoPath ?? "noimage.png");
+            Product.PhotoPath ?? "/images/noimage.png";
     }
 }

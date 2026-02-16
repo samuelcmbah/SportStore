@@ -97,8 +97,7 @@ namespace SportStore.Services
                         .Width(800)
                         .Height(800)
                         .Crop("limit")
-                        .Quality("auto")
-                        .Gravity("face"),
+                        .Quality("auto"),
                     Folder = "sportstore/products",
 
                 };

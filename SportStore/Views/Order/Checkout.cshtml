@@ -81,7 +81,7 @@
                         @foreach (var item in Model.CartItems)
                         {
                             <div class="d-flex align-items-center mb-2">
-                                <img src="~/images/@(item.Product.PhotoPath ?? "noimage.png")"
+                                <img src="@(item.Product.PhotoPath ?? "/images/noimage.png")"
                                      class="border rounded me-2 order-item-img" />
 
                                 <div class="flex-grow-1">
