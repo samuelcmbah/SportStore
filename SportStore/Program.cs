@@ -32,7 +32,7 @@ public class Program
         {
             client.BaseAddress = new Uri(payBridgeUrl!);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
-            
+
         });
         // Replace default logging with Serilog
         builder.Host.UseSerilog((_, logger) =>
@@ -72,6 +72,10 @@ public class Program
             options.UseNpgsql(
                 builder.Configuration.GetConnectionString("SportsStoreConnection")));
 
+        // Configure Cloudinary settings
+        builder.Services.Configure<CloudinarySettings>(
+            builder.Configuration.GetSection("Cloudinary"));
+
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IOrderNotificationService, OrderNotificationService>();
@@ -84,6 +88,7 @@ public class Program
         builder.Services.AddScoped<IInventoryService, InventoryService>();
         builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
         builder.Services.AddScoped<IPaymentService, PaymentService>();
+        builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<SessionCart>();
@@ -97,7 +102,7 @@ public class Program
 
 
         builder.Services.AddControllersWithViews();
-        
+
         builder.Services.AddAuthorization(options =>
         {
             options.FallbackPolicy = new AuthorizationPolicyBuilder()
