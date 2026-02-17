@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using SportStore.Models;
 using SportStore.Services.IServices;
 using SportStore.Utils;
 using SportStore.ViewModels.Auth;
 using System.Net;
+using System.Text;
 
 namespace SportStore.Services
 {
@@ -16,6 +18,7 @@ namespace SportStore.Services
         private readonly ICartService cartService;
         private readonly SessionCart sessionCartService;
         private readonly ICartDomainService cartDomainService;
+        private readonly ILogger<AccountService> logger;
 
         public AccountService(
             UserManager<ApplicationUser> userManager,
@@ -24,7 +27,8 @@ namespace SportStore.Services
             IHttpContextAccessor httpContextAccessor,
             ICartService cartService,
             SessionCart sessionCartService,
-            ICartDomainService cartDomainService)
+            ICartDomainService cartDomainService,
+            ILogger<AccountService> logger)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -33,6 +37,7 @@ namespace SportStore.Services
             this.cartService = cartService;
             this.sessionCartService = sessionCartService;
             this.cartDomainService = cartDomainService;
+            this.logger = logger;
         }
         //PRIVATE HELPER METHODS
 
@@ -154,14 +159,63 @@ namespace SportStore.Services
         {
             var user = await userManager.FindByEmailAsync(email);
 
-            if(user != null && !user.EmailConfirmed)
+            if (user != null && !user.EmailConfirmed && !string.IsNullOrEmpty(user.Email))
             {
-                var confirmationLink =   await GenerateConfirmationLinkAsync(user, scheme);
-                await emailService.SendConfirmationEmailAsync(user.Email, confirmationLink);
+                var confirmationLink = await GenerateConfirmationLinkAsync(user, scheme);
+
+                if (!string.IsNullOrEmpty(confirmationLink))
+                {
+                    await emailService.SendConfirmationEmailAsync(user.Email, confirmationLink);
+                }
             }
         }
 
-       
+
+        private async Task<string> GeneratePasswordResetLinkAsync(ApplicationUser user, string scheme)
+        {
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            var encodedToken = WebEncoders.Base64UrlEncode(
+                Encoding.UTF8.GetBytes(token));
+
+            var request = httpContextAccessor.HttpContext!.Request;
+
+            return $"{scheme}://{request.Host}/Account/ResetPassword?userId={user.Id}&token={encodedToken}";
+        }
+
+
+        public async Task SendPasswordResetLinkAsync(string email, string scheme)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+
+            // Always return without error even if user not found — prevents
+            // user enumeration attacks (attacker can't tell if email exists)
+            if (user == null || !await userManager.IsEmailConfirmedAsync(user))
+                return;
+
+            var resetLink = await GeneratePasswordResetLinkAsync(user, scheme);
+            await emailService.SendPasswordResetEmailAsync(user.Email!, resetLink);
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(ResetPasswordViewModel model)
+        {
+            var user = await userManager.FindByIdAsync(model.UserId);
+
+            if (user == null)
+            {
+                // Return a generic failure — same reason as above
+                return IdentityResult.Failed(new IdentityError
+                {
+                    Description = "Password reset failed. The link may have expired."
+                });
+            }
+            logger.LogInformation("returned token is {token}", model.Token);
+
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+
+            return await userManager.ResetPasswordAsync(user, decodedToken, model.Password);
+        }
+
     }
 
 }

@@ -80,4 +80,45 @@ public class EmailService : IEmailService
             // Depending on your strategy, you might want to re-throw or handle this
             return;
         }
-    } }
+    }
+
+    public async Task SendPasswordResetEmailAsync(string to, string resetLink)
+    {
+        var html = $@"
+        <p>Hi there,</p>
+        <p>We received a request to reset the password for your SportStore account.</p>
+        <p>Click the button below to choose a new password. This link is valid for <strong>1 hour</strong>.</p>
+        <div style='margin-top:20px;margin-bottom:20px;'>
+            <a href='{resetLink}'
+               style='display:inline-block;padding:12px 24px;font-size:16px;
+               color:#fff;background-color:#0056b3;text-decoration:none;
+               border-radius:6px;font-weight:600;'>Reset My Password</a>
+        </div>
+        <p>If you didn't request a password reset, you can safely ignore this email.
+           Your password will not change.</p>
+        <p>Best,<br/>The SportStore Team</p>";
+
+        try
+        {
+            _logger.LogInformation("Sending password reset email to {Email}", to);
+
+            var message = new EmailMessage
+            {
+                From = $"SportStore <{_emailSettings.FromEmail}>",
+                To = to,
+                Subject = "Reset your SportStore password",
+                HtmlBody = html
+            };
+
+            await _resend.EmailSendAsync(message);
+
+            _logger.LogInformation("Password reset email sent successfully to {Email}", to);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send password reset email to {Email}", to);
+        }
+    }
+}
+
+    

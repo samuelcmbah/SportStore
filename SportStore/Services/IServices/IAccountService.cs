@@ -13,6 +13,8 @@ namespace SportStore.Services.IServices
         Task<IdentityResult> ConfirmEmailAsync(string userId, string token);
         Task ResendConfirmationLinkAsync(string email, string scheme);
 
+        Task SendPasswordResetLinkAsync(string email, string scheme);
+        Task<IdentityResult> ResetPasswordAsync(ResetPasswordViewModel model);
     }
 
 }

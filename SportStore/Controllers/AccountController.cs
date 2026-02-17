@@ -108,10 +108,6 @@ namespace SportStore.Controllers
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
 
-            
-
-            
-
             return View(model);
         }
 
@@ -164,6 +160,64 @@ namespace SportStore.Controllers
 
             
             return RedirectToAction("ConfirmationEmailSent");
+        }
+
+      
+        // FORGOT PASSWORD — Step 1: User enters their email
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Always redirect to confirmation — never reveal whether the email exists
+            await accountService.SendPasswordResetLinkAsync(model.Email, Request.Scheme);
+
+            return View("ForgotPasswordConfirmation");
+        }
+
+
+        // RESET PASSWORD — Step 2: User clicks the email link and sets new password
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string userId, string token)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+                return RedirectToAction("Login");
+
+            var model = new ResetPasswordViewModel
+            {
+                UserId = userId,
+                Token = token
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var result = await accountService.ResetPasswordAsync(model);
+
+            if (result.Succeeded)
+                return View("ResetPasswordConfirmation");
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
+
+            return View(model);
         }
     }
 }
