@@ -100,7 +100,6 @@ namespace SportStore.Areas.Admin.Controllers
                 ViewBag.ErrorMessage = $"Role with id {roleId} cannot be found";
                 return View("NotFound");
             }
-            return View();
         }
 
         [HttpGet]

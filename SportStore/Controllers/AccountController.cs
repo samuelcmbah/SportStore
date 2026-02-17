@@ -103,11 +103,12 @@ namespace SportStore.Controllers
                 // Pass a signal to the view to show the resend link
                 ViewData["ShowResendLink"] = true;
             }
-            else
+            if (loginResult.SignInResult.IsLockedOut)
             {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            }
+                return View("Lockout");
 
+            }
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(model);
         }
 

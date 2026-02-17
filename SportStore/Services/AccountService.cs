@@ -115,7 +115,7 @@ namespace SportStore.Services
 
             
             var result = await signInManager.PasswordSignInAsync(
-                user, model.Password, model.RememberMe, lockoutOnFailure: false);
+                user, model.Password, model.RememberMe, lockoutOnFailure: true);
 
             if (!result.Succeeded)
             {
