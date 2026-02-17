@@ -5,6 +5,7 @@
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-brightgreen)
 ![Entity Framework Core](https://img.shields.io/badge/ORM-EF_Core-orange)
 ![Bootstrap](https://img.shields.io/badge/UI-Bootstrap_5-purple)
+![Cloudinary](https://img.shields.io/badge/Media-Cloudinary-blue)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 > A production-ready e-commerce platform showcasing enterprise-level .NET development practices, clean architecture principles, and modern web application patterns. Built with ASP.NET Core MVC, this project demonstrates full-stack proficiency from database design to payment integration.
@@ -13,15 +14,15 @@
 
 ## 🎯 Project Highlights
 
-This application represents a comprehensive implementation of modern web development practices:
-
 - **Clean Architecture**: Separation of concerns with dedicated service layers, domain services, and repository patterns
 - **Security-First Design**: ASP.NET Core Identity with email verification, role-based authorization, and CSRF protection
 - **Payment Integration**: Full integration with external payment gateway (PayBridge/Paystack) including webhook handling
 - **Real-Time Features**: Order status polling with JavaScript for live payment verification
+- **Cloud Image Management**: Cloudinary integration for product image uploads, transformations, and deletions
 - **Inventory Management**: Stock tracking with validation to prevent overselling
 - **Responsive Design**: Mobile-first UI using Bootstrap 5 with custom CSS architecture
 - **Production Logging**: Structured logging with Serilog for monitoring and debugging
+- **Password Reset Flow**: Secure token-based password reset via email
 
 ---
 
@@ -39,7 +40,7 @@ This application represents a comprehensive implementation of modern web develop
 │                   Service Layer                     │
 │  • Domain Services (Cart, Order, Inventory)         │
 │  • Application Services (Product, Category, Auth)   │
-│  • External Services (Email, Payment)               │
+│  • External Services (Email, Payment, Cloudinary)   │
 └──────────────────┬──────────────────────────────────┘
                    │
 ┌──────────────────▼──────────────────────────────────┐
@@ -75,7 +76,6 @@ This application represents a comprehensive implementation of modern web develop
 - **Real-Time Updates**: AJAX-powered cart updates without page refresh
 - **Stock Validation**: Real-time inventory checks before checkout
 
-**Technical Implementation:**
 ```csharp
 // Smart cart resolution based on authentication state
 private async Task<Cart> GetCartAsync()
@@ -98,11 +98,30 @@ private async Task<Cart> GetCartAsync()
 - **Transaction Safety**: Inventory reduction only after successful payment verification
 
 **Key Files:**
-- `PaymentService.cs` - Payment initialization
-- `PaymentNotificationAPIController.cs` - Webhook endpoint
-- `order-status-poller.js` - Client-side polling
+- `PaymentService.cs` — Payment initialization
+- `PaymentNotificationAPIController.cs` — Webhook endpoint
+- `order-status-poller.js` — Client-side polling
 
-### 3. Inventory Management
+### 3. Cloud Image Management (Cloudinary)
+**Demonstrates:** Third-party cloud storage integration, file transformation, lifecycle management
+
+- **Image Upload**: Products upload images directly to Cloudinary on create
+- **Image Update**: Old image is deleted from Cloudinary before new one is uploaded on edit
+- **Image Deletion**: Product deletion triggers corresponding Cloudinary cleanup
+- **Auto Transformation**: Images are resized and quality-optimized (800×800, `auto` quality) on upload
+- **Public ID Extraction**: Utility method parses Cloudinary URLs to extract public IDs for deletion
+
+```csharp
+var uploadParams = new ImageUploadParams()
+{
+    File = new FileDescription(file.FileName, stream),
+    Transformation = new Transformation()
+        .Width(800).Height(800).Crop("limit").Quality("auto"),
+    Folder = "sportstore/products",
+};
+```
+
+### 4. Inventory Management
 **Demonstrates:** Transaction handling, race condition prevention, validation logic
 
 - **Stock Validation**: Multi-level checks (cart → checkout → payment)
@@ -118,79 +137,95 @@ public async Task ReduceInventoryForOrderAsync(Order order)
         var product = await context.Products.FindAsync(orderItem.ProductId);
         
         if (product.StockQuantity < orderItem.Quantity)
-        {
-            throw new InvalidOperationException(
-                $"Insufficient stock for {product.Name}"
-            );
-        }
+            throw new InvalidOperationException($"Insufficient stock for {product.Name}");
         
         product.StockQuantity -= orderItem.Quantity;
-        logger.LogInformation("Reduced stock for {Product}", product.Name);
     }
-    
     await context.SaveChangesAsync();
 }
 ```
 
-### 4. Comprehensive Admin Panel
+### 5. Comprehensive Admin Panel
 **Demonstrates:** Authorization, CRUD operations, file uploads, search functionality
 
 - **Role-Based Access**: Administrator-only area with policy-based authorization
-- **Product Management**: Full CRUD with image uploads, category assignment, stock tracking
+- **Product Management**: Full CRUD with Cloudinary image uploads, category assignment, stock tracking
 - **Category Management**: Independent category administration
 - **Order Processing**: View orders, mark as shipped, track payment status
 - **Role Management**: User-role assignment with custom view components
 - **Search & Filter**: Server-side product search with multiple criteria
 
-### 5. Email Notification System
+### 6. Email Notification System
 **Demonstrates:** Third-party API integration, HTML email templating, async communication
 
 - **Resend API Integration**: Production-ready email service
 - **Email Verification**: Required email confirmation for new accounts
-- **Order Confirmations**: Automatic emails with itemized order details
-- **Template System**: HTML email templates with dynamic data
+- **Order Confirmations**: Automatic itemized order confirmation email after successful payment
+- **Password Reset**: Secure token-based password reset link delivered via email
 
 ```csharp
 public async Task SendOrderPlacedEmailAsync(Order order)
 {
     var emailDto = MapToEmailDto(order);
     var html = BuildOrderPlacedHtml(emailDto);
-    
-    await emailService.SendEmailAsync(
-        order.Email,
-        $"Order #{order.OrderID} Confirmation",
-        html
-    );
+    await emailService.SendEmailAsync(order.Email, $"Order #{order.OrderID} Confirmation", html);
 }
 ```
+
+### 7. Real-Time Order Status Updates
+**Demonstrates:** Client-side polling, API endpoint design, UX for async workflows
+
+JavaScript polling updates order status without page refresh:
+```javascript
+async function checkStatus() {
+    const response = await fetch(`/api/orders/${orderId}/status`);
+    const data = await response.json();
+    
+    if (data.status === 'Success' || data.status === 'Failed') {
+        location.reload();
+    }
+}
+```
+
+### 8. Advanced Search & Filtering
+- Full-text search across product name, description, and category
+- Category filtering
+- Price range filtering
+- Combined filter support (search + category + price)
+
+### 9. Responsive Product Grid
+- Adaptive layout (2 cols mobile, 5 cols desktop)
+- Quick-add to cart without page navigation
+- Stock status indicators
 
 ---
 
 ## 🛠️ Technology Stack & Tools
 
 ### Backend Technologies
-- **ASP.NET Core 8 MVC** - Latest LTS version with Minimal APIs for webhooks
-- **Entity Framework Core 8** - Code-first migrations, Include/ThenInclude for eager loading
-- **PostgreSQL** - Production-grade relational database
-- **ASP.NET Core Identity** - Authentication & authorization framework
-- **Serilog** - Structured logging with file sinks
+- **ASP.NET Core 8 MVC** — Latest LTS version with Minimal APIs for webhooks
+- **Entity Framework Core 8** — Code-first migrations, eager loading
+- **PostgreSQL** — Production-grade relational database
+- **ASP.NET Core Identity** — Authentication & authorization framework
+- **Serilog** — Structured logging with file sinks
 
 ### Frontend Technologies
-- **Razor View Engine** - Server-side rendering with ViewComponents
-- **Bootstrap 5** - Responsive UI framework
-- **Custom CSS Architecture** - Component-based styling (buttons, badges, cards, sidebar)
-- **Vanilla JavaScript** - AJAX operations, polling, dynamic updates
-- **Bootstrap Icons** - Consistent iconography
+- **Razor View Engine** — Server-side rendering with ViewComponents
+- **Bootstrap 5** — Responsive UI framework
+- **Custom CSS Architecture** — Component-based styling (buttons, badges, cards, sidebar)
+- **Vanilla JavaScript** — AJAX operations, polling, dynamic updates
+- **Bootstrap Icons / FontAwesome** — Consistent iconography
 
 ### External Services
-- **Resend API** - Transactional email delivery
-- **PayBridge/Paystack** - Payment processing gateway
+- **Cloudinary** — Cloud media storage, image upload, transformation, and deletion
+- **Resend API** — Transactional email delivery (verification, order confirmation, password reset)
+- **PayBridge/Paystack** — Payment processing gateway with webhook support
 
 ### Development Tools
-- **User Secrets** - Secure configuration management
-- **Serilog File Logging** - Production debugging
-- **EF Core Migrations** - Database version control
-- **Dependency Injection** - Built-in IoC container
+- **User Secrets** — Secure configuration management
+- **Serilog File Logging** — Production debugging
+- **EF Core Migrations** — Database version control
+- **Dependency Injection** — Built-in IoC container
 
 ---
 
@@ -212,7 +247,7 @@ AspNetUsers ──┬──< AspNetUserRoles >──── AspNetRoles
               └──< AspNetUserLogins >
 ```
 
-**Key Relationships:**
+**Key Constraints:**
 - Products have delete restrictions on both CartItems and OrderItems (prevents accidental data loss)
 - Category deletion is restricted if products exist
 - Cart has unique index on UserId (one cart per user)
@@ -227,6 +262,7 @@ AspNetUsers ──┬──< AspNetUserRoles >──── AspNetRoles
 - **Password Requirements**: Configured through ASP.NET Core Identity
 - **Anti-Forgery Tokens**: CSRF protection on all POST forms
 - **Secure Cookie Settings**: HttpOnly and SameSite policies
+- **Password Reset**: Token-based reset with URL-safe Base64 encoding; user enumeration is prevented
 
 ### Payment Security
 - **Webhook Validation**: Verification of payment notifications
@@ -236,47 +272,7 @@ AspNetUsers ──┬──< AspNetUserRoles >──── AspNetRoles
 ### Data Protection
 - **User Secrets**: Sensitive data excluded from source control
 - **Connection String Security**: Database credentials in environment-specific config
-- **API Key Management**: External service keys in secure configuration
-
----
-
-## 🚀 Advanced Features
-
-### 1. Smart Cart Management
-- Session persistence for guest users
-- Database persistence for authenticated users
-- Automatic cart migration on login
-- Merge logic prevents duplicate items
-
-### 2. Order Processing Pipeline
-```
-Cart → Validation → Payment Init → Webhook → Inventory Reduction → Email
-```
-
-### 3. Real-Time Order Updates
-JavaScript polling updates order status without page refresh:
-```javascript
-async function checkStatus() {
-    const response = await fetch(`/api/orders/${orderId}/status`);
-    const data = await response.json();
-    
-    if (data.status === 'Success' || data.status === 'Failed') {
-        location.reload();
-    }
-}
-```
-
-### 4. Advanced Search & Filtering
-- Full-text search across product name, description, and category
-- Category filtering
-- Price range filtering
-- Combined filter support (search + category + price)
-
-### 5. Responsive Product Grid
-- Adaptive layout (2 cols mobile, 5 cols desktop)
-- Lazy loading images
-- Quick-add to cart without page navigation
-- Stock status indicators
+- **API Key Management**: External service keys (Cloudinary, Resend, PayBridge) in secure configuration
 
 ---
 
@@ -314,7 +310,10 @@ SportStore/
 │   ├── OrderDomainService.cs  # Order creation logic
 │   ├── InventoryService.cs    # Stock management
 │   ├── PaymentService.cs      # Payment API integration
-│   ├── EmailService.cs        # Email sending
+│   ├── EmailService.cs        # Email sending (Resend)
+│   ├── CloudinaryService.cs   # Image upload/delete (Cloudinary)
+│   ├── OrderNotificationService.cs  # Order email notifications
+│   ├── AccountService.cs      # Registration, login, reset
 │   └── CurrentUserService.cs  # User context access
 ├── ViewModels/                # DTOs for views
 │   ├── ProductVM/
@@ -363,12 +362,13 @@ SportStore/
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [PostgreSQL 12+](https://www.postgresql.org/download/)
 - [Resend Account](https://resend.com/) (for email functionality)
+- [Cloudinary Account](https://cloudinary.com/) (for image uploads)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/sportstore.git
+   git clone https://github.com/samuelcmbah/sportstore.git
    cd sportstore
    ```
 
@@ -383,6 +383,11 @@ SportStore/
      "ResendEmailSettings": {
        "ApiKey": "your_resend_api_key",
        "FromEmail": "noreply@yourdomain.com"
+     },
+     "CloudinarySettings": {
+       "CloudName": "your_cloud_name",
+       "ApiKey": "your_cloudinary_api_key",
+       "ApiSecret": "your_cloudinary_api_secret"
      },
      "ExternalServices": {
        "PayBridgeUrl": "https://localhost:7000"
@@ -413,31 +418,15 @@ SportStore/
 
 ### Technical Skills Demonstrated
 
-1. **Full-Stack Development**
-   - End-to-end feature implementation from database to UI
-   - RESTful API design for webhooks
-   - Client-server communication patterns
+1. **Full-Stack Development** — End-to-end feature implementation from database to UI, RESTful API design for webhooks, client-server communication patterns
 
-2. **Database Design**
-   - Normalized schema design
-   - Complex relationships (one-to-many, many-to-many)
-   - Migration management and data seeding
+2. **Database Design** — Normalized schema design, complex relationships (one-to-many, many-to-many), migration management and data seeding
 
-3. **Security Best Practices**
-   - Authentication and authorization implementation
-   - Secure configuration management
-   - CSRF protection and data validation
+3. **Security Best Practices** — Authentication and authorization implementation, secure token-based password reset, CSRF protection and data validation
 
-4. **External Integration**
-   - Payment gateway integration
-   - Email service integration
-   - Webhook handling and verification
+4. **External Integrations** — Payment gateway (Paystack/PayBridge), email delivery (Resend), cloud image storage (Cloudinary), webhook handling and verification
 
-5. **Code Organization**
-   - Clean architecture principles
-   - Dependency injection
-   - Service layer abstraction
-   - Repository pattern
+5. **Code Organization** — Clean architecture principles, dependency injection, service layer abstraction, repository pattern
 
 ### Problem-Solving Examples
 
@@ -450,13 +439,18 @@ SportStore/
 **Challenge**: Payment verification timing  
 **Solution**: Created client-side polling mechanism with timeout handling
 
+**Challenge**: Image lifecycle management for product CRUD  
+**Solution**: CloudinaryService handles upload, update (delete-then-upload), and delete with public ID extraction from URL
+
 ---
 
 ## 🔮 Future Enhancements
 
 ### Planned Features
 - [x] Payment integration (PayBridge/Paystack)
-- [ ] Background job processing 
+- [x] Cloud image storage (Cloudinary)
+- [x] Email verification & password reset
+- [ ] Background job processing
 - [ ] Product reviews and ratings system
 - [ ] PDF invoice generation
 - [ ] Wishlist functionality
@@ -465,7 +459,6 @@ SportStore/
 ### Technical Improvements
 - [ ] Implement CQRS pattern
 - [ ] Add Redis caching layer
-- [ ] API versioning
 - [ ] Comprehensive unit tests
 - [ ] Integration tests
 - [ ] Docker containerization
@@ -509,12 +502,13 @@ This project showcases my proficiency in:
 - **RESTful API development**
 - **Payment gateway integration**
 - **Authentication and authorization**
+- **Cloud media management (Cloudinary)**
 - **Frontend development with modern CSS**
 - **Problem-solving and system design**
+
 * GitHub: [samuelcmbah](https://github.com/samuelcmbah)
 * LinkedIn: [Samuel Mbah](https://linkedin.com/in/samuelcmbah)
+
 ---
 
-**Note**: This is a demonstration project built for learning purposes and portfolio presentation. It represents production-ready code patterns and practices suitable for real-world applications.
-
-
+**Note**: This is a demonstration project built for learning purposes and portfolio presentation.
