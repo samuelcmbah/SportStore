@@ -40,7 +40,7 @@ namespace SportStore.Data
                         Description = "A boat for one person",
                         Price = 275,
                         StockQuantity = 1000,
-                        PhotoPath = "kayak.jfif",
+                        PhotoPath = "https://res.cloudinary.com/dpj4iudu1/image/upload/v1771280606/sportstore/products/pettuskulodmnkq6uzg1.jpg",
                         CategoryId = categories["Watersports"].CategoryId
                     },
                     new Product
@@ -49,7 +49,7 @@ namespace SportStore.Data
                         Description = "Protective and fashionable",
                         Price = 48.95m,
                         StockQuantity = 1000,
-                        PhotoPath = "lifejacket.jfif",
+                        PhotoPath = "https://res.cloudinary.com/dpj4iudu1/image/upload/v1771280535/sportstore/products/krt3tb1fit7cuquthyoz.jpg",
                         CategoryId = categories["Watersports"].CategoryId
                     },
                     new Product
@@ -58,7 +58,7 @@ namespace SportStore.Data
                         Description = "FIFA-approved size and weight",
                         Price = 19.50m,
                         StockQuantity = 1000,
-                        PhotoPath = "soccer ball.jfif",
+                        PhotoPath = "https://res.cloudinary.com/dpj4iudu1/image/upload/v1771279100/sportstore/products/jkmxfmo3vettiwuserzc.jpg",
                         CategoryId = categories["Soccer"].CategoryId
                     },
                     new Product
@@ -67,7 +67,7 @@ namespace SportStore.Data
                         Description = "Give your playing field a professional touch",
                         Price = 34.95m,
                         StockQuantity = 1000,
-                        PhotoPath = "corner flags.jfif",
+                        PhotoPath = "https://res.cloudinary.com/dpj4iudu1/image/upload/v1771279990/sportstore/products/fpvswzpiahtbbvu8yase.jpg",
                         CategoryId = categories["Soccer"].CategoryId
                     },
                     new Product
@@ -76,7 +76,7 @@ namespace SportStore.Data
                         Description = "Flat-packed 35,000-seat stadium",
                         Price = 79500,
                         StockQuantity = 1000,
-                        PhotoPath = "stadium.jfif",
+                        PhotoPath = "https://res.cloudinary.com/dpj4iudu1/image/upload/v1771279919/sportstore/products/t54sqn3uwogmeyhbvfbs.jpg",
                         CategoryId = categories["Soccer"].CategoryId
                     },
                     new Product
@@ -85,7 +85,7 @@ namespace SportStore.Data
                         Description = "Improve brain efficiency by 75%",
                         Price = 16,
                         StockQuantity = 1000,
-                        PhotoPath = "thinking cap.jfif",
+                        PhotoPath = "https://res.cloudinary.com/dpj4iudu1/image/upload/v1771279735/sportstore/products/vfhxhfr4goj2fodkn2dd.jpg",
                         CategoryId = categories["Chess"].CategoryId
                     },
                     new Product
@@ -94,7 +94,7 @@ namespace SportStore.Data
                         Description = "Secretly give your opponent a disadvantage",
                         Price = 29.95m,
                         StockQuantity = 1000,
-                        PhotoPath = "unsteady chair.jfif",
+                        PhotoPath = "https://res.cloudinary.com/dpj4iudu1/image/upload/v1771279698/sportstore/products/eregkbuqz7ysamzbikbr.jpg",
                         CategoryId = categories["Chess"].CategoryId
                     },
                     new Product
@@ -103,7 +103,7 @@ namespace SportStore.Data
                         Description = "A fun game for the family",
                         Price = 75,
                         StockQuantity = 1000,
-                        PhotoPath = "chess board.jfif",
+                        PhotoPath = "https://res.cloudinary.com/dpj4iudu1/image/upload/v1771279666/sportstore/products/ctguyzo3rbwvtwoxkkx8.jpg",
                         CategoryId = categories["Chess"].CategoryId
                     },
                     new Product
@@ -112,7 +112,7 @@ namespace SportStore.Data
                         Description = "Flow with the wind",
                         Price = 1200m,
                         StockQuantity = 1000,
-                        PhotoPath = "roller blades.jfif",
+                        PhotoPath = "https://res.cloudinary.com/dpj4iudu1/image/upload/v1771284861/sportstore/products/updexwlu7obd5layveop.jpg",
                         CategoryId = categories["Action"].CategoryId
                     }
                 );
