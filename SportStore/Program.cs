@@ -62,6 +62,12 @@ public class Program
         {
             options.SignIn.RequireConfirmedEmail = true;
             options.User.RequireUniqueEmail = true;
+
+            // Configure lockout settings
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
+
         }).AddEntityFrameworkStores<AppIdentityDbContext>().AddDefaultTokenProviders();
 
         builder.Services.AddDbContext<AppIdentityDbContext>(options =>

@@ -6,45 +6,53 @@ namespace SportStore.Data
 {
     public static class IdentitySeedData
     {
-        private const string adminUser = "admin@example.com";
-        private const string adminPassword = "Secret123$";
         private const string adminRole = "Administrator";
 
-        public static async void EnsurePopulated(IApplicationBuilder app)
+        public static async Task EnsurePopulated(IApplicationBuilder app)
         {
-            //Gets the required DbContext services
-            AppIdentityDbContext context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<AppIdentityDbContext>();
 
-           
+            using var scope = app.ApplicationServices.CreateScope();
+            var services = scope.ServiceProvider;
+
+            var context = services.GetRequiredService<AppIdentityDbContext>();
+            var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            var config = services.GetRequiredService<IConfiguration>();
 
             if (context.Database.GetPendingMigrations().Any())
             {
                 context.Database.Migrate();
             }
 
-            // Get the UserManager and RoleManager services
-            UserManager<ApplicationUser> userManager = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            RoleManager<IdentityRole> roleManager = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var adminEmail = config["AdminCredentials:Email"];
+            var adminPassword = config["AdminCredentials:Password"];
+
+
+            if (string.IsNullOrEmpty(adminEmail) || string.IsNullOrEmpty(adminPassword))
+            {
+                throw new InvalidOperationException(
+                    "Admin credentials are not configured. Set AdminCredentials:Email and AdminCredentials:Password.");
+            }
+
+            if (!await roleManager.RoleExistsAsync(adminRole))
+            {
+                await roleManager.CreateAsync(new IdentityRole(adminRole));
+
+            }
 
             //seeds an admin user
-            ApplicationUser? user = await userManager.FindByNameAsync(adminUser);
+            var user = await userManager.FindByNameAsync(adminEmail);
             if (user == null)
             {
                 user = new ApplicationUser
                 {
-                    UserName = "admin@example.com",
-                    Email = "admin@example.com",
+                    UserName = adminEmail,
+                    Email = adminEmail,
                     PhoneNumber = "555-1234",
                     EmailConfirmed = true
                 };
 
                 await userManager.CreateAsync(user, adminPassword);
-            }
-
-            // Check if the admin role exists and create it if it doesn't
-            if (!await roleManager.RoleExistsAsync(adminRole))
-            {
-                await roleManager.CreateAsync(new IdentityRole(adminRole));
             }
 
             // Add the user to the admin role
