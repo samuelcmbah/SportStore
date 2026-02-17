@@ -12,7 +12,9 @@
         public async Task InvokeAsync(HttpContext context)
         {
             if (context.User.Identity?.IsAuthenticated == true &&
-                    (context.Request.Path == "/" || context.Request.Path == "/Home/Index"))
+                    (context.Request.Path == "/" || 
+                    context.Request.Path == "/Home/Index" ||
+                    context.Request.Path == "/Home"))
             {
                 if (context.User.IsInRole("Administrator"))
                 {

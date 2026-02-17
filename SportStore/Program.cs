@@ -134,6 +134,8 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
+        app.UseMiddleware<RoleBasedRootRedirectMiddleware>(); 
+
         app.MapApplicationRoutes();
 
         SeedData.EnsurePopulated(app);

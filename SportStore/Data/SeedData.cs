@@ -39,6 +39,7 @@ namespace SportStore.Data
                         Name = "Kayak",
                         Description = "A boat for one person",
                         Price = 275,
+                        StockQuantity = 1000,
                         PhotoPath = "kayak.jfif",
                         CategoryId = categories["Watersports"].CategoryId
                     },
@@ -47,6 +48,7 @@ namespace SportStore.Data
                         Name = "Lifejacket",
                         Description = "Protective and fashionable",
                         Price = 48.95m,
+                        StockQuantity = 1000,
                         PhotoPath = "lifejacket.jfif",
                         CategoryId = categories["Watersports"].CategoryId
                     },
@@ -55,6 +57,7 @@ namespace SportStore.Data
                         Name = "Soccer Ball",
                         Description = "FIFA-approved size and weight",
                         Price = 19.50m,
+                        StockQuantity = 1000,
                         PhotoPath = "soccer ball.jfif",
                         CategoryId = categories["Soccer"].CategoryId
                     },
@@ -63,6 +66,7 @@ namespace SportStore.Data
                         Name = "Corner Flags",
                         Description = "Give your playing field a professional touch",
                         Price = 34.95m,
+                        StockQuantity = 1000,
                         PhotoPath = "corner flags.jfif",
                         CategoryId = categories["Soccer"].CategoryId
                     },
@@ -71,6 +75,7 @@ namespace SportStore.Data
                         Name = "Stadium",
                         Description = "Flat-packed 35,000-seat stadium",
                         Price = 79500,
+                        StockQuantity = 1000,
                         PhotoPath = "stadium.jfif",
                         CategoryId = categories["Soccer"].CategoryId
                     },
@@ -79,6 +84,7 @@ namespace SportStore.Data
                         Name = "Thinking Cap",
                         Description = "Improve brain efficiency by 75%",
                         Price = 16,
+                        StockQuantity = 1000,
                         PhotoPath = "thinking cap.jfif",
                         CategoryId = categories["Chess"].CategoryId
                     },
@@ -87,6 +93,7 @@ namespace SportStore.Data
                         Name = "Unsteady Chair",
                         Description = "Secretly give your opponent a disadvantage",
                         Price = 29.95m,
+                        StockQuantity = 1000,
                         PhotoPath = "unsteady chair.jfif",
                         CategoryId = categories["Chess"].CategoryId
                     },
@@ -95,6 +102,7 @@ namespace SportStore.Data
                         Name = "Human Chess Board",
                         Description = "A fun game for the family",
                         Price = 75,
+                        StockQuantity = 1000,
                         PhotoPath = "chess board.jfif",
                         CategoryId = categories["Chess"].CategoryId
                     },
@@ -102,7 +110,8 @@ namespace SportStore.Data
                     {
                         Name = "Roller Blades",
                         Description = "Flow with the wind",
-                        Price = 1200,
+                        Price = 1200m,
+                        StockQuantity = 1000,
                         PhotoPath = "roller blades.jfif",
                         CategoryId = categories["Action"].CategoryId
                     }
