@@ -1,0 +1,37 @@
+﻿@model SportStore.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+    var photoPath = Model.PhotoPath;
+}
+
+<div class="card shadow mb-3" style="max-width: 600px;">
+    <div class="card-header">
+        <h5 class="card-title">@Model.Name</h5>
+    </div>
+    <div class="card-body">
+        <img src="@photoPath" class="card-img-top rounded" alt="@Model.Name" style="max-height: 200px; max-width: 50%;" asp-append-version="false">
+    </div>
+    <div class="card-footer">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Description:</strong> @Model.Description</li>
+            <li class="list-group-item"><strong>Category:</strong> @Model.Category</li>
+            <li class="list-group-item"><strong>Price:</strong> @Model.Price.ToString("c")</li>
+            <li class="list-group-item">
+                <strong>Product ID:</strong> @Model.ProductID
+            </li>
+        </ul>
+        <div class="d-flex justify-content-end mt-3">
+            <a class="btn btn-success me-2" asp-action="Edit" asp-route-id="@Model.ProductID">Edit</a>
+            <a class="btn btn-primary" asp-controller="Products" asp-action="Index">Back</a>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+

@@ -1,0 +1,29 @@
+﻿@using SportStore.ViewModels.Role
+@model List<UserRoleViewModel>
+
+    @{
+        var roleId = ViewBag.roleId;
+    }
+
+    <h2>add or remove users from this role</h2>
+
+<form method="post" asp-action="EditUsersInRole" asp-route-roleId="@roleId">
+    <div>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <div>
+                <input asp-for="@Model[i].UserId" hidden/>
+                <input asp-for="@Model[i].UserName" hidden/>
+
+                <input asp-for="@Model[i].Selected" class="form-check-input" />
+                <label asp-for="@Model[i].Selected" class="form-check-label">@Model[i].UserName</label>
+            </div>
+        }
+    </div>
+
+    <div>
+        <button class="btn btn-primary" type="submit">Update</button>
+        <a class="btn btn-primary" asp-action="EditRole" asp-route-id="@roleId">Cancel</a>
+
+    </div>
+</form>

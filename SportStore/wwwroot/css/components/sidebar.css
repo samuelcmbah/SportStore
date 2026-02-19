@@ -1,0 +1,14 @@
+﻿/* Target the sidebar specifically to override Bootstrap defaults */
+.sidebar-menu .list-group-item {
+    border: none; /* We handle the 'no border' look here instead of HTML */
+    padding: 0.8rem 1.25rem;
+    color: #444;
+}
+
+/* Increase specificity by adding the 'a' tag selector */
+div.sidebar-menu a.list-group-item.active {
+    background-color: rgba(0,0,0,0.05);
+    color: var(--sport-primary);
+    border-left: 4px solid var(--sport-primary); 
+    border-radius: 0;
+}

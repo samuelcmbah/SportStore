@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿// SportStore/Controllers/CartController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SportStore.Models;
-using SportStore.Models.ViewModels;
-
-//using Microsoft.AspNetCore.Mvc;
-//using Web.Extensions;
-
+using SportStore.Services.IServices;
+using SportStore.Utils;
+using SportStore.ViewModels.CartVM;
 
 namespace SportStore.Controllers
 {
@@ -15,91 +13,133 @@ namespace SportStore.Controllers
     {
         private readonly IStoreRepository storeRepository;
         private readonly SessionCart sessionCart;
+        private readonly ICartService cartService;
+        private readonly ICartDomainService cartDomainService;
+        private readonly ICurrentUserService currentUserService;
 
-        public CartController(IStoreRepository storeRepository, SessionCart sessionCart)
+        public CartController(
+            IStoreRepository storeRepository,
+            SessionCart sessionCart,
+            ICartService cartService,
+            ICartDomainService cartDomainService,
+            ICurrentUserService currentUserService)
         {
             this.storeRepository = storeRepository;
             this.sessionCart = sessionCart;
+            this.cartService = cartService;
+            this.cartDomainService = cartDomainService;
+            this.currentUserService = currentUserService;
         }
 
+        //PRIVATE HELPER METHODS
+        private async Task<Cart> GetCartAsync()
+        {
+            if (User.Identity!.IsAuthenticated)
+            {
+                var userId = currentUserService.UserId!;
+                return await cartService.GetOrCreateCartByUserIdAsync(userId);
+            }
+
+            return sessionCart.GetCart();
+        }
+
+        private async Task SaveCartAsync(Cart cart)
+        {
+            if (User.Identity!.IsAuthenticated)
+                await cartService.UpdateCartAsync(cart);
+            else
+                sessionCart.SetCart(cart);
+        }
+
+        //PUBLIC ACCESS METHODS
+
+        /// <summary>
+        /// Handles both adding new items and updating existing item quantities
+        /// Used by: Product Details page dropdown, Cart page dropdown
+        /// </summary>
         [HttpPost]
-        public IActionResult RemoveFromCart(int productId, string returnUrl)
+        public async Task<IActionResult> UpdateCart(int productId, int quantity, string returnUrl)
         {
             Product? product = storeRepository.GetProductById(productId);
             if (product == null)
             {
-                //Display an error message that the selected item is no longer available
+                return NotFound();
             }
 
-            var cart = sessionCart.GetCart();
+            var cart = await GetCartAsync();
+            var existingItem = cart.CartItems
+                .FirstOrDefault(i => i.Product.ProductID == productId);
 
-            cart.CartItems.RemoveAll(id => id?.Product?.ProductID == product?.ProductID);
-            CalculateTotalAmount_Items(cart);
-
-            sessionCart.SetCart(cart); 
-
-            return LocalRedirect(returnUrl);
-        }
-
-        private void CalculateTotalAmount_Items(Cart cart)
-        {
-            cart.TotalCartItems = cart.CartItems.Sum(item => item?.Quantity);
-            if(cart.TotalCartItems == 0)
+            // Handle removal (quantity = 0)
+            if (quantity == 0)
             {
-                cart.TotalCartItems = null;
-            }
-            ViewData["TotalCartItems"] = cart.TotalCartItems.ToString();
-            cart.Total = cart.CartItems.Sum(item => item.Subtotal);
-        }
-
-        [HttpPost]
-        public IActionResult AddToCart(int productId, string returnUrl, int quantity = 1 )
-        {
-            Product? product = storeRepository.GetProductById(productId);
-            if (product == null)
-            {
-                //Display an error message that the selected item is no longer available
+                if (existingItem != null)
+                {
+                    cartDomainService.RemoveItem(cart, productId);
+                    await SaveCartAsync(cart);
+                    TempData["Success"] = "Item removed from cart";
+                }
+                return LocalRedirect(returnUrl);
             }
 
-            var cart = sessionCart.GetCart();
-
+            // Validate quantity
+            if (quantity < 0)
             {
-             //checks if a product is already existing in the cart
-             //increases the quantity by 1 if it already exists, adds it to the cart if it doesnt
-             //assign the sum total of the quantity of each cart item to totalcartitems
-             //and then calculates the total number of items in the cart
+                return BadRequest("Invalid quantity");
             }
-            
-            var existingCartItem = cart.CartItems.FirstOrDefault(item => item?.Product?.ProductID == productId);
-            if (existingCartItem != null)
+
+            // Check stock availability
+            if (!product.HasStock(quantity))
             {
-                existingCartItem.Quantity += 1;
+                TempData["Error"] = $"Only {product.StockQuantity} items available in stock";
+                return LocalRedirect(returnUrl);
+            }
+
+            // Update or add item
+            if (existingItem != null)
+            {
+                existingItem.Quantity = quantity;
+                TempData["Success"] = "Cart updated successfully";
             }
             else
             {
-                var cartItem = new CartItem
-                {
-                    Product = product,
-                    Quantity = quantity
-                };
-                cart.CartItems.Add(cartItem);
+                cartDomainService.AddItem(cart, product, quantity);
+                TempData["Success"] = "Item added to cart";
             }
 
-            CalculateTotalAmount_Items(cart);
-
-            sessionCart.SetCart(cart);
-
+            await SaveCartAsync(cart);
             return LocalRedirect(returnUrl);
         }
 
-
-        public IActionResult ViewCart()
+        /// <summary>
+        /// Quick remove action for cart page
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> RemoveFromCart(int productId, string returnUrl)
         {
-            var cart = sessionCart.GetCart();
+            var cart = await GetCartAsync();
+            cartDomainService.RemoveItem(cart, productId);
+            await SaveCartAsync(cart);
 
-            return View(cart);
+            TempData["Success"] = "Item removed from cart";
+            return LocalRedirect(returnUrl);
         }
 
-        //svdasffggf
+        /// <summary>
+        /// Display cart page
+        /// </summary>
+        public async Task<IActionResult> ViewCart()
+        {
+            var cart = await GetCartAsync();
+
+            var viewModel = new CartViewModel
+            {
+                Cart = cart,
+                TotalItems = cartDomainService.GetTotalItems(cart),
+                TotalPrice = cartDomainService.GetTotalPrice(cart),
+            };
+
+            return View(viewModel);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿@model LoginViewModel
+﻿@using SportStore.ViewModels.Auth
+@model LoginViewModel
 
 @{
     ViewData["Title"] = "Login";
@@ -16,6 +17,16 @@
                 <form asp-action="Login" asp-controller="Account" method="post">
                     <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
+                    @if (ViewData["ShowResendLink"] as bool? == true)
+                    {
+                        <div class="alert alert-warning text-center">
+                            Didn't receive an email?
+                            <a asp-action="ResendConfirmationLink" class="alert-link">
+                                Resend confirmation link
+                            </a>
+                        </div>
+                    }
+
                     <input asp-for="ReturnUrl" hidden/>
 
                     <div class="form-group mb-3">
@@ -26,8 +37,12 @@
 
                     <div class="form-group mb-3">
                         <label asp-for="Password">Password</label>
-                        <input asp-for="Password" type="text" class="form-control" placeholder="Enter your password" />
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" />
                         <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="text-end mb-3">
+                        <a asp-action="ForgotPassword" class="small">Forgot password?</a>
                     </div>
 
                     <div class="form-group mb-3">

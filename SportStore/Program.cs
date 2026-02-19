@@ -1,143 +1,154 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
-using SportStore.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using Resend;
 using Serilog;
+using SportStore.Configurations;
+using SportStore.Data;
+using SportStore.Extensions;
+using SportStore.Middleware;
+using SportStore.Models;
 using SportStore.Services;
+using SportStore.Services.IServices;
+using SportStore.Utils;
+using System;
 
-namespace SportStore
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        // Add services to the container.
+
+        var payBridgeUrl = builder.Configuration["ExternalServices:PayBridgeUrl"];
+
+        builder.Services.AddHttpClient("PayBridge", client =>
         {
-            var builder = WebApplication.CreateBuilder(args);
+            client.BaseAddress = new Uri(payBridgeUrl!);
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
 
-            // Add services to the container.
+        });
+        // Replace default logging with Serilog
+        builder.Host.UseSerilog((_, logger) =>
+        {
+            logger
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                .WriteTo.Console();
+        });
+        //adding email service
+        builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.Configure<ResendEmailSettings>(
+            builder.Configuration.GetSection("ResendEmailSettings"));
+        // This is required to use the IOptions<T> pattern
+        builder.Services.AddOptions();
 
-            //configuring third party logging
-            Log.Logger = new LoggerConfiguration().MinimumLevel.Error().WriteTo.File("Logs/SportStoreLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
-            builder.Host.UseSerilog();
-            //adding email service
-            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-            builder.Services.AddTransient<EmailService>();
-            //adding identity
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
-            {
-                options.SignIn.RequireConfirmedEmail = true;
-                options.User.RequireUniqueEmail = true;
-            }).AddEntityFrameworkStores<AppIdentityDbContext>().AddDefaultTokenProviders();
+        builder.Services.Configure<ResendClientOptions>(o =>
+        {
+            o.ApiToken = builder.Configuration["ResendEmailSettings:ApiKey"]!;
+        });
 
-            builder.Services.AddDbContext<AppIdentityDbContext>(opts =>
-            {
-                opts.UseSqlite(builder.Configuration["ConnectionStrings:IdentityConnection"]);
-            });
+        // 5. Add the HttpClient and the main Resend client to the services
+        builder.Services.AddHttpClient<ResendClient>();
+        builder.Services.AddTransient<IResend, ResendClient>();
+        //adding identity
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        {
+            options.SignIn.RequireConfirmedEmail = true;
+            options.User.RequireUniqueEmail = true;
 
-            builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
-            builder.Services.AddScoped<SessionCart>(serviceProvider =>
-            {
-                // Retrieve the HttpContextAccessor service
-                var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+            // Configure lockout settings
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
 
-                // Retrieve the HttpContext from the HttpContextAccessor
-                var httpContext = httpContextAccessor.HttpContext;
+        }).AddEntityFrameworkStores<AppIdentityDbContext>().AddDefaultTokenProviders();
 
-                // Retrieve the ISession service from the HttpContext
-                var session = httpContext?.Session;
+        builder.Services.AddDbContext<AppIdentityDbContext>(options =>
+            options.UseNpgsql(
+                builder.Configuration.GetConnectionString("SportsStoreConnection")));
 
-                // Create and return a new instance of SessionCart
-                return new SessionCart(session);
-            });
-            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            //builder.Services.AddHttpContextAccessor();
+        builder.Services.AddDbContext<StoreDbContext>(options =>
+            options.UseNpgsql(
+                builder.Configuration.GetConnectionString("SportsStoreConnection")));
 
-            builder.Services.AddDistributedMemoryCache();
-            builder.Services.AddSession(options =>
-            {
-                options.IdleTimeout = TimeSpan.FromMinutes(30);
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
-            });
+        // Configure Cloudinary settings
+        builder.Services.Configure<CloudinarySettings>(
+            builder.Configuration.GetSection("Cloudinary"));
 
-            builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();//The AddScoped method creates a service where each HTTP request gets its own repository object, which is the way that Entity Framework Core is typically used.
+        builder.Services.AddScoped<IProductService, ProductService>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<IOrderNotificationService, OrderNotificationService>();
+        builder.Services.AddScoped<IOrderDomainService, OrderDomainService>();
+        builder.Services.AddScoped<ICartDomainService, CartDomainService>();
+        builder.Services.AddScoped<ICartService, CartService>();
+        builder.Services.AddScoped<IAccountService, AccountService>();
+        builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();
+        builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
+        builder.Services.AddScoped<IInventoryService, InventoryService>();
+        builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+        builder.Services.AddScoped<IPaymentService, PaymentService>();
+        builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
-            builder.Services.AddDbContext<StoreDbContext>(opts => {
-                opts.UseSqlite(builder.Configuration["ConnectionStrings:SportsStoreConnection"]);
-            });
-
-            //builder.Services.AddDbContext<StoreDbContext>(opts => {
-            //    opts.UseSqlServer(builder.Configuration["ConnectionStrings:SportsStoreConnection"]);
-            //});
-
-            builder.Services.AddControllersWithViews();
-            //builder.Services.AddControllersWithViews(options =>
-            //{
-            //    var policy = new AuthorizationPolicyBuilder()
-            //                     .RequireAuthenticatedUser()
-            //                     .Build();
-            //    options.Filters.Add(new AuthorizeFilter(policy));
-            //});
-            builder.Services.AddAuthorization(options =>
-            {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-            });
-
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-            app.UseStatusCodePagesWithReExecute("/Error/{0}");
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<SessionCart>();
+        builder.Services.AddDistributedMemoryCache();
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+        });
 
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+        builder.Services.AddControllersWithViews();
 
-            app.UseRouting();
+        builder.Services.AddAuthorization(options =>
+        {
+            options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+        });
 
-            
-            app.UseSession();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+        var app = builder.Build();
 
-            app.MapControllerRoute(name: "catpage",
-             pattern: "{category}/Page{productPage:int}",
-             defaults: new { Controller = "Home", action = "Index" });
-
-            app.MapControllerRoute(name: "page",
-            pattern: "Page{productPage:int}",
-            defaults: new { Controller = "Home", action = "Index", productPage = 1 });
-
-            app.MapControllerRoute(name: "category",
-            pattern: "{category}",
-            defaults: new { Controller = "Home", action = "Index", productPage = 1 });
-
-            //app.MapControllerRoute(name: "pagination",
-            //    pattern: "Products/Page{productPage:int}",
-            //     defaults: new { Controller = "Home", action = "Index", id = 1 });
-
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            app.MapDefaultControllerRoute();
-
-            SeedData.EnsurePopulated(app);
-            IdentitySeedData.EnsurePopulated(app);
-
-            app.Run();
+        // Configure the HTTP request pipeline.
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Error");
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            app.UseHsts();
         }
+        app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
+
+        app.UseHttpsRedirection();
+        app.UseStaticFiles();
+
+        app.UseRouting();
+
+
+        app.UseSession();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseMiddleware<RoleBasedRootRedirectMiddleware>(); 
+
+        app.MapApplicationRoutes();
+
+        SeedData.EnsurePopulated(app);
+        IdentitySeedData.EnsurePopulated(app);
+
+        app.UseSerilogRequestLogging();
+
+        app.Run();
     }
 }

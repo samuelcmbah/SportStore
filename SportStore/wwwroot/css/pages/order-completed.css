@@ -1,0 +1,31 @@
+﻿/* ORDER COMPLETED PAGE */
+
+.order-status-card {
+    background: #fff;
+}
+
+/* STATUS ICONS */
+.status-icon {
+    font-size: 4rem;
+}
+
+.status-icon.pending {
+    color: var(--bs-primary);
+}
+
+.status-icon.success {
+    color: #198754; /* Bootstrap success */
+}
+
+.status-icon.failed {
+    color: #dc3545;
+}
+
+/* ORDER REF BOX */
+.order-ref-box {
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
+
+

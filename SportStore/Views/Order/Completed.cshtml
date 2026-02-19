@@ -1,9 +1,105 @@
-﻿@model dynamic
+﻿@using SportStore.Models.Enums
+@model OrderCompletedViewModel
 
-<div class="text-center">
-    <h2>Thanks!</h2>
-    <p>Thanks for placing order #@Model.orderId</p>
-    <p>We'll ship your goods as soon as possible.</p>
-    <a class="btn btn-primary" asp-controller="Home" asp-action="index">Return to Store</a>
+@{
+    ViewData["Title"] = "Order Status";
+}
 
+<div id="order-status"
+     data-order-id="@Model.OrderRef"
+     data-order-status="@Model.OrderStatus">
+
+    <div class="container-fluid px-lg-5 py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+
+                <div class="card border-0 shadow-sm rounded-4 order-status-card">
+                    <div class="card-body text-center p-5">
+
+                        <!-- STATUS ICON -->
+                        @if (Model.OrderStatus == OrderStatus.Pending)
+                        {
+                            <div class="status-icon pending mb-4">
+                                <div class="spinner-border" role="status"></div>
+                            </div>
+                        }
+                        else if (Model.OrderStatus == OrderStatus.Success)
+                        {
+                            <div class="status-icon success mb-4">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                        }
+                        else if (Model.OrderStatus == OrderStatus.Failed)
+                        {
+                            <div class="status-icon failed mb-4">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </div>
+                        }
+
+                        <!-- STATUS MESSAGE -->
+                        <h3 class="fw-bold mb-2">@Model.Message</h3>
+
+                        @if (Model.OrderStatus == OrderStatus.Pending)
+                        {
+                            <p class="text-muted mb-4">
+                                Please wait while we confirm your payment.
+                            </p>
+                        }
+                        else if (Model.OrderStatus == OrderStatus.Success)
+                        {
+                            <p class="text-muted mb-4">
+                                Your order has been received and will be processed shortly.
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-4">
+                                Something went wrong while processing your payment.
+                            </p>
+                        }
+
+                        <!-- ORDER REFERENCE -->
+                        <div class="order-ref-box mb-4">
+                            <span class="small text-muted d-block mb-1">Order Reference</span>
+                            <span class="fw-bold">#@Model.OrderRef</span>
+                        </div>
+
+                        <!-- ACTIONS -->
+                        @if (Model.OrderStatus == OrderStatus.Failed)
+                        {
+                            <a class="btn btn-danger w-100 mb-3"
+                               asp-controller="Order"
+                               asp-action="Checkout">
+                                Try Payment Again
+                            </a>
+                        }
+
+                        <a class="btn btn-action w-100"
+                           asp-controller="Home"
+                           asp-action="Index">
+                            Continue Shopping
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/order-completed.css" />
+}
+
+@section Scripts {
+    <script src="/js/order-status-poller.js"></script>
+
+    @if (Model.OrderStatus == OrderStatus.Pending)
+    {
+        <script>
+            const el = document.getElementById('order-status');
+            OrderStatusPoller.start(el.dataset.orderId);
+        </script>
+    }
+}

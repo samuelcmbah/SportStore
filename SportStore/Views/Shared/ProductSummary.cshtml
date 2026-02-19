@@ -1,38 +1,79 @@
 ﻿@model Product
 
 @{
-    var photoPath = "~/images/" + Model.PhotoPath;
+
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+
 }
 
-<div class="card card-outline-primary m-1 p-3 d-flex flex-column">
-    <div class="row">
-        <div class="col-md-4 col-lg-3 p-1">
-            <img src="@photoPath" alt="@Model.Name" class=" imageThumbnail img-fluid rounded" asp-append-version="true">
+<div class="card h-100 product-card border-0 shadow-sm position-relative">
+    <!-- Square Image Container -->
+    <div class="product-img-container">
+        <img src="@(Model.PhotoPath ?? "/images/noimage.png")"           
+            alt="@Model.Name"
+             class="card-img-top"
+             asp-append-version="true" />
+    </div>
+
+    <div class="card-body p-2 p-md-3">
+        <!--  stretched-link: This Bootstrap class uses a CSS ::after pseudo-element to expand
+        the clickable area of the <a> tag to the nearest parent with position: relative. -->
+        <a asp-action="Details" asp-controller="Home" asp-route-id="@Model.ProductID"
+           class="stretched-link text-decoration-none text-dark">
+            <h6 class="product-title mb-1">@Model.Name</h6>
+        </a>
+
+        @if (Model.StockQuantity > 0)
+        {
+            <p class="small text-success mb-2">
+                <i class="bi bi-check-circle"></i>
+                @if (Model.StockQuantity <= 5)
+                {
+                    <span>Only @Model.StockQuantity left!</span>
+                }
+                else
+                {
+                    <span>In Stock</span>
+                }
+            </p>
+        }
+        else
+        {
+            <p class="small text-danger mb-2">
+                <i class="bi bi-x-circle"></i> Out of Stock
+            </p>
+        }
+
+        <!-- Rating & Sold Count (Aesthetics) -->
+        <div class="d-flex align-items-center mb-1">
+            <div class="text-warning small me-1">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+            </div>
+            <span class="text-muted extra-small">10k+ sold</span>
         </div>
 
-        <div class="col-md-8 col-lg-9 p-3 d-flex flex-column justify-content-between">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                    <h4>@Model.Name</h4>
-                </div>
-                <span class="badge rounded-pill bg-primary text-white font-weight-bold" style="font-size: 1.2rem;">
-                    <small>@Model.Price.ToString("c")</small>
-                </span>
+        <!-- Price and Cart Button -->
+        <div class="d-flex justify-content-between align-items-center mt-2">
+            <div>
+                <span class="fw-bold fs-5 text-dark">@Model.Price.ToString("c0")</span>
+                @* Simulated original price for the "deal" look *@
+                <span class="text-muted text-decoration-line-through extra-small ms-1">@((Model.Price * 1.2m).ToString("c0"))</span>
             </div>
 
-            <div class="card-text mb-3">
-                <p>@Model.Description</p>
-            </div>
-
-            <div class="align-self-end">
-                <form method="post" asp-controller="cart" asp-action="AddToCart">
-                    <input type="hidden" asp-for="ProductID" />
-                    <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
-                    <button type="submit" class="btn btn-success btn-sm">Add To Cart</button>
-                </form>
-            </div>
+            @* Quick Add Button *@
+            <form asp-controller="Cart" asp-action="UpdateCart" method="post"
+                  class="d-inline position-relative" style="z-index: 2">
+                <input type="hidden" name="productId" value="@Model.ProductID" />
+                <input type="hidden" name="quantity" value="1" />
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <button type="submit" class="btn btn-outline-dark btn-sm rounded-circle quick-add-btn">
+                    <i class="fa-solid fa-cart-plus"></i>
+                </button>
+            </form>
         </div>
     </div>
 </div>
-
-

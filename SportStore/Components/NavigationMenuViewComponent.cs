@@ -1,21 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SportStore.Models;
+using SportStore.Services.IServices;
 
 namespace SportStore.Components
 {
     public class NavigationMenuViewComponent : ViewComponent
     {
-        private IStoreRepository repository;
+        private readonly ICategoryService categoryService;
 
-        public NavigationMenuViewComponent(IStoreRepository repo)
+        public NavigationMenuViewComponent(ICategoryService categoryService)
         {
-            repository = repo;
+            this.categoryService = categoryService;
         }
         public IViewComponentResult Invoke()
         {
-            ViewBag.SelectedCategory = RouteData?.Values["category"];
-            return View(repository.AllProducts.Select(x => x.Category)
-                    .Distinct().OrderBy(x => x));
+            ViewBag.SelectedCategoryId = RouteData?.Values["categoryId"];
+
+            return View(
+                categoryService.GetAll()
+                    .OrderBy(c => c.Name)
+                    .ToList()
+            );
         }
     }
 }

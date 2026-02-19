@@ -1,13 +1,4 @@
-﻿@* @inject UserManager<IdentityUser> userManager
- *@
-@{
-    if (User.IsInRole("Administrator"))
-    {
-        Layout = "_AdminLayout";
-    }
-    else
-    {
+﻿
+@{   
         Layout = "_Layout";
-
-    }
 }

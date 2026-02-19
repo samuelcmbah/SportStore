@@ -1,0 +1,109 @@
+﻿@inject SignInManager<ApplicationUser> signInManager
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SportStore</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/lib/font-awesome/css/fontawesome.min.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/solid.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SportStore.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <!-- Brand -->
+                <a class="navbar-brand fw-bold" asp-area="Admin" asp-controller="Products" asp-action="Index">
+                    SportStore <span class="badge bg-dark ms-1" style="font-size: 0.6rem; vertical-align: middle;">ADMIN</span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex">
+                    <!-- 1. LEFT SIDE: Navigation & Manage Dropdown -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Products" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="fa-solid fa-gears me-1 text-secondary"></i> Manage
+                            </a>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Products" asp-action="Index"><i class="fa-solid fa-box-open me-2 text-muted"></i> Products</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index"><i class="fa-solid fa-list me-2 text-muted"></i> Categories</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Orders" asp-action="Index"><i class="fa-solid fa-truck-fast me-2 text-muted"></i> Orders</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Roles" asp-action="ListRole"><i class="fa-solid fa-user-shield me-2 text-muted"></i> Store Roles</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <!-- 2. CENTER: Long Search Bar (Admin Products Search) -->
+                    <form class="d-flex flex-grow-1 mx-lg-5 my-2 my-lg-0"
+                          asp-area="Admin"
+                          asp-controller="Products"
+                          asp-action="Index"
+                          method="get"
+                          style="max-width: 700px;">
+
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                            </span>
+                            <input class="form-control border-start-0 ps-0 bg-light"
+                                   type="search"
+                                   name="search"
+                                   placeholder="Search admin products..."
+                                   value="@Context.Request.Query["search"]" />
+                            <button class="btn btn-dark px-4" type="submit">
+                                SEARCH
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- 3. RIGHT SIDE: Logout -->
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <form method="post" asp-area="" asp-controller="account" asp-action="logout" class="d-inline">
+                                    <button type="submit" class="nav-link btn btn-link text-dark text-decoration-none">
+                                        <i class="fa-solid fa-arrow-right-from-bracket me-1"></i>
+                                        Logout <span class="fw-light d-none d-lg-inline">(@User.Identity.Name.ToLower())</span>
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="page-content">
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - SportStore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

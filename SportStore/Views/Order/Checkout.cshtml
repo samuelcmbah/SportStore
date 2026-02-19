@@ -1,51 +1,194 @@
-﻿@model Order
+﻿@model CheckoutViewModel
+
 @{
     ViewData["Title"] = "Checkout";
 }
 
-<h2>Checkout now</h2>
-<p>Please enter your details</p>
-
-<form method="post" asp-action="Checkout" asp-controller="Order">
-    <h3>Ship to</h3>
-
-    <div class="form-group">
-        <label asp-for="Name">Name:</label>
-        <input asp-for="Name" class="form-control"/>
+<div class="container-fluid px-lg-5 py-4">
+    <div class="d-flex align-items-center mb-4">
+        <h4 class="fw-bold mb-0">Checkout</h4>
+        <span class="ms-2 text-muted">Review & complete your order</span>
     </div>
 
-    <h3>Address</h3>
-    <div class="form-group">
-        <label>Line 1:</label><input asp-for="Line1" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Line 2:</label><input asp-for="Line2" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Line 3:</label><input asp-for="Line3" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>City:</label><input asp-for="City" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>State:</label><input asp-for="State" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Zip:</label><input asp-for="Zip" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Country:</label><input asp-for="Country" class="form-control" />
-    </div>
-    <h3>Options</h3>
-    <div class="checkbox">
-        <label>
-            <input asp-for="GiftWrap" /> Gift wrap these items
-        </label>
-    </div >
-     
-    <div class="text-danger" asp-validation-summary="All"></div>
-    
-    <div class="text-center">
-        <input class="btn btn-primary" type="submit" value="Complete Order" />
-    </div>
-</form>
+    <form method="post" asp-action="Checkout" asp-controller="Order">
+        <div class="row g-4">
+
+            <!-- LEFT: SHIPPING DETAILS -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="mb-0 fw-bold text-uppercase">Shipping Details</h6>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label">Full Name</label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Address" class="form-label">Address</label>
+                                <input asp-for="Address" class="form-control" />
+                                <span asp-validation-for="Address" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="City" class="form-label">City</label>
+                                <input asp-for="City" class="form-control" />
+                                <span asp-validation-for="City" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="State" class="form-label">State</label>
+                                <input asp-for="State" class="form-control" />
+                                <span asp-validation-for="State" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="Zip" class="form-label">Postal Code</label>
+                                <input asp-for="Zip" class="form-control" />
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Country" class="form-label">Country</label>
+                                <input asp-for="Country" class="form-control" />
+                                <span asp-validation-for="Country" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a asp-controller="Cart" asp-action="ViewCart"
+                   class="text-sport-primary text-decoration-none fw-bold">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Cart
+                </a>
+
+                <!-- PRODUCT PREVIEW -->
+                <div class="mt-3 card">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="mb-0 fw-bold text-uppercase">Product Review</h6>
+                    </div>
+                    <div class="card-body p-4">
+
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="@(item.Product.PhotoPath ?? "/images/noimage.png")"
+                                     class="border rounded me-2 order-item-img" />
+
+                                <div class="flex-grow-1">
+                                    <div class="small fw-bold text-truncate">
+                                        @item.Product.Name
+                                    </div>
+                                    <div class="small text-muted">
+                                        Qty: @item.Quantity
+                                    </div>
+                                </div>
+
+                                <div class="small fw-bold text-end">
+                                    @item.Subtotal.ToString("c0")
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- RIGHT: ORDER SUMMARY -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="mb-0 fw-bold text-uppercase">Order Summary</h6>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- TOTALS -->
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="fw-bold">@Model.TotalPrice.ToString("c0")</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Delivery</span>
+                            <span class="text-success fw-bold">FREE</span>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="h5 fw-bold">Total</span>
+                            <span class="h5 fw-bold text-sport-primary">
+                                @Model.TotalPrice.ToString("c0")
+                            </span>
+                        </div>
+
+                        <!-- PAYMENT METHOD -->
+                        <div class="mb-4">
+                            <span class="small text-muted d-block mb-2">Payment Method</span>
+                            <div class="d-flex align-items-center border rounded p-3 bg-light">
+
+                                <div class="small fw-bold">
+                                    <!-- Wrapper to keep Image and Label side-by-side -->
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span>
+                                            <img src="~/images/logo/paystack_logo.png"
+                                                 height="20"
+                                                 class="me-2 d-block"
+                                                 alt="Paystack" />
+                                        </span>
+                                        <span>Paystack</span>
+                                    </div>
+
+                                    <!-- Subtext remains on its own line -->
+                                    <div class="text-muted fw-normal">
+                                        Cards, Bank Transfer, USSD
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div asp-validation-summary="All" class="alert alert-danger small mb-3"></div>
+                        }
+                        <button type="submit"
+                                class="btn btn-action w-100 py-3 fw-bold text-uppercase">
+                            Pay with Paystack
+                        </button>
+
+                        <div class="mt-3 text-center">
+                           
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+                                 height="20" class="mx-2 opacity-50">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+                                 height="20" class="mx-2 opacity-50">
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-light-soft border-0 p-3">
+                        <p class="small text-muted mb-0">
+                            <i class="bi bi-shield-check text-success me-1"></i>
+                            Secure payment guaranteed
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/checkout.css" />
+}
+-
