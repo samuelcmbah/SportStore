@@ -12,6 +12,7 @@ using SportStore.Models;
 using SportStore.Services;
 using SportStore.Services.IServices;
 using SportStore.Utils;
+using System.Globalization;
 
 public class Program
 {
@@ -117,6 +118,9 @@ public class Program
                 .Build();
         });
 
+        var cultureInfo = new System.Globalization.CultureInfo("en-NG");
+        CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+        CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
         var app = builder.Build();
 
