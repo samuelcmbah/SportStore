@@ -1,11 +1,23 @@
-﻿
-
-@{
-    ViewData["Title"] = "Not Found";
-
+﻿@{
+    ViewData["Title"] = "Page Not Found";
 }
 
-<h3>@ViewData["ErrorMessage"]</h3>
+<div class="container text-center mt-5">
+    <div class="card shadow-lg p-5">
+        <h1 class="display-4 text-danger">404</h1>
+        <h3 class="mb-3">Oops! Page Not Found</h3>
+        <p class="text-muted">
+            @ViewData["ErrorMessage"]
+        </p>
 
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary me-2">
+                Go Back Home
+            </a>
 
-<a asp-controller="Home" asp-action="index">click to return to home page</a>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary">
+                Browse Products
+            </a>
+        </div>
+    </div>
+</div>
