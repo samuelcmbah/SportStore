@@ -1,5 +1,4 @@
-﻿/* CART PAGE */
-
+﻿/* CART PAGE cart.css */
 .cart-img-wrap {
     width: 80px;
     height: 80px;
@@ -18,16 +17,16 @@
 }
 
 .cart-remove-btn {
-    color: var(--sport-black);
+    color: #dc3545;
+    font-size: 0.875rem;
     font-weight: 500;
 }
 
     .cart-remove-btn:hover,
     .cart-remove-btn:focus {
-        color: #dc3545; /* Bootstrap danger red */
-        text-decoration: none;
+        color: #bb2d3b;
+        text-decoration: underline !important;
     }
-
 
 .text-truncate-2 {
     display: -webkit-box;
@@ -35,6 +34,20 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+.quantity-selector select {
+    min-width: 70px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+}
+
+    .quantity-selector select:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
 
 @media (max-width: 768px) {
     .cart-img-wrap {

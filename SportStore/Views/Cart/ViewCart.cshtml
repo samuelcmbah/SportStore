@@ -6,7 +6,7 @@
     var returnUrl = ViewContext.HttpContext.Request.Path + ViewContext.HttpContext.Request.QueryString;
 }
 
-<div class="container-fluid px-lg-5 py-4">
+<div class="px-lg-5 py-2">
     <div class="d-flex align-items-center mb-4">
         <h4 class="fw-bold mb-0">Cart</h4>
         <span class="ms-2 text-muted">(@Model.Cart.CartItems.Count() items)</span>
@@ -35,7 +35,7 @@
                                 <div class="row align-items-center">
                                     <!-- Product Info -->
                                     <div class="col-12 col-md-6 mb-3 mb-md-0">
-                                        <div class="d-flex align-items-center">
+                                        <div class="d-flex align-items-start gap-3">
                                             <div class="cart-img-wrap me-3">
                                                 <img src="@(item.Product.PhotoPath ?? "/images/noimage.png")"
                                                      alt="@item.Product.Name"
@@ -43,7 +43,10 @@
                                                      style="width: 80px; height: 80px; object-fit: cover;">
                                             </div>
                                             <div class="flex-grow-1">
-                                                <h6 class="mb-1 fw-bold">@item.Product.Name</h6>
+                                                <a asp-controller="Home" asp-action="Details" asp-route-id="@item.Product.ProductID"
+                                                   class="small text-dark fw-bold">
+                                                    @item.Product.Name
+                                                </a>
                                                 @if (item.Product.IsInStock)
                                                 {
                                                     <p class="small text-success mb-0">
@@ -151,8 +154,8 @@
                         </a>
 
                         <div class="mt-3 text-center">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="20" class="mx-2 opacity-50" alt="Mastercard">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="20" class="mx-2 opacity-50" alt="Visa">
+                            <img src="https://res.cloudinary.com/dpj4iudu1/image/upload/v1771623457/Mastercard-logo_lkc7fj.svg" height="20" class="mx-2 opacity-50" alt="Mastercard">
+                            <img src="https://res.cloudinary.com/dpj4iudu1/image/upload/v1771623258/Visa_Inc._logo__2021_present.svg_l4a0sk.png" height="20" class="mx-2 opacity-50" alt="Visa">
                         </div>
                     </div>
                     <div class="card-footer bg-light-soft border-0 p-3">
@@ -179,35 +182,5 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/pages/cart.css" />
-    <style>
-        .quantity-selector select {
-            min-width: 70px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            padding: 0.25rem 0.5rem;
-            cursor: pointer;
-        }
-
-            .quantity-selector select:focus {
-                border-color: #86b7fe;
-                outline: 0;
-                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-            }
-
-        .cart-img-wrap img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-        }
-
-        .cart-remove-btn {
-            color: #dc3545;
-            font-size: 0.875rem;
-        }
-
-            .cart-remove-btn:hover {
-                color: #bb2d3b;
-                text-decoration: underline !important;
-            }
-    </style>
+   
 }
