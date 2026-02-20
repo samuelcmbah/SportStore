@@ -155,6 +155,10 @@ public class Program
 
         app.UseSerilogRequestLogging();
 
+        app.MapGet("/trigger-error", () =>
+        {
+            throw new Exception("Test error");
+        });
 
 
         await app.RunAsync();
