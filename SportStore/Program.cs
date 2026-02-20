@@ -1,10 +1,7 @@
+
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Resend;
 using Serilog;
 using SportStore.Configurations;
@@ -15,12 +12,17 @@ using SportStore.Models;
 using SportStore.Services;
 using SportStore.Services.IServices;
 using SportStore.Utils;
-using System;
-
+using System.Globalization;
 
 public class Program
 {
-    public static void Main(string[] args)
+    // Plan (pseudocode):
+    // 1. Make Main asynchronous so we can properly await asynchronous seed methods and RunAsync.
+    // 2. Build the WebApplication as before.
+    // 3. After building and configuring middleware/routes, await IdentitySeedData.EnsurePopulated(app).
+    // 4. Replace app.Run() with await app.RunAsync() so the async Main can await the host run.
+    // 5. Keep all other code unchanged to avoid side effects.
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -116,6 +118,9 @@ public class Program
                 .Build();
         });
 
+        var cultureInfo = new System.Globalization.CultureInfo("en-NG");
+        CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+        CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
         var app = builder.Build();
 
@@ -140,15 +145,19 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseMiddleware<RoleBasedRootRedirectMiddleware>(); 
+        app.UseMiddleware<RoleBasedRootRedirectMiddleware>();
 
         app.MapApplicationRoutes();
 
         SeedData.EnsurePopulated(app);
-        IdentitySeedData.EnsurePopulated(app);
+        // Await the asynchronous seeding method to avoid CS4014.
+        await IdentitySeedData.EnsurePopulated(app);
 
         app.UseSerilogRequestLogging();
 
-        app.Run();
+
+
+        await app.RunAsync();
     }
 }
+

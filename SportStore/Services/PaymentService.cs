@@ -10,10 +10,12 @@ namespace SportStore.Services
     public class PaymentService : IPaymentService
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration configuration;
 
-        public PaymentService(IHttpClientFactory httpClientFactory)
+        public PaymentService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
+            this.configuration = configuration;
         }
 
         public async Task<string> InitializeCheckoutAsync(
@@ -32,7 +34,7 @@ namespace SportStore.Services
                 AppName = "SportStore",
                 ExternalReference = orderRef,
                 RedirectUrl = redirectUrl,
-                NotificationUrl = "https://localhost:7001/api/notifications/paybridge"
+                NotificationUrl = $"{configuration["AppSettings:BaseUrl"]}/api/notifications/paybridge"
             };
 
             var client = _httpClientFactory.CreateClient("PayBridge");
