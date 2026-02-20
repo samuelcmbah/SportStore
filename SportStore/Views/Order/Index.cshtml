@@ -4,7 +4,7 @@
     ViewData["Title"] = "My Orders";
 }
 
-<div class="container mt-4 pb-5">
+<div class="mt-4 pb-5">
     <div class="row">
         <!-- Sidebar  -->
         <div class="col-md-3 d-none d-md-block">
@@ -34,7 +34,7 @@
                 <h4 class="fw-bold mb-4">Orders</h4>
 
                 <!-- Tabs -->
-                <ul class="nav nav-tabs mb-4" id="orderTabs" role="tablist">
+                <ul class="nav nav-tabs mb-4 flex-nowrap" id="orderTabs" role="tablist">
                     <li class="nav-item">
                         <button class="nav-link active text-uppercase fw-bold small" id="ongoing-tab" data-bs-toggle="tab" data-bs-target="#ongoing">
                             Ongoing/Delivered (@Model.Count())
@@ -75,8 +75,8 @@
                                             <div class="row align-items-center">
                                                 <!-- Image -->
                                                 <div class="col-3 col-md-2">
-                                                    <img src="~/images/@(item.Product.PhotoPath ?? "noimage.png")"
-                                                         class="img-fluid rounded border"
+                                                    <img src="@(item.Product.PhotoPath ?? "/images/noimage.jpg")"
+                                                         class="img-fluid"
                                                          alt="@item.Product.Name">
                                                 </div>
 
